@@ -69,23 +69,21 @@ public class DeleteQuestions extends JFrame {
         // TABLE CENTER PANEL
         // ===========================
        
-        // Prepare columns: Select + original columns
+     // Prepare columns: Select + Question only
         Vector<String> columnNames = new Vector<>();
         columnNames.add("Select");
-        for (int i = 0; i < originalModel.getColumnCount(); i++) {
-            columnNames.add(originalModel.getColumnName(i));
-        }
+        columnNames.add("No.");        
+        columnNames.add("Question"); 
 
         model = new DefaultTableModel();
         model.setColumnIdentifiers(columnNames);
 
         // Copy rows from original model
         for (int i = 0; i < originalModel.getRowCount(); i++) {
-            Object[] row = new Object[originalModel.getColumnCount() + 1];
-            row[0] = false;
-            for (int j = 0; j < originalModel.getColumnCount(); j++) {
-                row[j + 1] = originalModel.getValueAt(i, j);
-            }
+            Object[] row = new Object[3]; 
+            row[0] = false; //select
+            row[1] = originalModel.getValueAt(i, 0); //ID Question
+            row[2] = originalModel.getValueAt(i, 1); //Question text
             model.addRow(row);
         }
 
@@ -101,6 +99,17 @@ public class DeleteQuestions extends JFrame {
       	        return column == 0; 
       	    }
       };
+      
+      // Prevent column rearrangement      
+      table.getTableHeader().setReorderingAllowed(false);
+
+       // Specify column widths
+      table.getColumnModel().getColumn(0).setPreferredWidth(100); 
+      table.getColumnModel().getColumn(0).setMaxWidth(100); 
+      table.getColumnModel().getColumn(1).setPreferredWidth(100); 
+      table.getColumnModel().getColumn(1).setMaxWidth(100);
+      table.getColumnModel().getColumn(2).setPreferredWidth(800); 
+
 
         table.getTableHeader().setReorderingAllowed(false);
         table.setForeground(new Color(50, 50, 50));
@@ -196,3 +205,4 @@ public class DeleteQuestions extends JFrame {
         }
     }
 }
+
