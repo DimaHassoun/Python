@@ -8,6 +8,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -101,18 +102,20 @@ public class QuestionManagerScreen extends JFrame {
 
         // Table
         table = new JTable();
-        table.setRowHeight(40);
-        table.setFont(new Font("Arial", Font.PLAIN, 18));
+        table.setRowHeight(150);
+        table.setFont(new Font("Arial", Font.PLAIN, 13));
         table.setForeground(new Color(50, 50, 50));
         table.setBackground(new Color(230, 210, 240));
         table.setOpaque(true);
         table.setFillsViewportHeight(true);
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Verdana", Font.BOLD, 16));
+        header.setFont(new Font("Verdana", Font.BOLD, 14));
         header.setBackground(new Color(180, 160, 200));
         header.setForeground(Color.BLACK);
         header.setReorderingAllowed(false);
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40)); 
+
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setOpaque(true);
@@ -132,7 +135,9 @@ public class QuestionManagerScreen extends JFrame {
         addBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 20));
         panel.add(addBtn);
 
-        // Load CSV data
+         // -----------------------
+         // Load DATA from CSV
+        // -----------------------
         String csvPath = Consts.getCSVPath();
         try {
             model = new DefaultTableModel() {
@@ -147,11 +152,15 @@ public class QuestionManagerScreen extends JFrame {
                 model.addRow(rowData);
             }
             table.setModel(model);
+            // Set column width to 300
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                table.getColumnModel().getColumn(i).setPreferredWidth(300);
+            }
 
-            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-            centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-            for (int i = 0; i < table.getColumnCount(); i++)
-                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            CenteredTextAreaRenderer renderer = new CenteredTextAreaRenderer();
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                table.getColumnModel().getColumn(i).setCellRenderer(renderer);
+            }
 
             sorter = new TableRowSorter<>(model);
             table.setRowSorter(sorter);
@@ -215,26 +224,24 @@ public class QuestionManagerScreen extends JFrame {
     private void positionComponents(JLabel settingsIcon, JLabel musicLabel, JLabel title, JLabel back,
             PlaceholderTextField searchField, JScrollPane scroll,
             JButton deleteBtn, JButton editBtn, JButton addBtn) {
-int w = getContentPane().getWidth();
-int h = getContentPane().getHeight();
 
-settingsIcon.setBounds(20, 20, 50, 50);
-musicLabel.setBounds(85, 20, 50, 50);
-back.setBounds(w - 150, 30, 120, 50);
-title.setBounds((w - 600) / 2, 20, 600, 60);
-searchField.setBounds((w - 700) / 2, 110, 700, 40);
-scroll.setBounds((w - 900) / 2, 180, 900, 300);
+    	int w = getContentPane().getWidth();
+        int h = getContentPane().getHeight();
+        settingsIcon.setBounds(20, 20, 50, 50);
+        musicLabel.setBounds(85, 20, 50, 50);
+        back.setBounds(w - 150, 30, 120, 50);
+        title.setBounds((w - 600) / 2, 20, 600, 60);
+        searchField.setBounds((w - 700) / 2, 110, 700, 40);
+        scroll.setBounds(50, 180, w - 100, 360);
 
-// Spread the bottom buttons evenly
-int bottomY = h - 100; // distance from bottom
-int totalButtonWidth = 240 + 200 + 220; // sum of button widths
-int spaceBetween = (w - totalButtonWidth) / 4; // 4 gaps: left + 2 between + right
-
-deleteBtn.setBounds(spaceBetween, bottomY, 240, 50);
-editBtn.setBounds(spaceBetween * 2 + 240, bottomY, 200, 50);
-addBtn.setBounds(spaceBetween * 3 + 240 + 200, bottomY, 220, 50);
-}
-
+        // Spread the bottom buttons evenly
+        int bottomY = h - 100; // distance from bottom
+        int totalButtonWidth = 240 + 200 + 220; // sum of button widths
+        int spaceBetween = (w - totalButtonWidth) / 4; // 4 gaps: left + 2 between + right
+        deleteBtn.setBounds(spaceBetween, bottomY, 240, 50);
+        editBtn.setBounds(spaceBetween * 2 + 240, bottomY, 200, 50);
+        addBtn.setBounds(spaceBetween * 3 + 240 + 200, bottomY, 220, 50);
+    }
 
     private void toggleMusic() {
         musicManager.toggleMusic();
@@ -316,4 +323,46 @@ addBtn.setBounds(spaceBetween * 3 + 240 + 200, bottomY, 220, 50);
             super.paintComponent(g);
         }
     }
+    
+    class CenteredTextAreaRenderer implements TableCellRenderer {
+
+        private final JPanel panel;
+        private final JTextArea textArea;
+
+        public CenteredTextAreaRenderer() {
+            panel = new JPanel(new GridBagLayout()); 
+            panel.setOpaque(true);
+
+            textArea = new JTextArea();
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            textArea.setEditable(false);
+            textArea.setFocusable(false);
+            textArea.setFont(new Font("Arial", Font.PLAIN, 13));
+            textArea.setOpaque(false); 
+            textArea.setBorder(null);
+
+            panel.add(textArea);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+
+            textArea.setText(value == null ? "" : value.toString());
+
+            if (isSelected) {
+                panel.setBackground(table.getSelectionBackground());
+                textArea.setForeground(table.getSelectionForeground());
+            } else {
+                panel.setBackground(new Color(230, 210, 240));
+                textArea.setForeground(Color.BLACK);
+            }
+
+            return panel;
+        }
+    }
+
+
 }
