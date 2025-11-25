@@ -68,51 +68,52 @@ public class MusicManager {
     public void playMusic(String musicFilePath) {
         try {
             // Stop current music if playing
-            if (clip != null && clip.isRunning()) {
+            if (clip != null) {
                 clip.stop();
                 clip.close();
             }
-            
+
             // Load the audio file
             File musicFile = new File(musicFilePath);
             if (!musicFile.exists()) {
                 System.err.println("Music file not found: " + musicFilePath);
-                System.err.println("Looking in: " + musicFile.getAbsolutePath());
                 return;
             }
-            
+
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
             clip = AudioSystem.getClip();
             clip.open(audioStream);
-            
+
             // Get volume control
             if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                setVolume(volume);
+                if (isMuted) {
+                    mute(); // Apply mute if needed
+                } else {
+                    setVolume(volume);
+                }
             }
-            
+
             // Loop continuously
             clip.loop(Clip.LOOP_CONTINUOUSLY);
-            clip.start();
-            
-            isPlaying = true;
-            isMuted = false;
+
+            // Start playing only if not muted
+            if (!isMuted) {
+                clip.start();
+                isPlaying = true;
+            } else {
+                isPlaying = false;
+            }
+
             currentMusicFile = musicFilePath;
-            
-            System.out.println("✓ Music started: " + musicFilePath);
-            System.out.println("✓ Volume: " + (int)(volume * 100) + "%");
-            
-        } catch (UnsupportedAudioFileException e) {
-            System.err.println("✗— Unsupported audio format. Please use WAV files.");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("✗— Error reading music file: " + e.getMessage());
-            e.printStackTrace();
-        } catch (LineUnavailableException e) {
-            System.err.println("✗— Audio line unavailable: " + e.getMessage());
+
+            System.out.println("✓ Music loaded: " + musicFilePath + " | Muted: " + isMuted);
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     
     /**
      * Stop the currently playing music
@@ -154,15 +155,27 @@ public class MusicManager {
      * Resume the music
      */
     public void resumeMusic() {
-        if (clip != null && !clip.isRunning()) {
-            clip.start();
-            isPlaying = true;
-            System.out.println("▶ Music resumed");
-        } else if (currentMusicFile != null && clip == null) {
-            // If clip was closed, reload and play
-            playMusic(currentMusicFile);
+        if (clip != null) {
+            if (!clip.isRunning()) {
+                if (!isMuted) {
+                    clip.start(); // Only turn it on if it's not muted
+                    isPlaying = true;
+                    System.out.println("▶ Music resumed");
+                } else {
+                	// If it's muted, don't turn it on, but set the flag to isPlaying
+                	isPlaying = false;
+                    System.out.println("🔇 Music is muted, not resuming");
+                }
+            }
+        } else if (currentMusicFile != null) {
+        	// If Clip is muted, reload but respect the muted state
+        	playMusic(currentMusicFile);
+            if (isMuted) {
+                mute(); // Re-mute after uploading the file
+            }
         }
     }
+
     
     /**
      * Mute/Unmute the music
@@ -261,8 +274,8 @@ public class MusicManager {
      * Check if music is currently playing
      */
     public boolean isPlaying() {
-        return isPlaying && clip != null && clip.isRunning();
-    }
+    	return isPlaying;
+    	}
     
     /**
      * Check if music is muted
