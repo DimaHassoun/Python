@@ -1,34 +1,58 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.regex.Pattern;
+import javax.imageio.ImageIO;
 
 public class GameHistoryScreen extends JFrame {
 
     private PlaceholderTextField searchField;
     private JLabel musicLabel;
     private MusicManager musicManager;
+    private JTable table;
+    private JComboBox<String> searchMode;
+    private TableRowSorter<DefaultTableModel> sorter;
+
+    // Base dimensions for scaling
+    private final int BASE_WIDTH = 1200;
+    private final int BASE_HEIGHT = 700;
+
+    // Original bounds of components (x, y, width, height)
+    private Rectangle settingsIconBounds = new Rectangle(20, 20, 50, 50);
+    private Rectangle musicLabelBounds = new Rectangle(85, 20, 50, 50);
+    private Rectangle backBounds = new Rectangle(BASE_WIDTH - 150, 40, 120, 50);
+    private Rectangle titleBounds = new Rectangle(BASE_WIDTH / 2 - 250, 30, 500, 70);
+    private Rectangle searchFieldBounds = new Rectangle((BASE_WIDTH - 700)/3 +15, 140, 650, 50);
+    private Rectangle searchModeBounds = new Rectangle((BASE_WIDTH - 700)/3 + 685, 140, 180, 50);
+    private Rectangle scrollBounds = new Rectangle(BASE_WIDTH / 2 - 450, 220, 900, 350);
+
+    private BackgroundPanel panel;
 
     public GameHistoryScreen() {
         setTitle("Game History");
-        setSize(1200, 700);
+        setSize(BASE_WIDTH, BASE_HEIGHT);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      
 
         musicManager = MusicManager.getInstance();
 
-        BackgroundPanel panel = new BackgroundPanel("src/background.jpg");
+        panel = new BackgroundPanel("src/background.jpg");
         panel.setLayout(null);
         setContentPane(panel);
-        
-       // Create menu for settings
+
+        // Create menu for settings
         JPopupMenu settingsMenu = new JPopupMenu();
 
         // Option 1: Game Rules
@@ -36,7 +60,7 @@ public class GameHistoryScreen extends JFrame {
         rulesItem.addActionListener(e -> new GameRulesScreen());
         settingsMenu.add(rulesItem);
 
-        // Option 2: Sound settings 
+        // Option 2: Sound settings
         JMenuItem soundItem = new JMenuItem("Sound Settings");
         soundItem.addActionListener(e -> showVolumeControl());
         settingsMenu.add(soundItem);
@@ -56,6 +80,7 @@ public class GameHistoryScreen extends JFrame {
         // Music icon
         musicLabel = new JLabel(musicManager.isPlaying() ? "♪" : "🔇");
         musicLabel.setFont(new Font("Dialog", Font.BOLD, 36));
+        musicLabel.setForeground(musicManager.isPlaying() ? new Color(246, 230, 138) : new Color(180, 180, 180));
         musicLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         musicLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -83,8 +108,29 @@ public class GameHistoryScreen extends JFrame {
         });
         panel.add(back);
 
+        // Search mode ComboBox
+        String[] searchOptions = {"Search By Date", "By Players Name"};
+        searchMode = new JComboBox<>(searchOptions);
+        searchMode.setFont(new Font("Verdana", Font.PLAIN, 16));
+        searchMode.setBackground(new Color(250, 248, 240));
+        panel.add(searchMode);
+        searchMode.addActionListener(e -> {
+            String mode = (String) searchMode.getSelectedItem();
+            switch (mode) {
+                case "By Players Name":
+                    searchField.setPlaceholder("🔍 Search by players name");
+                    break;
+                default:
+                    searchField.setPlaceholder("🔍 Search by game date");
+                    break;
+            }
+            searchField.setText("");
+            sorter.setRowFilter(null);
+            table.repaint();
+        });
+
         // Search bar
-        searchField = new PlaceholderTextField("🔍 Search by game date OR player name...", 20);
+        searchField = new PlaceholderTextField("🔍 Search by game date", 20);
         searchField.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
         panel.add(searchField);
 
@@ -94,7 +140,7 @@ public class GameHistoryScreen extends JFrame {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
-        JTable table = new JTable(model);
+        table = new JTable(model);
         table.setFont(new Font("Verdana", Font.PLAIN, 18));
         table.setRowHeight(40);
         table.setForeground(Color.BLACK);
@@ -112,47 +158,118 @@ public class GameHistoryScreen extends JFrame {
         scroll.getViewport().setBackground(new Color(230, 210, 240));
         panel.add(scroll);
 
-        // TableRowSorter for filtering
-        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
 
-        // Search functionality
-        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { search(); }
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { search(); }
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { search(); }
+        // Filtering logic depending on ComboBox choice
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { filter(); }
+            public void removeUpdate(DocumentEvent e) { filter(); }
+            public void changedUpdate(DocumentEvent e) { filter(); }
 
-            private void search() {
+            private void filter() {
                 String text = searchField.getText().trim();
-                if (text.length() == 0) sorter.setRowFilter(null);
-                else sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 1, 2, 3));
+                String mode = (String) searchMode.getSelectedItem();
+
+                if (text.isEmpty()) {
+                    sorter.setRowFilter(null);
+                    return;
+                }
+
+                switch (mode) {
+                    case "By Players Name":
+                        sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 2, 3));
+                        break;
+                    default:
+                        sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 1));
+                }
+                table.repaint();
             }
         });
 
         // Initial positioning
-        positionComponents(settingsIcon, musicLabel, title, back, searchField, scroll);
+        resizeComponents(settingsIcon, musicLabel, title, back, searchField, scroll);
 
         // Dynamic repositioning on resize
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                positionComponents(settingsIcon, musicLabel, title, back, searchField, scroll);
+        addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent evt) {
+                resizeComponents(settingsIcon, musicLabel, title, back, searchField, scroll);
             }
         });
 
         setVisible(true);
     }
 
-    private void positionComponents(JLabel settingsIcon, JLabel musicLabel, JLabel title, JLabel back,
-                                    PlaceholderTextField searchField, JScrollPane scroll) {
-        int w = getWidth();
-        int h = getHeight();
+    /** 
+     * Resize and scale all components based on current frame size.
+     * Scales positions, sizes, and fonts proportionally.
+     */
+    private void resizeComponents(JLabel settingsIcon, JLabel musicLabel, JLabel title,
+                                  JLabel back, PlaceholderTextField searchField, JScrollPane scroll) {
+        double xRatio = getWidth() / (double) BASE_WIDTH;
+        double yRatio = getHeight() / (double) BASE_HEIGHT;
+        double fontRatio = Math.min(xRatio, yRatio);
 
-        settingsIcon.setBounds(20, 20, 50, 50);
-        musicLabel.setBounds(85, 20, 50, 50);
-        back.setBounds(w - 150, 40, 120, 50);
-        title.setBounds(w / 2 - 250, 30, 500, 70);
-        searchField.setBounds(w / 2 - 350, 140, 700, 50);
-        scroll.setBounds(w / 2 - 450, 220, 900, 350);
+        // Scale positions and sizes
+        settingsIcon.setBounds(
+                (int)(settingsIconBounds.x * xRatio),
+                (int)(settingsIconBounds.y * yRatio),
+                (int)(settingsIconBounds.width * xRatio),
+                (int)(settingsIconBounds.height * yRatio)
+        );
+
+        musicLabel.setBounds(
+                (int)(musicLabelBounds.x * xRatio),
+                (int)(musicLabelBounds.y * yRatio),
+                (int)(musicLabelBounds.width * xRatio),
+                (int)(musicLabelBounds.height * yRatio)
+        );
+
+        back.setBounds(
+                (int)(backBounds.x * xRatio),
+                (int)(backBounds.y * yRatio),
+                (int)(backBounds.width * xRatio),
+                (int)(backBounds.height * yRatio)
+        );
+
+        title.setBounds(
+                (int)(titleBounds.x * xRatio),
+                (int)(titleBounds.y * yRatio),
+                (int)(titleBounds.width * xRatio),
+                (int)(titleBounds.height * yRatio)
+        );
+
+        searchField.setBounds(
+                (int)(searchFieldBounds.x * xRatio),
+                (int)(searchFieldBounds.y * yRatio),
+                (int)(searchFieldBounds.width * xRatio),
+                (int)(searchFieldBounds.height * yRatio)
+        );
+
+        searchMode.setBounds(
+                (int)(searchModeBounds.x * xRatio),
+                (int)(searchModeBounds.y * yRatio),
+                (int)(searchModeBounds.width * xRatio),
+                (int)(searchModeBounds.height * yRatio)
+        );
+
+        scroll.setBounds(
+                (int)(scrollBounds.x * xRatio),
+                (int)(scrollBounds.y * yRatio),
+                (int)(scrollBounds.width * xRatio),
+                (int)(scrollBounds.height * yRatio)
+        );
+
+        // Scale fonts
+        settingsIcon.setFont(settingsIcon.getFont().deriveFont((float)(36 * fontRatio)));
+        musicLabel.setFont(musicLabel.getFont().deriveFont((float)(36 * fontRatio)));
+        back.setFont(back.getFont().deriveFont((float)(28 * fontRatio)));
+        title.setFont(title.getFont().deriveFont((float)(48 * fontRatio)));
+        searchField.setFont(searchField.getFont().deriveFont((float)(20 * fontRatio)));
+        searchMode.setFont(searchMode.getFont().deriveFont((float)(16 * fontRatio)));
+        table.setFont(table.getFont().deriveFont((float)(18 * fontRatio)));
+        table.setRowHeight((int)(40 * yRatio));
+        table.getTableHeader().setFont(table.getTableHeader().getFont().deriveFont((float)(16 * fontRatio)));
     }
 
     // Music functions
@@ -197,11 +314,16 @@ public class GameHistoryScreen extends JFrame {
     }
 
     class PlaceholderTextField extends JTextField {
-        private final String placeholder;
+        private String placeholder;
 
         public PlaceholderTextField(String placeholder, int columns) {
             super(columns);
             this.placeholder = placeholder;
+        }
+
+        public void setPlaceholder(String placeholder) {
+            this.placeholder = placeholder;
+            repaint();
         }
 
         protected void paintComponent(Graphics g) {
@@ -216,4 +338,25 @@ public class GameHistoryScreen extends JFrame {
             }
         }
     }
+
+    /** Custom Background Panel to scale image proportionally */
+    class BackgroundPanel extends JPanel {
+        private BufferedImage backgroundImage;
+
+        public BackgroundPanel(String imagePath) {
+            try {
+                backgroundImage = ImageIO.read(new File(imagePath));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
+    }
 }
+
