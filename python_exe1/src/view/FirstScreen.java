@@ -19,9 +19,11 @@ public class FirstScreen extends JFrame {
 
         // Initialize music manager and start background music
         musicManager = MusicManager.getInstance();
-        if (!musicManager.isPlaying()) {
+        musicManager = MusicManager.getInstance();
+        if (musicManager.getCurrentMusicFile() == null) {
             musicManager.playMusic("src/puzzle-game-bright-casual-video-game-music-249202.wav");
         }
+
 
         // Main panel
         BackgroundPanel mainPanel = new BackgroundPanel("src/background.jpg");
