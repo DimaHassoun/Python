@@ -3,9 +3,9 @@ package view;
 import Model.Consts;
 import controller.QuestionManagerLogic;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 public class QuestionManagerScreen extends JFrame {
 
     private PlaceholderTextField searchField;
+    private JComboBox<String> searchMode;
     private DefaultTableModel model;
     private JTable table;
     private TableRowSorter<DefaultTableModel> sorter;
@@ -33,24 +34,38 @@ public class QuestionManagerScreen extends JFrame {
 
         musicManager = MusicManager.getInstance();
 
+        // Background Panel Setup
         BackgroundPanel panel = new BackgroundPanel("src/background.jpg");
-        panel.setLayout(null);
+        panel.setLayout(new BorderLayout(20, 20));
+        panel.setBorder(new EmptyBorder(20, 30, 20, 30));
         setContentPane(panel);
-        
-       // Create menu for settings
-        JPopupMenu settingsMenu = new JPopupMenu();
 
-        // Option 1: Game Rules
+        // ==========================
+        // TOP SECTION (Header + Search)
+        // ==========================
+        JPanel topContainer = new JPanel();
+        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.Y_AXIS));
+        topContainer.setOpaque(false);
+
+        // --- Header Row (Icons, Title, Back Button) ---
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        headerPanel.setBorder(new EmptyBorder(0, 0, 20, 0)); 
+
+        // Left side: Icons
+        JPanel iconsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        iconsPanel.setOpaque(false);
+
+        // Settings Menu
+        JPopupMenu settingsMenu = new JPopupMenu();
         JMenuItem rulesItem = new JMenuItem("Game Rules");
         rulesItem.addActionListener(e -> new GameRulesScreen());
         settingsMenu.add(rulesItem);
 
-        // Option 2: Sound settings 
         JMenuItem soundItem = new JMenuItem("Sound Settings");
         soundItem.addActionListener(e -> showVolumeControl());
         settingsMenu.add(soundItem);
 
-        // Settings icon
         JLabel settingsIcon = new JLabel("⚙");
         settingsIcon.setFont(new Font("SansSerif", Font.BOLD, 36));
         settingsIcon.setForeground(new Color(246, 230, 138));
@@ -60,9 +75,8 @@ public class QuestionManagerScreen extends JFrame {
                 settingsMenu.show(settingsIcon, e.getX(), e.getY());
             }
         });
-        panel.add(settingsIcon);
 
-        // Music icon
+        // Music Icon
         musicLabel = new JLabel(musicManager.isPlaying() ? "♪" : "🔇");
         musicLabel.setFont(new Font("Dialog", Font.BOLD, 36));
         musicLabel.setForeground(musicManager.isPlaying() ? new Color(246, 230, 138) : new Color(180, 180, 180));
@@ -70,37 +84,62 @@ public class QuestionManagerScreen extends JFrame {
         musicLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) { toggleMusic(); }
         });
-        panel.add(musicLabel);
 
-        // Title
+        iconsPanel.add(settingsIcon);
+        iconsPanel.add(musicLabel);
+
+        // Center: Title
         JLabel title = new JLabel("Question's Manager", SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 40));
         title.setForeground(new Color(246, 230, 138));
-        panel.add(title);
 
-        // Back button
+        // Right: Back Button
         JLabel back = new JLabel("Back");
         back.setFont(new Font("Verdana", Font.BOLD, 28));
         back.setForeground(new Color(246, 230, 138));
         back.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        back.setHorizontalAlignment(SwingConstants.RIGHT);
         back.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 new FirstScreen();
                 QuestionManagerScreen.this.dispose();
             }
         });
-        panel.add(back);
 
-        // Search field
-        searchField = new PlaceholderTextField("🔍 Search by Question Text OR by Difficulty...", 20);
+        headerPanel.add(iconsPanel, BorderLayout.WEST);
+        headerPanel.add(title, BorderLayout.CENTER);
+        headerPanel.add(back, BorderLayout.EAST);
+
+        // --- Search Row ---
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        searchPanel.setOpaque(false);
+
+        searchField = new PlaceholderTextField("🔍 Search by Question ID", 30); 
         searchField.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
+        searchField.setPreferredSize(new Dimension(500, 45)); 
         searchField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(246, 230, 138), 2),
                 BorderFactory.createEmptyBorder(5, 20, 5, 10)
         ));
-        panel.add(searchField);
 
-        // Table
+        String[] searchOptions = {"Search By ID", "By Question Text", "By Difficulty"};
+        searchMode = new JComboBox<>(searchOptions);
+        searchMode.setFont(new Font("Verdana", Font.PLAIN, 16));
+        searchMode.setBackground(new Color(250, 248, 240));
+        searchMode.setPreferredSize(new Dimension(200, 45));
+
+        searchPanel.add(searchField);
+        searchPanel.add(searchMode);
+
+        // Add rows to top container
+        topContainer.add(headerPanel);
+        topContainer.add(searchPanel);
+
+        panel.add(topContainer, BorderLayout.NORTH);
+
+        // ==========================
+        // CENTER SECTION (Table)
+        // ==========================
         table = new JTable();
         table.setRowHeight(150);
         table.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -114,30 +153,64 @@ public class QuestionManagerScreen extends JFrame {
         header.setBackground(new Color(180, 160, 200));
         header.setForeground(Color.BLACK);
         header.setReorderingAllowed(false);
-        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40)); 
-
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setOpaque(true);
         scroll.getViewport().setBackground(new Color(230, 210, 240));
-        panel.add(scroll);
+        scroll.setOpaque(false);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(180, 160, 200), 2));
+        
+        panel.add(scroll, BorderLayout.CENTER);
 
-        // Bottom buttons
+        // ==========================
+        // BOTTOM SECTION (Buttons)
+        // ==========================
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 20)); 
+        buttonsPanel.setOpaque(false);
+
         JButton deleteBtn = new RoundedButton("🗑 Delete Questions");
         deleteBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 20));
-        panel.add(deleteBtn);
+        deleteBtn.setPreferredSize(new Dimension(240, 55));
 
         JButton editBtn = new RoundedButton("✎ Edit Question");
         editBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 20));
-        panel.add(editBtn);
+        editBtn.setPreferredSize(new Dimension(220, 55));
 
         JButton addBtn = new RoundedButton("➕ Add Question");
         addBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 20));
-        panel.add(addBtn);
+        addBtn.setPreferredSize(new Dimension(220, 55));
 
-         // -----------------------
-         // Load DATA from CSV
-        // -----------------------
+        buttonsPanel.add(deleteBtn);
+        buttonsPanel.add(editBtn);
+        buttonsPanel.add(addBtn);
+
+        panel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        // ==========================
+        // LOGIC AND LISTENERS
+        // ==========================
+        
+        // Search Logic
+        searchMode.addActionListener(e -> {
+            String mode = (String) searchMode.getSelectedItem();
+            switch (mode) {
+                case "By Question Text":
+                    searchField.setPlaceholder("🔍 Search by Question Text");
+                    break;
+                case "By Difficulty":
+                    searchField.setPlaceholder("🔍 Search by Difficulty");
+                    break;
+                default:
+                    searchField.setPlaceholder("🔍 Search by Question ID");
+                    break;
+            }
+            searchField.setText("");
+            sorter.setRowFilter(null);
+            table.repaint();
+        });
+
+        // Load Data
         String csvPath = Consts.getCSVPath();
         try {
             model = new DefaultTableModel() {
@@ -152,27 +225,42 @@ public class QuestionManagerScreen extends JFrame {
                 model.addRow(rowData);
             }
             table.setModel(model);
-            // Set column width to 300
-            for (int i = 0; i < table.getColumnCount(); i++) {
-                table.getColumnModel().getColumn(i).setPreferredWidth(300);
-            }
-
+            
+            // Set renderers and width
             CenteredTextAreaRenderer renderer = new CenteredTextAreaRenderer();
             for (int i = 0; i < table.getColumnCount(); i++) {
                 table.getColumnModel().getColumn(i).setCellRenderer(renderer);
+                table.getColumnModel().getColumn(i).setPreferredWidth(300); 
             }
 
             sorter = new TableRowSorter<>(model);
             table.setRowSorter(sorter);
-
+            
+            // Filter Logic
             searchField.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { filter(); }
                 public void removeUpdate(DocumentEvent e) { filter(); }
                 public void changedUpdate(DocumentEvent e) { filter(); }
+
                 private void filter() {
                     String text = searchField.getText().trim();
-                    if (text.isEmpty()) sorter.setRowFilter(null);
-                    else sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 1, 2));
+                    String mode = (String) searchMode.getSelectedItem();
+
+                    if (text.isEmpty()) {
+                        sorter.setRowFilter(null);
+                        return;
+                    }
+
+                    switch (mode) {
+                        case "By Question Text":
+                            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 1));
+                            break;
+                        case "By Difficulty":
+                            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 2));
+                            break;
+                        default:
+                            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 0));
+                    }
                     table.repaint();
                 }
             });
@@ -182,20 +270,7 @@ public class QuestionManagerScreen extends JFrame {
             JOptionPane.showMessageDialog(this, "Error loading CSV: " + e.getMessage());
         }
 
-        // -----------------------
-        // Dynamic positioning
-        // -----------------------
-        positionComponents(settingsIcon, musicLabel, title, back, searchField, scroll, deleteBtn, editBtn, addBtn);
-
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                positionComponents(settingsIcon, musicLabel, title, back, searchField, scroll, deleteBtn, editBtn, addBtn);
-            }
-        });
-
-        setVisible(true);
-
-        // Action listeners for bottom buttons (your original code)
+        // Button Actions
         deleteBtn.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 new DeleteQuestions(model, QuestionManagerScreen.this);
@@ -219,29 +294,11 @@ public class QuestionManagerScreen extends JFrame {
                 QuestionManagerScreen.this.dispose();
             }
         });
+
+        setVisible(true);
     }
 
-    private void positionComponents(JLabel settingsIcon, JLabel musicLabel, JLabel title, JLabel back,
-            PlaceholderTextField searchField, JScrollPane scroll,
-            JButton deleteBtn, JButton editBtn, JButton addBtn) {
-
-    	int w = getContentPane().getWidth();
-        int h = getContentPane().getHeight();
-        settingsIcon.setBounds(20, 20, 50, 50);
-        musicLabel.setBounds(85, 20, 50, 50);
-        back.setBounds(w - 150, 30, 120, 50);
-        title.setBounds((w - 600) / 2, 20, 600, 60);
-        searchField.setBounds((w - 700) / 2, 110, 700, 40);
-        scroll.setBounds(50, 180, w - 100, 360);
-
-        // Spread the bottom buttons evenly
-        int bottomY = h - 100; // distance from bottom
-        int totalButtonWidth = 240 + 200 + 220; // sum of button widths
-        int spaceBetween = (w - totalButtonWidth) / 4; // 4 gaps: left + 2 between + right
-        deleteBtn.setBounds(spaceBetween, bottomY, 240, 50);
-        editBtn.setBounds(spaceBetween * 2 + 240, bottomY, 200, 50);
-        addBtn.setBounds(spaceBetween * 3 + 240 + 200, bottomY, 220, 50);
-    }
+    // --- Helper Methods ---
 
     private void toggleMusic() {
         musicManager.toggleMusic();
@@ -251,25 +308,20 @@ public class QuestionManagerScreen extends JFrame {
     private void showVolumeControl() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
         JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
         volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-
         JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
         volumeSlider.setMajorTickSpacing(25);
         volumeSlider.setMinorTickSpacing(5);
         volumeSlider.setPaintTicks(true);
         volumeSlider.setPaintLabels(true);
-
         volumeSlider.addChangeListener(e -> {
             int value = volumeSlider.getValue();
             musicManager.setVolume(value / 100.0f);
             volumeLabel.setText("Volume: " + value + "%");
         });
-
         panel.add(volumeLabel, BorderLayout.NORTH);
         panel.add(volumeSlider, BorderLayout.CENTER);
-
         JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
 
@@ -283,9 +335,22 @@ public class QuestionManagerScreen extends JFrame {
         }
     }
 
+    // --- Inner Classes ---
+
     class PlaceholderTextField extends JTextField {
-        private final String placeholder;
-        public PlaceholderTextField(String placeholder, int columns) { super(columns); this.placeholder = placeholder; }
+        private String placeholder;
+
+        public PlaceholderTextField(String placeholder, int columns) {
+            super(columns);
+            this.placeholder = placeholder;
+        }
+
+        public void setPlaceholder(String placeholder) {
+            this.placeholder = placeholder;
+            repaint();
+        }
+
+        @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             if (getText().isEmpty()) {
@@ -310,6 +375,7 @@ public class QuestionManagerScreen extends JFrame {
             setOpaque(false);
             setCursor(new Cursor(Cursor.HAND_CURSOR));
         }
+
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -323,34 +389,37 @@ public class QuestionManagerScreen extends JFrame {
             super.paintComponent(g);
         }
     }
-    
-    class CenteredTextAreaRenderer implements TableCellRenderer {
 
+    class CenteredTextAreaRenderer implements TableCellRenderer {
         private final JPanel panel;
         private final JTextArea textArea;
 
         public CenteredTextAreaRenderer() {
-            panel = new JPanel(new GridBagLayout()); 
+            panel = new JPanel(new GridBagLayout());
             panel.setOpaque(true);
-
             textArea = new JTextArea();
             textArea.setLineWrap(true);
             textArea.setWrapStyleWord(true);
             textArea.setEditable(false);
             textArea.setFocusable(false);
             textArea.setFont(new Font("Arial", Font.PLAIN, 13));
-            textArea.setOpaque(false); 
+            textArea.setOpaque(false);
             textArea.setBorder(null);
-
-            panel.add(textArea);
+            
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.weightx = 1.0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.insets = new Insets(5, 5, 5, 5); 
+            panel.add(textArea, gbc);
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
-
             textArea.setText(value == null ? "" : value.toString());
+            int width = table.getColumnModel().getColumn(column).getWidth();
+            textArea.setSize(new Dimension(width - 10, 100)); 
 
             if (isSelected) {
                 panel.setBackground(table.getSelectionBackground());
@@ -359,10 +428,7 @@ public class QuestionManagerScreen extends JFrame {
                 panel.setBackground(new Color(230, 210, 240));
                 textArea.setForeground(Color.BLACK);
             }
-
             return panel;
         }
     }
-
-
 }
