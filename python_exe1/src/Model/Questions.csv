@@ -5,10 +5,10 @@ ID,Question,Difficulty,A,B,C,D,Correct Answer
 4,What do structural models describe?,1,User roles,System organization and components,Execution flow,Database performance,B
 5,Which type of requirement specifies constraints on system properties like reliability and performance?,1,Non Functional,Functional,Domain,Interface,A
 6,The waterfall model is best suited when?,2,Requirements change frequently,The system must be delivered in increments,Requirements are well understood and stable,The team prefers prototyping,C
-7,A ?functional requirement? describes?,2,What the system should do,How fast the system should run,The system?s security level,Maintenance policies,A
+7,functional requirement describes?,2,What the system should do,How fast the system should run,The system security level,Maintenance policies,A
 8,"In MVC, the component responsible for handling user actions?",2,Model,View,Controller,Database,C
 9,Which architectural style organizes the system into hierarchical?,2,Client-Server,Layered Architecture,Black-Box Architecture,Spiral Architecture,B
-10,What is a ?goal? in non-functional requirements?,2,A general intention of the user,A precise testable constraint,A documented error,A formal specification,A
+10,What is a goal in non-functional requirements?,2,A general intention of the user,A precise testable constraint,A documented error,A formal specification,A
 11,What is the main disadvantage of incremental development?,3,No user feedback,System structure may degrade without refactoring,Cannot be used for large systems,Too much documentation is required,B
 12,Which requirement property checks whether the requirement can actually be tested?,3,Consistency,Adaptability,Verifiability,Completeness,C
 13,Which UML diagram models dynamic behavior based on events?,3,State diagram,Class diagram,Deployment diagram,Use case diagram,A
