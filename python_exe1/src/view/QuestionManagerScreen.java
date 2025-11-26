@@ -35,7 +35,7 @@ public class QuestionManagerScreen extends JFrame {
         musicManager = MusicManager.getInstance();
 
         // Background Panel Setup
-        BackgroundPanel panel = new BackgroundPanel("src/background.jpg");
+        BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(new BorderLayout(20, 20));
         panel.setBorder(new EmptyBorder(20, 30, 20, 30));
         setContentPane(panel);
@@ -284,10 +284,15 @@ public class QuestionManagerScreen extends JFrame {
                     JOptionPane.showMessageDialog(QuestionManagerScreen.this, "Please select a question to edit.", "No selection", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                new EditQuestion(model, selectedRow, Consts.getCSVPath());
+
+                // Convert view row index to model row index
+                int modelRow = table.convertRowIndexToModel(selectedRow);
+
+                new EditQuestion(model, modelRow, Consts.getCSVPath());
                 QuestionManagerScreen.this.dispose();
             }
         });
+
         addBtn.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 new AddQuestion();
