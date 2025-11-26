@@ -24,7 +24,7 @@ public class NewGameScreen extends JFrame {
         // Music manager
         musicManager = MusicManager.getInstance();
 
-        BackgroundPanel panel = new BackgroundPanel("src/background.jpg");
+        BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(null);
         setContentPane(panel);
 
