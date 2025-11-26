@@ -25,7 +25,7 @@ public class DeleteQuestions extends JFrame {
         setResizable(true);
 
         // --- Background Panel ---
-        BackgroundPanel panel = new BackgroundPanel("src/background.jpg");
+        BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(new BorderLayout(20, 20));
         panel.setBorder(new EmptyBorder(30, 50, 30, 50));
         setContentPane(panel);
