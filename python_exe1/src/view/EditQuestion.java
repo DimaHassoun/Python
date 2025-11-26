@@ -28,7 +28,7 @@ public class EditQuestion extends JFrame {
         setLocationRelativeTo(null); 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
         setLayout(new BorderLayout(10, 10));
-        BackgroundPanel editQuestion = new BackgroundPanel("src/background.jpg");
+        BackgroundPanel editQuestion = new BackgroundPanel("src/resource/background.jpg");
         editQuestion.setLayout(new BoxLayout(editQuestion, BoxLayout.Y_AXIS));
         editQuestion.setBorder(BorderFactory.createEmptyBorder(20, 50, 10, 50));
         editQuestion.setBackground(new Color(0, 0, 0, 0)); 
