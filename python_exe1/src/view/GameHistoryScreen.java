@@ -48,7 +48,7 @@ public class GameHistoryScreen extends JFrame {
 
         musicManager = MusicManager.getInstance();
 
-        panel = new BackgroundPanel("src/background.jpg");
+        panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(null);
         setContentPane(panel);
 
@@ -359,4 +359,3 @@ public class GameHistoryScreen extends JFrame {
         }
     }
 }
-
