@@ -21,12 +21,12 @@ public class FirstScreen extends JFrame {
         musicManager = MusicManager.getInstance();
         musicManager = MusicManager.getInstance();
         if (musicManager.getCurrentMusicFile() == null) {
-            musicManager.playMusic("src/puzzle-game-bright-casual-video-game-music-249202.wav");
+            musicManager.playMusic("src/resource/puzzle-game-bright-casual-video-game-music-249202.wav");
         }
 
 
         // Main panel
-        BackgroundPanel mainPanel = new BackgroundPanel("src/background.jpg");
+        BackgroundPanel mainPanel = new BackgroundPanel("src/resource/background.jpg");
         mainPanel.setLayout(null);
         setContentPane(mainPanel);
 
