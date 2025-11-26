@@ -22,7 +22,7 @@ public class AddQuestion extends JFrame {
         setLayout(new BorderLayout(10, 10));
 
         // Background Panel
-        BackgroundPanel addQuestion = new BackgroundPanel("src/background.jpg");
+        BackgroundPanel addQuestion = new BackgroundPanel("src/resource/background.jpg");
         addQuestion.setLayout(new BoxLayout(addQuestion, BoxLayout.Y_AXIS));
         addQuestion.setBorder(BorderFactory.createEmptyBorder(20, 50, 10, 50));
   
