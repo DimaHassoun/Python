@@ -36,13 +36,27 @@ public class GameBoards extends JFrame {
 
 		// Main background
 		JPanel mainBackground = new JPanel(new BorderLayout()) {
-			private Image bgImage = new ImageIcon(getClass().getResource("background.jpg")).getImage();
-			@Override
-			protected void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
-			}
+		    private Image bgImage;
+
+		    {
+		        // Load image correctly (no "src/")
+		        java.net.URL imgURL = getClass().getResource("/resource/background.jpg");
+		        if (imgURL != null) {
+		            bgImage = new ImageIcon(imgURL).getImage();
+		        } else {
+		            System.err.println("Background image not found!");
+		        }
+		    }
+
+		    @Override
+		    protected void paintComponent(Graphics g) {
+		        super.paintComponent(g);
+		        if (bgImage != null) {
+		            g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+		        }
+		    }
 		};
+
 		setContentPane(mainBackground);
 
 		// ========================= CENTER PANEL =========================
@@ -446,7 +460,7 @@ public class GameBoards extends JFrame {
 	}
 
 	private void loadHeartImage() {
-		heartIcon = new ImageIcon(getClass().getResource("heart_image.jpg"));
+		heartIcon = new ImageIcon(getClass().getResource("/resource/heart_image.jpg"));
 		Image img = heartIcon.getImage();
 		Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
 		heartIcon = new ImageIcon(scaledImg);
