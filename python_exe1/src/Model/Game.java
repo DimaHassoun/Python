@@ -101,8 +101,11 @@ public class Game {
      * Check if players won (all non-mine cells revealed on both boards)
      */
     public boolean isVictory() {
-        return board1.isCompleted() && board2.isCompleted();
-    }
+        // Victory if all non-mine cells revealed OR all mines revealed
+    	  boolean board1Victory = board1.isCompleted() || board1.getMinesRevealed() == board1.getTotalMines();
+    	  boolean board2Victory = board2.isCompleted() || board2.getMinesRevealed() == board2.getTotalMines();
+    	  return board1Victory || board2Victory;
+    	  }
  
     // Getters & Setters
     public Difficulty getDifficulty() {
@@ -204,4 +207,5 @@ public class Game {
     public void setId(int id) {
         this.id = id;
     }
+
 }
