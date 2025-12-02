@@ -1,7 +1,11 @@
 package view;
 
 import javax.swing.*;
+
+import Model.GameResult;
 import controller.GameController;
+import controller.GameHistoryController;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -36,13 +40,27 @@ public class GameBoards extends JFrame {
 
 		// Main background
 		JPanel mainBackground = new JPanel(new BorderLayout()) {
-			private Image bgImage = new ImageIcon(getClass().getResource("background.jpg")).getImage();
-			@Override
-			protected void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
-			}
+		    private Image bgImage;
+
+		    {
+		        // Load image correctly (no "src/")
+		        java.net.URL imgURL = getClass().getResource("/resource/background.jpg");
+		        if (imgURL != null) {
+		            bgImage = new ImageIcon(imgURL).getImage();
+		        } else {
+		            System.err.println("Background image not found!");
+		        }
+		    }
+
+		    @Override
+		    protected void paintComponent(Graphics g) {
+		        super.paintComponent(g);
+		        if (bgImage != null) {
+		            g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+		        }
+		    }
 		};
+
 		setContentPane(mainBackground);
 
 		// ========================= CENTER PANEL =========================
@@ -374,6 +392,12 @@ public class GameBoards extends JFrame {
 			JOptionPane.showMessageDialog(this,
 				"Game Over! You ran out of lives.\nFinal Score: " + GameController.getSharedPoints(gamenum),
 				"Game Over", JOptionPane.INFORMATION_MESSAGE);
+			
+			// save history game:
+			 GameHistoryController.createHistoryEntry(
+				        GameController.getGame(gamenum),  // מחזיר את האובייקט Game המתאים
+				        GameResult.Defeat
+				    );
 			GameController.GameFinish(gamenum);
 			return;
 		}
@@ -381,6 +405,11 @@ public class GameBoards extends JFrame {
 			JOptionPane.showMessageDialog(this,
 				"Congratulations! You won!\nFinal Score: " + GameController.getSharedPoints(gamenum),
 				"Victory!", JOptionPane.INFORMATION_MESSAGE);
+			// save history game:
+			GameHistoryController.createHistoryEntry(
+	                GameController.getGame(gamenum),
+	                GameResult.Victory
+	        );
 			GameController.GameFinish(gamenum);
 			return;
 		}
@@ -406,7 +435,9 @@ public class GameBoards extends JFrame {
 			} else {
 				GameController.UpdateSharedPoints(gamenum, -3);
 				showTimedMessage("Not MINE: -3 Points", Color.red, buttons[row][col]);
-				// Removing the mask immediately
+				//buttons[row][col].setIcon(new ImageIcon(
+					//renderEmojiToImage("🚩", buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+				// إزالة العلم مباشرة
 				GameController.UnFlaggedCell(gamenum, isLeft, row, col);
 				buttons[row][col].setIcon(null);
 				buttons[row][col].setText("");
@@ -455,7 +486,7 @@ public class GameBoards extends JFrame {
 	}
 
 	private void loadHeartImage() {
-		heartIcon = new ImageIcon(getClass().getResource("heart_image.jpg"));
+		heartIcon = new ImageIcon(getClass().getResource("/resource/heart_image.jpg"));
 		Image img = heartIcon.getImage();
 		Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
 		heartIcon = new ImageIcon(scaledImg);
@@ -576,9 +607,9 @@ public class GameBoards extends JFrame {
 
 	        @Override
 	        public Dimension getPreferredSize() {
-	            FontMetrics fm = getFontMetrics(new Font("Arial", Font.BOLD, 26));
-	            int w = fm.stringWidth(message) + 20; // small padding instead of fixed 170
-	            int h = fm.getHeight() + 20;           // vertical padding
+	            FontMetrics fm = getFontMetrics(getFont());
+	            int w = fm.stringWidth(message) + 170;  // מרווח אופקי גדול יותר
+	            int h = fm.getHeight() + 30;            // מרווח אנכי גדול יותר כדי שה-outline לא ייחתך
 	            return new Dimension(w, h);
 	        }
 
@@ -601,5 +632,4 @@ public class GameBoards extends JFrame {
 
 	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
 	}
-
 }
