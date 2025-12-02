@@ -36,27 +36,13 @@ public class GameBoards extends JFrame {
 
 		// Main background
 		JPanel mainBackground = new JPanel(new BorderLayout()) {
-		    private Image bgImage;
-
-		    {
-		        // Load image correctly (no "src/")
-		        java.net.URL imgURL = getClass().getResource("/resource/background.jpg");
-		        if (imgURL != null) {
-		            bgImage = new ImageIcon(imgURL).getImage();
-		        } else {
-		            System.err.println("Background image not found!");
-		        }
-		    }
-
-		    @Override
-		    protected void paintComponent(Graphics g) {
-		        super.paintComponent(g);
-		        if (bgImage != null) {
-		            g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
-		        }
-		    }
+			private Image bgImage = new ImageIcon(getClass().getResource("background.jpg")).getImage();
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+			}
 		};
-
 		setContentPane(mainBackground);
 
 		// ========================= CENTER PANEL =========================
@@ -358,7 +344,7 @@ public class GameBoards extends JFrame {
 		else rightBoard = board;
 		return boardPanel;
 	}
-
+	//Button Actions
 	private void handleButtonClick(String source, int row, int col, boolean isFlag) {
 		if (source.equals("Exit")) {
 			new NewGameScreen().setVisible(true);
@@ -413,11 +399,13 @@ public class GameBoards extends JFrame {
 			String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
 			if (cellType.equals("MINE")) {
 				GameController.UpdateSharedPoints(gamenum, 1);
+				showTimedMessage("MINE: +1 points", new Color(0, 200, 0), buttons[row][col]);
 				GameController.RevealCell(gamenum, isLeft, row, col);
 				GameController.decrementRemainingMinesInBoard(gamenum, isLeft);
 				showCell(buttons[row][col], row, col, isLeft);
 			} else {
 				GameController.UpdateSharedPoints(gamenum, -3);
+				showTimedMessage("Not MINE: -3 Points", Color.red, buttons[row][col]);
 				buttons[row][col].setIcon(new ImageIcon(
 					renderEmojiToImage("🚩", buttons[row][col].getWidth(), buttons[row][col].getHeight())));
 			}
@@ -440,9 +428,14 @@ public class GameBoards extends JFrame {
 					showCell(buttons[r][c], r, c, isLeft);
 			}
 		}
-		if (wasMine) GameController.UpdateSharedLivesGame(gamenum, GameController.getSharedLivesGame(gamenum) - 1);
-		else GameController.UpdateSharedPoints(gamenum, 1);
-		
+		if (wasMine){
+			GameController.UpdateSharedLivesGame(gamenum, GameController.getSharedLivesGame(gamenum) - 1);
+			showTimedMessage("Boom! -1 Life", Color.red, buttons[row][col]);
+		}
+		else {
+			GameController.UpdateSharedPoints(gamenum, 1);
+			showTimedMessage("+1 Point", new Color(0, 200, 0),buttons[row][col]);
+		}
 		if (isLeft) updateLeftMines(GameController.getRemainingMines(gamenum, isLeft));
 		else updateRightMines(GameController.getRemainingMines(gamenum, isLeft));
 	}
@@ -460,7 +453,7 @@ public class GameBoards extends JFrame {
 	}
 
 	private void loadHeartImage() {
-		heartIcon = new ImageIcon(getClass().getResource("/resource/heart_image.jpg"));
+		heartIcon = new ImageIcon(getClass().getResource("heart_image.jpg"));
 		Image img = heartIcon.getImage();
 		Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
 		heartIcon = new ImageIcon(scaledImg);
@@ -547,5 +540,63 @@ public class GameBoards extends JFrame {
 				g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius);
 			}
 		}
+	}
+	//show Messages
+	private void showTimedMessage(String message, Color color, JButton button) {
+
+	    JComponent msg = new JComponent() {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            Graphics2D g2 = (Graphics2D) g.create();
+	            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+	                                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+	            g2.setFont(new Font("Arial", Font.BOLD, 26));
+	            FontMetrics fm = g2.getFontMetrics();
+
+	            int x = 5;
+	            int y = fm.getAscent() + 5;
+
+	            // --- Outline ---
+	            g2.setColor(Color.BLACK);
+	            for (int dx = -2; dx <= 2; dx++) {
+	                for (int dy = -2; dy <= 2; dy++) {
+	                    g2.drawString(message, x + dx, y + dy);
+	                }
+	            }
+
+	            // --- Main color ---
+	            g2.setColor(color);
+	            g2.drawString(message, x, y);
+
+	            g2.dispose();
+	        }
+
+	        @Override
+	        public Dimension getPreferredSize() {
+	            FontMetrics fm = getFontMetrics(new Font("Arial", Font.BOLD, 26));
+	            int w = fm.stringWidth(message) + 20; // small padding instead of fixed 170
+	            int h = fm.getHeight() + 20;           // vertical padding
+	            return new Dimension(w, h);
+	        }
+
+	    };
+
+	    msg.setOpaque(false);
+
+	    JWindow popup = new JWindow();
+	    popup.setBackground(new Color(0, 0, 0, 0)); // שקוף לחלוטין
+	    popup.add(msg);
+	    popup.pack();
+
+	    // מיקום מעל הכפתור
+	    Point btnOnScreen = button.getLocationOnScreen();
+	    int x = btnOnScreen.x + button.getWidth()/2 - popup.getWidth()/2;
+	    int y = btnOnScreen.y - popup.getHeight() - 5;
+	    popup.setLocation(x, y);
+
+	    popup.setVisible(true);
+
+	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
 	}
 }
