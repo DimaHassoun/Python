@@ -406,8 +406,10 @@ public class GameBoards extends JFrame {
 			} else {
 				GameController.UpdateSharedPoints(gamenum, -3);
 				showTimedMessage("Not MINE: -3 Points", Color.red, buttons[row][col]);
-				buttons[row][col].setIcon(new ImageIcon(
-					renderEmojiToImage("🚩", buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+				// Removing the mask immediately
+				GameController.UnFlaggedCell(gamenum, isLeft, row, col);
+				buttons[row][col].setIcon(null);
+				buttons[row][col].setText("");
 			}
 		}
 	}
@@ -599,4 +601,5 @@ public class GameBoards extends JFrame {
 
 	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
 	}
+
 }
