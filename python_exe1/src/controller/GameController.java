@@ -1,10 +1,12 @@
 package controller;
 
 import Model.Game;
+import Model.GameHistory;
 import Model.Board;
 import Model.Cell;
 import view.GameBoards;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,7 +22,7 @@ public class GameController {
 	 * Create a new Game instance based on difficulty and player names
 	 */
 	public static Game createNewGame(String player1Name, String player2Name, String difficultyString) {
-		int id = NEXT_ID.getAndIncrement();
+		int id = getNextGameIdFromHistory();
 
 		// Convert difficulty
 		Game.Difficulty difficulty;
@@ -33,7 +35,7 @@ public class GameController {
 
 		Game game = new Game(id, difficulty, player1Name, player2Name);
 
-		// NEW: הגדרת חיים לפי קושי
+		// NEW: Set lives according to difficulty
 		switch (difficulty) {
 		case EASY -> game.setSharedLives(10);
 		case MEDIUM -> game.setSharedLives(7);
@@ -53,6 +55,17 @@ public class GameController {
 
 		activeGames.put(id, game);
 		return game;
+	}
+	
+	public static int getNextGameIdFromHistory() {
+	    List<GameHistory> history = GameHistoryController.getHistoryList();
+	    if (history.isEmpty()) {
+	        return 1; // If no history exists, start from 1
+	    } else {
+	    	// If no history exists, start from 1
+	        GameHistory last = history.get(history.size() - 1);
+	        return last.getGame().getId() + 1;
+	    }
 	}
 
 	public static void switchTurn(int gameNum, GameBoards gameBoard) {
