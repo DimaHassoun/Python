@@ -134,16 +134,21 @@ public class Board {
 
         cell.setRevealed(true);
 
-        // Only cascade if it's an empty cell
-        if (cell.getType() == Cell.CellType.EMPTY) {
+        // Only cascade for cells that behave like empty: EMPTY, SURPRISE, QUESTION
+        if (cell.getType() == Cell.CellType.EMPTY ||
+            cell.getType() == Cell.CellType.SURPRISE ||
+            cell.getType() == Cell.CellType.QUESTION) {
+
             for (int di = -1; di <= 1; di++) {
                 for (int dj = -1; dj <= 1; dj++) {
-                    if (di == 0 && dj == 0) continue; // Skip the current cell
+                    if (di == 0 && dj == 0) continue; 
                     cascadeReveal(row + di, col + dj);
                 }
             }
         }
+        // Stop cascade automatically if it's a NUMBER or MINE (revealed but no recursion)
     }
+
 
     public int getMinesRevealed() {
         int count = 0;
@@ -165,7 +170,7 @@ public class Board {
             for (int j = 0; j < size; j++) {
                 Cell cell = board[i][j];
                 // If it's not a mine and not revealed, board is not complete
-                if (cell.getType() != Cell.CellType.MINE && !cell.isRevealed()) {
+                if ((cell.getType() != Cell.CellType.MINE) && !cell.isRevealed()) {
                     return false;
                 }
             }
