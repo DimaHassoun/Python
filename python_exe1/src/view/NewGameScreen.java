@@ -85,7 +85,7 @@ public class NewGameScreen extends JFrame {
         panel.add(back);
 
         // GAME NUMBER
-        int nextGameNum = GameController.getNextGameId();
+        int nextGameNum = GameController.getNextGameIdFromHistory();
         JLabel gameNum = new JLabel("Game No.:" + nextGameNum);
         gameNum.setFont(new Font("Verdana", Font.BOLD, 26));
         gameNum.setForeground(new Color(246, 230, 138));
