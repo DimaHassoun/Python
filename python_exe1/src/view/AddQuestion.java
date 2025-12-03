@@ -13,13 +13,18 @@ public class AddQuestion extends JFrame {
     private ButtonGroup difficultyGroup;
     private JRadioButton ansA, ansB, ansC, ansD;
     private ButtonGroup answerGroup;
+    private WindowSizeManager windowSizeManager;
 
     public AddQuestion() {
         setTitle("Add Question");
-        setSize(1200, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
+        
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
 
         // Background Panel
         BackgroundPanel addQuestion = new BackgroundPanel("src/resource/background.jpg");

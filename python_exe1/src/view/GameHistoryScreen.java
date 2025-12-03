@@ -25,6 +25,7 @@ public class GameHistoryScreen extends JFrame {
     private JComboBox<String> searchMode;
     private TableRowSorter<DefaultTableModel> sorter;
     private DefaultTableModel model;
+    private WindowSizeManager windowSizeManager;
 
     // Base dimensions for scaling
     private final int BASE_WIDTH = 1200;
@@ -40,6 +41,7 @@ public class GameHistoryScreen extends JFrame {
     private Rectangle scrollBounds = new Rectangle(BASE_WIDTH / 2 - 450, 220, 900, 350);
 
     private BackgroundPanel panel;
+    
 
     public GameHistoryScreen() {
         setTitle("Game History");
@@ -48,6 +50,11 @@ public class GameHistoryScreen extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         musicManager = MusicManager.getInstance();
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
 
         panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(null);

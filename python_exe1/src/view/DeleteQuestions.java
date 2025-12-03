@@ -16,13 +16,18 @@ public class DeleteQuestions extends JFrame {
     private JTable table;
     private DefaultTableModel model;
     private JButton deleteSelectedBtn;
+    private WindowSizeManager windowSizeManager;
 
     public DeleteQuestions(DefaultTableModel originalModel, QuestionManagerScreen parent) {
         setTitle("Delete Questions");
-        setSize(1200, 700);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
+        
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
 
         // --- Background Panel ---
         BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");

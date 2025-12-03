@@ -22,6 +22,7 @@ public class GameBoards extends JFrame {
 	private ImageIcon heartIcon;
 	private String player1Name, player2Name;
 	private MusicManager musicManager;
+	private WindowSizeManager windowSizeManager;
 
 	public GameBoards(int rows, int cols, int leftMines, int rightMines, String nameL, String nameR, int gamenum) {
 		this.rows = rows;
@@ -34,9 +35,16 @@ public class GameBoards extends JFrame {
 		
 		// Get music manager instance
 		musicManager = MusicManager.getInstance();
+		
+		// Initialize window size manager
+		windowSizeManager = WindowSizeManager.getInstance();
 
 		setTitle("Two Board Game");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(true);
+		
+		// Apply saved window size
+		windowSizeManager.applyToFrame(this);
 
 		// Main background
 		JPanel mainBackground = new JPanel(new BorderLayout()) {
@@ -226,7 +234,10 @@ public class GameBoards extends JFrame {
 		add(topPanel, BorderLayout.NORTH);
 
 		highlightCurrentPlayer(GameController.GameGetCurrentPlayer(gamenum));
-		pack();
+		
+		// Don't use pack() - it overrides the saved window size
+		// Apply window size again to ensure it's set after all components are added
+		windowSizeManager.applyToFrame(this);
 		setLocationRelativeTo(null);
 	}
 
@@ -247,7 +258,7 @@ public class GameBoards extends JFrame {
 		settingsMenu.addSeparator();
 
 		// Restart Game
-		JMenuItem restartItem = new JMenuItem("🔄”„ Restart Game");
+		JMenuItem restartItem = new JMenuItem("🔄‌ Restart Game");
 		restartItem.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
 		restartItem.setForeground(new Color(246, 230, 138));
 		restartItem.setBackground(new Color(60, 0, 90));
@@ -395,7 +406,7 @@ public class GameBoards extends JFrame {
 			
 			// save history game:
 			 GameHistoryController.createHistoryEntry(
-				        GameController.getGame(gamenum),  // מחזיר את האובייקט Game המתאים
+				        GameController.getGame(gamenum),
 				        GameResult.Defeat
 				    );
 			GameController.GameFinish(gamenum);
@@ -435,9 +446,7 @@ public class GameBoards extends JFrame {
 			} else {
 				GameController.UpdateSharedPoints(gamenum, -3);
 				showTimedMessage("Not MINE: -3 Points", Color.red, buttons[row][col]);
-				//buttons[row][col].setIcon(new ImageIcon(
-					//renderEmojiToImage("🚩", buttons[row][col].getWidth(), buttons[row][col].getHeight())));
-				// إزالة العلم مباشرة
+				// הסרת העלם מיד
 				GameController.UnFlaggedCell(gamenum, isLeft, row, col);
 				buttons[row][col].setIcon(null);
 				buttons[row][col].setText("");
@@ -608,8 +617,8 @@ public class GameBoards extends JFrame {
 	        @Override
 	        public Dimension getPreferredSize() {
 	            FontMetrics fm = getFontMetrics(getFont());
-	            int w = fm.stringWidth(message) + 170;  // מרווח אופקי גדול יותר
-	            int h = fm.getHeight() + 30;            // מרווח אנכי גדול יותר כדי שה-outline לא ייחתך
+	            int w = fm.stringWidth(message) + 170;
+	            int h = fm.getHeight() + 30;
 	            return new Dimension(w, h);
 	        }
 
@@ -618,7 +627,7 @@ public class GameBoards extends JFrame {
 	    msg.setOpaque(false);
 
 	    JWindow popup = new JWindow();
-	    popup.setBackground(new Color(0, 0, 0, 0)); // שקוף לחלוטין
+	    popup.setBackground(new Color(0, 0, 0, 0));
 	    popup.add(msg);
 	    popup.pack();
 

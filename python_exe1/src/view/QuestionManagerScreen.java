@@ -24,15 +24,19 @@ public class QuestionManagerScreen extends JFrame {
     private TableRowSorter<DefaultTableModel> sorter;
     private JLabel musicLabel;
     private MusicManager musicManager;
+    private WindowSizeManager windowSizeManager;
 
     public QuestionManagerScreen() {
         setTitle("Question's Manager");
-        setSize(1200, 700);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true); // allow resizing
 
         musicManager = MusicManager.getInstance();
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
 
         // Background Panel Setup
         BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");

@@ -13,16 +13,21 @@ public class NewGameScreen extends JFrame {
 
     private JLabel musicLabel;
     private MusicManager musicManager;
+    private WindowSizeManager windowSizeManager;
 
     public NewGameScreen() {
         setTitle("Start a New Game");
-        setSize(1200, 700);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true); // allow resizing
 
         // Music manager
         musicManager = MusicManager.getInstance();
+     // Initialize window size manager
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+     // Apply saved window size                            
+        windowSizeManager.applyToFrame(this);                 
+        setLocationRelativeTo(null);
 
         BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(null);
