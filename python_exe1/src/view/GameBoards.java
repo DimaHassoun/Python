@@ -472,7 +472,39 @@ public class GameBoards extends JFrame {
 		}
 	}
 
+	private boolean handleAction(int row, int col, Boolean isLeft, JButton[][] buttons) {
+		//Surprise
+	    boolean wasSurprise = GameController.GetCellType(gamenum, isLeft, row, col).equals("SURPRISE");
+	    if (wasSurprise && GameController.IsCellRevealed(gamenum, isLeft, row, col)) {
+	        String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
+	        String[] parts = result.split(":");
+	        String type = parts[0];       // GOOD أو BAD
+	        int points = Integer.parseInt(parts[1]);
+	        String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, row, col);
+	        switch(type) {
+	            case "GOOD":
+	                showTimedMessage("Surprise Good! +Life & +" +points+ " Points", new Color(0,200,0), buttons[row][col]);
+	                updateScore(GameController.getSharedPoints(gamenum));
+	                setSharedHearts(GameController.getSharedLivesGame(gamenum));
+	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji,buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+	    			
+	                return true; 
+	            case "BAD":
+	                showTimedMessage("Surprise Bad! -Life & -" +points+ " Points", Color.red, buttons[row][col]);
+	                updateScore(GameController.getSharedPoints(gamenum));
+	                setSharedHearts(GameController.getSharedLivesGame(gamenum));
+	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji,buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+	                return true; 
+	            case "ALREADY_USED":
+	                showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
+	                return false; 
+	        }
+	    }
+	    return true;
+	}
+	
 	private void handleRevealAction(int row, int col, Boolean isLeft, JButton[][] buttons) {
+		//Mine
 		boolean wasMine = GameController.GetCellType(gamenum, isLeft, row, col).equals("MINE");
 		GameController.PlayCascadeReveal(gamenum, isLeft, row, col);
 		int SizeNum = GameController.getBoardSize(gamenum, isLeft);
@@ -661,3 +693,4 @@ public class GameBoards extends JFrame {
 	}
 
 }
+
