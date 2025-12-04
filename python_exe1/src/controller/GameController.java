@@ -271,5 +271,32 @@ public class GameController {
 		Game game = getGame(gameNum);
 		return game.getSharedPoints();
 	}
+
+	// ========================= Surprise Cell Logic =========================
+		public static String ActivateSurpriseCell(int gameNum, boolean isLeft, int row, int col) {
+		    Game game = getGame(gameNum);
+		    Board board = isLeft ? game.getBoard1() : game.getBoard2();
+		    Cell cell = board.getCell(row, col);
+
+		    // בדיקות
+		    if (cell.getType() != Cell.CellType.SURPRISE) return "NOT_SURPRISE";
+		    if (!cell.isRevealed()) return "NOT_REVEALED";
+		    if (cell.isUsed()) return "ALREADY_USED";
+		    if (!game.canPerformAction()) return "ALREADY_USED";
+
+		    // מורידים נקודות הפעלה
+		    int cost = game.getActivationCost();
+		    game.addSharedPoints(-cost);
+
+		    // מסמנים שהופעלה
+		    cell.setUsed(true);
+
+		    // סיכוי 50/50
+		    boolean good = Math.random() < 0.5;
+		    int pointsChanged = game.applySurpriseEffect(good);
+
+		    return (good ? "GOOD:" : "BAD:") + pointsChanged ;
+		}
 }
+
 
