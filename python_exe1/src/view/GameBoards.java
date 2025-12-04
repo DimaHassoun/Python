@@ -395,6 +395,7 @@ public class GameBoards extends JFrame {
 		String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
 		Boolean IsCellUsed=GameController.iscellUsed(gamenum, isLeft, row, col);
 		
+		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)&&!cellType.equals("SURPRISE")&&!cellType.equals("QUESTION")){return;}
 		//Cell Revealed: if is Surprise or Question: Do
 		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)) {
 			if (cellType.equals("SURPRISE")) {
@@ -427,9 +428,11 @@ public class GameBoards extends JFrame {
 		updateRightMines(GameController.getRemainingMines(gamenum, false));
 
 		if (GameController.getSharedLivesGame(gamenum) <= 0) {
-			JOptionPane.showMessageDialog(this,
-				"Game Over! You ran out of lives.\nFinal Score: " + GameController.getSharedPoints(gamenum),
-				"Game Over", JOptionPane.INFORMATION_MESSAGE);
+			DefeatScreen defeatScreen = new DefeatScreen(GameController.getSharedPoints(gamenum) , this);
+			 // Reveal all cells before showing defeat screen
+		    revealAllCells();
+		    
+	        defeatScreen.setVisible(true);
 			
 			// save history game:
 			 GameHistoryController.createHistoryEntry(
@@ -440,16 +443,38 @@ public class GameBoards extends JFrame {
 			return;
 		}
 		if (GameController.IsGameVictory(gamenum)) {
-			JOptionPane.showMessageDialog(this,
-				"Congratulations! You won!\nFinal Score: " + GameController.getSharedPoints(gamenum),
-				"Victory!", JOptionPane.INFORMATION_MESSAGE);
-			// save history game:
-			GameHistoryController.createHistoryEntry(
-	                GameController.getGame(gamenum),
-	                GameResult.Victory
-	        );
-			GameController.GameFinish(gamenum);
-			return;
+		    // Reveal all cells first
+		    revealAllCells();
+		    
+		    // Convert remaining lives to bonus points
+		    int bonusPoints = convertRemainingLivesToPoints();
+		    
+		    // Update score display
+		    updateScore(GameController.getSharedPoints(gamenum));
+		    
+		    // Show victory screen with updated score
+		    int finalScore = GameController.getSharedPoints(gamenum);
+		    
+		    // Optional: Show bonus message if there were remaining lives
+		    if (bonusPoints > 0) {
+		        JOptionPane.showMessageDialog(this,
+		            "Bonus! +" + bonusPoints + " points for " + 
+		            (bonusPoints / GameController.GetGameSurpriseQuestionCoust(gamenum)) + 
+		            " remaining lives!",
+		            "Victory Bonus",
+		            JOptionPane.INFORMATION_MESSAGE);
+		    }
+		    
+		    VictoryScreen victoryScreen = new VictoryScreen(finalScore, this);
+		    victoryScreen.setVisible(true);
+		    
+		    // Save history game
+		    GameHistoryController.createHistoryEntry(
+		        GameController.getGame(gamenum),
+		        GameResult.Victory
+		    );
+		    GameController.GameFinish(gamenum);
+		    return;
 		}
 		if (shouldSwitchTurn) {
 		    GameController.switchTurn(gamenum, this);
@@ -731,7 +756,6 @@ public class GameBoards extends JFrame {
 	}
 	//show Messages
 	private void showTimedMessage(String message, Color color, JButton button) {
-
 	    JComponent msg = new JComponent() {
 	        @Override
 	        protected void paintComponent(Graphics g) {
@@ -745,7 +769,7 @@ public class GameBoards extends JFrame {
 	            int x = 5;
 	            int y = fm.getAscent() + 5;
 
-	            // --- Outline ---
+	            // Outline
 	            g2.setColor(Color.BLACK);
 	            for (int dx = -2; dx <= 2; dx++) {
 	                for (int dy = -2; dy <= 2; dy++) {
@@ -753,7 +777,7 @@ public class GameBoards extends JFrame {
 	                }
 	            }
 
-	            // --- Main color ---
+	            // Main color
 	            g2.setColor(color);
 	            g2.drawString(message, x, y);
 
@@ -763,11 +787,10 @@ public class GameBoards extends JFrame {
 	        @Override
 	        public Dimension getPreferredSize() {
 	            FontMetrics fm = getFontMetrics(new Font("Arial", Font.BOLD, 26));
-	            int w = fm.stringWidth(message) + 20; // small padding instead of fixed 170
-	            int h = fm.getHeight() + 20;           // vertical padding
+	            int w = fm.stringWidth(message) + 20;
+	            int h = fm.getHeight() + 20;
 	            return new Dimension(w, h);
 	        }
-
 	    };
 
 	    msg.setOpaque(false);
@@ -777,14 +800,71 @@ public class GameBoards extends JFrame {
 	    popup.add(msg);
 	    popup.pack();
 
-	    // מיקום מעל הכפתור
+	    // IMPROVED POSITIONING - Keep within screen bounds
 	    Point btnOnScreen = button.getLocationOnScreen();
 	    int x = btnOnScreen.x + button.getWidth()/2 - popup.getWidth()/2;
 	    int y = btnOnScreen.y - popup.getHeight() - 5;
+	    
+	    // Get screen dimensions
+	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    
+	    // Adjust X if too far left or right
+	    if (x < 0) {
+	        x = 10; // Left edge padding
+	    } else if (x + popup.getWidth() > screenSize.width) {
+	        x = screenSize.width - popup.getWidth() - 10; // Right edge padding
+	    }
+	    
+	    // Adjust Y if too high (near top of screen)
+	    if (y < 0) {
+	        // Show below button instead
+	        y = btnOnScreen.y + button.getHeight() + 5;
+	    }
+	    
+	    // If still off bottom of screen, clamp it
+	    if (y + popup.getHeight() > screenSize.height) {
+	        y = screenSize.height - popup.getHeight() - 10;
+	    }
+	    
 	    popup.setLocation(x, y);
-
 	    popup.setVisible(true);
 
 	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
+	}
+	
+	// =============  Reveal all cells at game end =============
+	private void revealAllCells() {
+	    // Reveal left board
+	    for (int r = 0; r < rows; r++) {
+	        for (int c = 0; c < cols; c++) {
+	            if (!GameController.IsCellRevealed(gamenum, true, r, c)) {
+	                GameController.RevealCell(gamenum, true, r, c);
+	            }
+	            showCell(leftBoard[r][c], r, c, true);
+	        }
+	    }
+	    
+	    // Reveal right board
+	    for (int r = 0; r < rows; r++) {
+	        for (int c = 0; c < cols; c++) {
+	            if (!GameController.IsCellRevealed(gamenum, false, r, c)) {
+	                GameController.RevealCell(gamenum, false, r, c);
+	            }
+	            showCell(rightBoard[r][c], r, c, false);
+	        }
+	    }
+	}
+	
+	// ============= Convert remaining lives to points at game end =============
+	private int convertRemainingLivesToPoints() {
+	    int remainingLives = GameController.getSharedLivesGame(gamenum);
+	    int activationCost = GameController.GetGameSurpriseQuestionCoust(gamenum);
+	    int bonusPoints = remainingLives * activationCost;
+	    
+	    if (bonusPoints > 0) {
+	        GameController.UpdateSharedPoints(gamenum, bonusPoints);
+	    }
+	    
+	    return bonusPoints;
 	}
 }
