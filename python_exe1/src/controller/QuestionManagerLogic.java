@@ -175,4 +175,19 @@ public class QuestionManagerLogic {
         return values.toArray(new String[0]);
     }
 
+	//search Question By ID
+	public static int searchQuestionByID(DefaultTableModel model, String searchID) {
+		if (searchID == null || searchID.trim().isEmpty())
+			return -1;
+
+		for (int i = 0; i < model.getRowCount(); i++) {
+			Object idObj = model.getValueAt(i, 1); // The ID column inside the deletion table
+			if (idObj != null && idObj.toString().equalsIgnoreCase(searchID.trim())) {
+				return i; // return the row number
+			}
+		}
+		return -1; // ID not found
+	}
+
 }
+
