@@ -375,6 +375,7 @@ public class GameBoards extends JFrame {
 	}
 	//Button Actions
 	private void handleButtonClick(String source, int row, int col, boolean isFlag) {
+		//Exit
 		if (source.equals("Exit")) {
 			new NewGameScreen().setVisible(true);
 			GameBoards.this.dispose();
@@ -388,11 +389,26 @@ public class GameBoards extends JFrame {
 			return;
 		}
 		boolean isLeft = source.equals("Left");
-		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)) return;
-
+	
 		JButton[][] buttons = source.equals("Left") ? leftBoard : rightBoard;
-		if (isFlag) handleFlagAction(isLeft, row, col, buttons);
-		else handleRevealAction(row, col, isLeft, buttons);
+		boolean shouldSwitchTurn = true;
+		String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
+		//if not Surprise or Question: return
+		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)&& !cellType.equals("SURPRISE")) {
+		    return;
+			}
+		//if is Surprise or Question: Do
+		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)&& cellType.equals("SURPRISE")) {
+		    shouldSwitchTurn = handleAction(row, col, isLeft, buttons);
+			}
+		//Flag Action
+		else if (isFlag) {
+		    handleFlagAction(isLeft, row, col, buttons);
+		} 
+		//Not action flag
+		else if (!isFlag) {
+		    handleRevealAction(row, col, isLeft, buttons);
+		}
 
 		updateScore(GameController.getSharedPoints(gamenum));
 		setSharedHearts(GameController.getSharedLivesGame(gamenum));
@@ -424,7 +440,9 @@ public class GameBoards extends JFrame {
 			GameController.GameFinish(gamenum);
 			return;
 		}
-		GameController.switchTurn(gamenum, this);
+		if (shouldSwitchTurn) {
+		    GameController.switchTurn(gamenum, this);
+		}
 	}
 
 	private void handleFlagAction(Boolean isLeft, int row, int col, JButton[][] buttons) {
@@ -641,4 +659,5 @@ public class GameBoards extends JFrame {
 
 	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
 	}
+
 }
