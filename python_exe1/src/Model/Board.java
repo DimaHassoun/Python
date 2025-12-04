@@ -146,7 +146,7 @@ public class Board {
                 }
             }
         }
-        // Stop cascade automatically if it's a NUMBER or MINE
+        // Stop cascade automatically if it's a NUMBER or MINE (revealed but no recursion)
     }
 
 
@@ -218,5 +218,4 @@ public class Board {
     public int getSize() { 
         return size; 
     }
-
 }

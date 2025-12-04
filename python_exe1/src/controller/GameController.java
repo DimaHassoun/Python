@@ -6,6 +6,7 @@ import Model.Board;
 import Model.Cell;
 import view.GameBoards;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,22 +57,22 @@ public class GameController {
 		activeGames.put(id, game);
 		return game;
 	}
-	
+
 	public static int getNextGameIdFromHistory() {
-	    List<GameHistory> history = GameHistoryController.getHistoryList();
-	    if (history.isEmpty()) {
-	        return 1; // If no history exists, start from 1
-	    } else {
-	    	// If no history exists, start from 1
-	        GameHistory last = history.get(history.size() - 1);
-	        return last.getGame().getId() + 1;
-	    }
+		List<GameHistory> history = GameHistoryController.getHistoryList();
+		if (history.isEmpty()) {
+			return 1; // If no history exists, start from 1
+		} else {
+			// If no history exists, start from 1
+			GameHistory last = history.get(history.size() - 1);
+			return last.getGame().getId() + 1;
+		}
 	}
 
 	public static void switchTurn(int gameNum, GameBoards gameBoard) {
 		// Switch current player
 		Game game = getGame(gameNum);
-	    game.setSurpriseActivatedThisTurn(false);
+		game.setSurpriseActivatedThisTurn(false);
 		if (game.getCurrentPlayer() == 1) game.setCurrentPlayer(2);
 		else game.setCurrentPlayer(1);
 
@@ -132,6 +133,7 @@ public class GameController {
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		return board.getCell(row, col).getDisplay();
 	}
+
 	//cell.isFlagged()
 	public static boolean IsCellFlagged(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -173,6 +175,12 @@ public class GameController {
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell currentCell = board.getCell(row, col);
 		currentCell.setCounted(true); 
+	}
+	public static boolean iscellUsed(int gameNum, boolean isLeft,int row ,int col) {
+		Game game = getGame(gameNum);
+		Board board = isLeft ? game.getBoard1() : game.getBoard2();
+		Cell cell = board.getCell(row, col);
+		return cell.isUsed();
 	}
 	//========================= Cell =========================
 	//========================= board =========================
@@ -273,30 +281,311 @@ public class GameController {
 	}
 
 	// ========================= Surprise Cell Logic =========================
-		public static String ActivateSurpriseCell(int gameNum, boolean isLeft, int row, int col) {
-		    Game game = getGame(gameNum);
-		    Board board = isLeft ? game.getBoard1() : game.getBoard2();
-		    Cell cell = board.getCell(row, col);
+	public static String ActivateSurpriseCell(int gameNum, boolean isLeft, int row, int col) {
+		Game game = getGame(gameNum);
+		Board board = isLeft ? game.getBoard1() : game.getBoard2();
+		Cell cell = board.getCell(row, col);
 
-		    // בדיקות
-		    if (cell.getType() != Cell.CellType.SURPRISE) return "NOT_SURPRISE";
-		    if (!cell.isRevealed()) return "NOT_REVEALED";
-		    if (cell.isUsed()) return "ALREADY_USED";
-		    if (!game.canPerformAction()) return "ALREADY_USED";
+		// בדיקות
+		if (cell.getType() != Cell.CellType.SURPRISE) return "NOT_SURPRISE";
+		if (!cell.isRevealed()) return "NOT_REVEALED";
+		if (cell.isUsed()) return "ALREADY_USED";
+		if (!game.canPerformAction()) return "ALREADY_USED";
 
-		    // מורידים נקודות הפעלה
-		    int cost = game.getActivationCost();
-		    game.addSharedPoints(-cost);
+		// מורידים נקודות הפעלה
+		int cost = game.getActivationCost();
+		game.addSharedPoints(-cost);
 
-		    // מסמנים שהופעלה
-		    cell.setUsed(true);
+		// מסמנים שהופעלה
+		cell.setUsed(true);
 
-		    // סיכוי 50/50
-		    boolean good = Math.random() < 0.5;
-		    int pointsChanged = game.applySurpriseEffect(good);
+		// סיכוי 50/50
+		boolean good = Math.random() < 0.5;
+		int pointsChanged = game.applySurpriseEffect(good);
 
-		    return (good ? "GOOD:" : "BAD:") + pointsChanged ;
+		return (good ? "GOOD:" : "BAD:") + pointsChanged ;
+	}
+	// ========================= Question Cell Logic =========================
+	public static int GetGameSurpriseQuestionCoust(int gameNum) {
+		Game game = getGame(gameNum);
+		return game.getActivationCost();
+	}
+	public static void ActivateQuestion(int gameNum) {
+		Game game = getGame(gameNum);
+		int cost = game.getActivationCost();
+		game.addSharedPoints(-cost);
+	}
+	
+	private static  boolean canSwitch;//tell game it can switch turns
+	private static QuestionAction pendingQuestionAction = QuestionAction.NONE;
+	//getter and setter
+	public static boolean isCanSwitch() {
+		return canSwitch;
+	}
+	public static  void setCanSwitch(boolean canswitch) {
+		canSwitch = canswitch;
+	}
+	//Cancel 
+	public static void sourceCancel() {
+		setCanSwitch(false);
+	}
+	//random Helper
+	private static boolean random50() {
+		return Math.random() < 0.5;
+	}
+	public enum QuestionAction {
+	    NONE,
+	    REVEAL_RANDOM_MINE,
+	    REVEAL_3X3
+	}
+	public static QuestionAction getPendingQuestionAction() {
+		return pendingQuestionAction;
+	}
+	public static void clearPendingQuestionAction() {
+	    pendingQuestionAction = QuestionAction.NONE;
+	}
+	//Scoring Question
+	public static String applyQuestionScoring(int gameNum, String questionLevel,boolean isCorrect, boolean isLeft,int row,int col){
+		Game game = getGame(gameNum);
+		Game.Difficulty gameLevel= game.getDifficulty();
+		// Mark cell as used
+		Board board = isLeft ? game.getBoard1() : game.getBoard2();
+		Cell cell = board.getCell(row, col);
+		cell.setUsed(true);
+		
+		int pointsChange = 0;
+		int heartsChange = 0;
+		String actionMessage = ""; 
+		// EASY GAME 
+		if (gameLevel == Game.Difficulty.EASY) {
+			//EASY
+			if (questionLevel.equals("1")) {
+				if (isCorrect) {
+					pointsChange = 3;
+					heartsChange = 1;
+				} else if (random50()) { // Incorrect: -3 points OR nothing (random50 decides)
+					pointsChange = -3;
+				}
+			}
+			//MEDIUM
+			else if (questionLevel.equals("2")) {
+				if (isCorrect) {
+					pointsChange = 6;
+					actionMessage = "Reveal hidden Mine";
+					pendingQuestionAction = QuestionAction.REVEAL_RANDOM_MINE;
+				} else if (random50()) { // Incorrect: -6 points OR nothing
+					pointsChange = -6;
+				}
+			}
+			//HARD
+			else if (questionLevel.equals("3")) {
+				if (isCorrect) {
+					pointsChange = 10;
+					actionMessage = "Show 3x3 random grid";
+					pendingQuestionAction = QuestionAction.REVEAL_3X3;
+				} else {
+					pointsChange = -10;  // Incorrect: always -10 point
+				}
+			}
+			//EXPERT
+			else if (questionLevel.equals("4")) {
+				if (isCorrect) {
+					pointsChange = 15;
+					heartsChange = 2;
+				} else {
+					pointsChange = -15;
+					heartsChange = -1;
+				}
+			}
 		}
+
+		//  MEDIUM GAME
+		else if (gameLevel == Game.Difficulty.MEDIUM) {
+			//EASY
+			if (questionLevel.equals("1")) {
+				if (isCorrect) {
+					pointsChange = 8;
+					heartsChange = 1;
+				} else {
+					pointsChange = -8;
+				}
+			}
+			//MEDIUM
+			else if (questionLevel.equals("2")) {
+				if (isCorrect) {
+					pointsChange = 10;
+					heartsChange = 1;
+				} else if (random50()) {
+					pointsChange = -10; // Incorrect: -10 points OR nothing
+					heartsChange = -1; // Incorrect: -1 heart OR nothing
+				}
+			}
+			//HARD
+			else if (questionLevel.equals("3")) {
+				if (isCorrect) {
+					pointsChange = 15;
+					heartsChange = 1;
+				} else {
+					pointsChange = -15;
+					heartsChange = -1;
+				}
+			}
+			//EXPERT
+			else if (questionLevel.equals("4")) {
+				if (isCorrect) {
+					pointsChange = 20;
+					heartsChange = 2;
+				} else {
+					pointsChange = -20;
+					heartsChange = random50() ? -1 : -2; // Incorrect: -1 OR -2 hearts
+				}
+			}
+		}
+
+		// HARD GAME 
+		else if (gameLevel == Game.Difficulty.HARD) {
+			//EASY
+			if (questionLevel.equals("1")) {
+				if (isCorrect) {
+					pointsChange = 10;
+					heartsChange = 1;
+				} else {
+					pointsChange = -10;
+					heartsChange = -1;
+				}
+			}
+			//MEDIUM
+			else if (questionLevel.equals("2")) {
+				if (isCorrect) {
+					pointsChange = 15;
+					heartsChange = random50() ? 1 : 2; // Correct: +1 OR +2 hearts
+				} else {
+					pointsChange = -15;
+					heartsChange = random50() ? -1 : -2;  // Incorrect: -1 OR -2 hearts
+				}
+			}
+			//HARD
+			else if (questionLevel.equals("3")) {
+				if (isCorrect) {
+					pointsChange = 20;
+					heartsChange = 2;
+				} else {
+					pointsChange = -20;
+					heartsChange = -2;
+				}
+			}
+			//EXPERT
+			else if (questionLevel.equals("4")) {
+				if (isCorrect) {
+					pointsChange = 40;
+					heartsChange = 3;
+				} else {
+					pointsChange = -40;
+					heartsChange = -3;
+				}
+			}
+		}
+
+		// ===== APPLY =====
+		game.addSharedPoints(pointsChange);
+		game.setSharedLives(game.getSharedLives() + heartsChange);
+
+		// ===== BUILD MESSAGE =====
+		String message = "";
+		if (pointsChange != 0) {
+			message += (pointsChange > 0 ? "+" : "") + pointsChange + " points\n";
+		}
+		if (heartsChange != 0) {
+			message += (heartsChange > 0 ? "+" : "") + heartsChange + " hearts\n";
+		}
+		if (!actionMessage.isEmpty()) {
+			message += "Action: " + actionMessage + "\n";
+		}
+		if (message.equals("")) {
+			message = "No change in points, hearts, or actions.";
+		}
+		setCanSwitch(true);
+		return message;
+	}
+	
+	public static int[] revealRandomHiddenMine(int gameNum, boolean isLeft) {
+	    Game game = getGame(gameNum);
+	    Board board = isLeft ? game.getBoard1() : game.getBoard2();
+
+	    List<int[]> hiddenMines = new ArrayList<>();
+
+	    for (int r = 0; r < board.getSize(); r++) {
+	        for (int c = 0; c < board.getSize(); c++) {
+	            Cell cell = board.getCell(r, c);
+	            if (cell.getType() == Cell.CellType.MINE && !cell.isRevealed() && !cell.isCounted()) {
+	                hiddenMines.add(new int[]{r, c});
+	            }
+	        }
+	    }
+
+	    if (hiddenMines.isEmpty()) return null;
+
+	    int[] chosen = hiddenMines.get((int)(Math.random() * hiddenMines.size()));
+
+	    int row = chosen[0];
+	    int col = chosen[1];
+
+	    RevealCell(gameNum, isLeft, row, col);
+	    setCountedAsCounted(gameNum, isLeft, row, col);
+	    decrementRemainingMinesInBoard(gameNum, isLeft);
+
+	    return chosen; // {row, col}
+	}
+
+	//3x3 random grid
+	public static ArrayList<int[]> reveal3x3RandomGrid(int gameNum, boolean isLeft) {
+	    Game game = getGame(gameNum);
+	    Board board = isLeft ? game.getBoard1() : game.getBoard2();
+	    int size = board.getSize();
+
+	    ArrayList<int[]> hiddenCells = new ArrayList<>();
+
+	    // Collect all unrevealed cells
+	    for (int r = 0; r < size; r++) {
+	        for (int c = 0; c < size; c++) {
+	            Cell cell = board.getCell(r, c);
+	            if (!cell.isRevealed()) {
+	                hiddenCells.add(new int[]{r, c});
+	            }
+	        }
+	    }
+
+	    if (hiddenCells.isEmpty()) return new ArrayList<>(); // nothing to reveal
+
+	    // Pick a random center cell for the 3x3 block
+	    int[] center = hiddenCells.get((int)(Math.random() * hiddenCells.size()));
+	    int centerRow = center[0];
+	    int centerCol = center[1];
+
+	    ArrayList<int[]> revealedCells = new ArrayList<>();
+
+	    // Reveal all cells in 3x3 block around the center (respect board bounds)
+	    for (int dr = -1; dr <= 1; dr++) {
+	        for (int dc = -1; dc <= 1; dc++) {
+	            int r = centerRow + dr;
+	            int c = centerCol + dc;
+	            if (r >= 0 && r < size && c >= 0 && c < size) {
+	                Cell cell = board.getCell(r, c);
+	                if (!cell.isRevealed()) {
+	                    cell.setRevealed(true);
+	                    revealedCells.add(new int[]{r, c});
+
+	                    // If it's a mine and not counted, decrement remaining mines and mark counted
+	                    if (cell.getType() == Cell.CellType.MINE && !cell.isCounted()) {
+	                        decrementRemainingMinesInBoard(gameNum, isLeft);
+	                        setCountedAsCounted(gameNum, isLeft, r, c);
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    return revealedCells; // List of {row, col} revealed
+	}
+
 }
-
-

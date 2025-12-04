@@ -8,6 +8,7 @@ import controller.GameHistoryController;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class GameBoards extends JFrame {
 
@@ -235,7 +236,6 @@ public class GameBoards extends JFrame {
 
 		highlightCurrentPlayer(GameController.GameGetCurrentPlayer(gamenum));
 		
-		// Don't use pack() - it overrides the saved window size
 		// Apply window size again to ensure it's set after all components are added
 		windowSizeManager.applyToFrame(this);
 		setLocationRelativeTo(null);
@@ -393,20 +393,31 @@ public class GameBoards extends JFrame {
 		JButton[][] buttons = source.equals("Left") ? leftBoard : rightBoard;
 		boolean shouldSwitchTurn = true;
 		String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
-		//if not Surprise or Question: return
-		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)&& !cellType.equals("SURPRISE")) {
-		    return;
+		Boolean IsCellUsed=GameController.iscellUsed(gamenum, isLeft, row, col);
+		
+		//Cell Revealed: if is Surprise or Question: Do
+		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)) {
+			if (cellType.equals("SURPRISE")) {
+				shouldSwitchTurn = handleActionOfSurprise(row, col, isLeft, buttons);
 			}
-		//if is Surprise or Question: Do
-		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)&& cellType.equals("SURPRISE")) {
-		    shouldSwitchTurn = handleAction(row, col, isLeft, buttons);
+			else {
+				if(cellType.equals("QUESTION"))
+				{
+					handleActionOfQuestion(gamenum,row, col, isLeft, buttons);
+					shouldSwitchTurn=CheckCanSwitch( row,  col,  isLeft,  buttons) ;
+				}
 			}
+		}
 		//Flag Action
 		else if (isFlag) {
-		    handleFlagAction(isLeft, row, col, buttons);
+			handleFlagAction(isLeft, row, col, buttons);
 		} 
+		//if cell is flagged: u can only "Unflag"
+		if (GameController.IsCellFlagged(gamenum, isLeft, row, col)&&!isFlag) {
+			return;
+		}
 		//Not action flag
-		else if (!isFlag) {
+		 if (!isFlag) {
 		    handleRevealAction(row, col, isLeft, buttons);
 		}
 
@@ -444,14 +455,14 @@ public class GameBoards extends JFrame {
 		    GameController.switchTurn(gamenum, this);
 		}
 	}
-
+	//--------------------------------------Flag-----------------------------------------------
 	private void handleFlagAction(Boolean isLeft, int row, int col, JButton[][] buttons) {
 		if (GameController.IsCellFlagged(gamenum, isLeft, row, col)) {
 			GameController.UnFlaggedCell(gamenum, isLeft, row, col);
 			String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
 			if (cellType.equals("MINE")) GameController.IncrementRemainingMinesInBoard(gamenum, isLeft);
-			buttons[row][col].setIcon(null);
-			buttons[row][col].setText("");
+			GameController.RevealCell(gamenum, isLeft, row, col);
+			showCell(buttons[row][col], row, col, isLeft);
 		} else {
 			GameController.FlaggedCell(gamenum, isLeft, row, col);
 			String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
@@ -464,46 +475,131 @@ public class GameBoards extends JFrame {
 			} else {
 				GameController.UpdateSharedPoints(gamenum, -3);
 				showTimedMessage("Not MINE: -3 Points", Color.red, buttons[row][col]);
-				// הסרת העלם מיד
-				GameController.UnFlaggedCell(gamenum, isLeft, row, col);
-				buttons[row][col].setIcon(null);
-				buttons[row][col].setText("");
+				buttons[row][col].setIcon(new ImageIcon(
+						renderEmojiToImage("🚩", buttons[row][col].getWidth(), buttons[row][col].getHeight())));
 			}
 		}
 	}
-
-	private boolean handleAction(int row, int col, Boolean isLeft, JButton[][] buttons) {
+	//--------------------------------------Surprise-----------------------------------------------
+	private boolean handleActionOfSurprise(int row, int col, Boolean isLeft, JButton[][] buttons) {
 		//Surprise
 	    boolean wasSurprise = GameController.GetCellType(gamenum, isLeft, row, col).equals("SURPRISE");
 	    if (wasSurprise && GameController.IsCellRevealed(gamenum, isLeft, row, col)) {
-	        String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
-	        String[] parts = result.split(":");
-	        String type = parts[0];       // GOOD أو BAD
-	        int points = Integer.parseInt(parts[1]);
-	        String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, row, col);
-	        switch(type) {
-	            case "GOOD":
-	                showTimedMessage("Surprise Good! +Life & +" +points+ " Points", new Color(0,200,0), buttons[row][col]);
-	                updateScore(GameController.getSharedPoints(gamenum));
-	                setSharedHearts(GameController.getSharedLivesGame(gamenum));
-	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji,buttons[row][col].getWidth(), buttons[row][col].getHeight())));
-	    			
-	                return true; 
-	            case "BAD":
-	                showTimedMessage("Surprise Bad! -Life & -" +points+ " Points", Color.red, buttons[row][col]);
-	                updateScore(GameController.getSharedPoints(gamenum));
-	                setSharedHearts(GameController.getSharedLivesGame(gamenum));
-	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji,buttons[row][col].getWidth(), buttons[row][col].getHeight())));
-	                return true; 
-	            case "ALREADY_USED":
-	                showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
-	                return false; 
+	        if(!GameController.iscellUsed(gamenum, isLeft, row, col)) {
+	        int cost = GameController.GetGameSurpriseQuestionCoust(gamenum);
+	        int choice = JOptionPane.showConfirmDialog(
+	                this,
+	                "Activating a Surprise costs " + cost + " points.\nDo you want to continue?",
+	                "Surprise Cost",
+	                JOptionPane.OK_CANCEL_OPTION
+	        );
+
+	        if (choice != JOptionPane.OK_OPTION) {
+	            return false;
 	        }
+	        //NOTHING BELOW IS CHANGED
+	        }
+	    	String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
+	    	String[] parts = result.split(":");
+	    	String type = parts[0]; // GOOD, BAD, or ALREADY_USED
+
+	    	if (parts.length > 1) {
+	    		int points = Integer.parseInt(parts[1]);
+	    		String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, row, col);
+
+	    		switch(type) {
+	    		case "GOOD":
+	    			showTimedMessage("Surprise Good! +Life & +" + points + " Points", new Color(0,200,0), buttons[row][col]);
+	    			updateScore(GameController.getSharedPoints(gamenum));
+	    			setSharedHearts(GameController.getSharedLivesGame(gamenum));
+	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+	    			return true;
+	    		case "BAD":
+	    			showTimedMessage("Surprise Bad! -Life & -" + points + " Points", Color.red, buttons[row][col]);
+	    			updateScore(GameController.getSharedPoints(gamenum));
+	    			setSharedHearts(GameController.getSharedLivesGame(gamenum));
+	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+	    			return true;
+	    		}
+	    	} else if ("ALREADY_USED".equals(type)) {
+	    		showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
+	    		return false;
+	    	} else {
+	    		System.err.println("Unexpected surprise result: " + result);
+	    		return false;
+	    	}
 	    }
 	    return true;
 	}
-	
+	//--------------------------------------Question-----------------------------------------------
+	private void handleActionOfQuestion(int gameNumm,int row, int col, Boolean isLeft, JButton[][] buttons) {
+		if (GameController.iscellUsed(gameNumm, isLeft, row, col)) {
+			showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
+			GameController.setCanSwitch(false);
+			return;
+			}
+		// Ask player if they want to pay the cost
+		int cost = GameController.GetGameSurpriseQuestionCoust(gameNumm);
+		int choice = JOptionPane.showConfirmDialog(
+				this,
+				"This question costs " + cost + " points to attempt.\nDo you want to proceed?",
+				"Question Cost",
+				JOptionPane.OK_CANCEL_OPTION
+				);
+
+		if (choice != JOptionPane.OK_OPTION) {
+			// Player canceled -> don't charge points and allow them to answer later
+			GameController.setCanSwitch(false); // will make shouldSwitchTurn = false
+			return;
+		}
+		// Deduct cost
+		GameController.ActivateQuestion(gameNumm);
+
+		if (!GameController.iscellUsed(gameNumm, isLeft, row, col)) {
+			QuestionView view = new QuestionView(null, gameNumm, row, col, isLeft);
+			view.setVisible(true); 
+
+			// after dialog closes, update GUI
+			String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, row, col);
+			updateScore(GameController.getSharedPoints(gamenum));
+			setSharedHearts(GameController.getSharedLivesGame(gamenum));
+			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji,
+					buttons[row][col].getWidth(),
+					buttons[row][col].getHeight())));
+			//Handle  question action
+			GameController.QuestionAction action = GameController.getPendingQuestionAction();
+			if (action == GameController.QuestionAction.REVEAL_RANDOM_MINE) {
+				int[] rc = GameController.revealRandomHiddenMine(gameNumm, isLeft);
+				if (rc != null) {
+					String emoji = GameController.getCellDisplay(gameNumm, isLeft, rc[0], rc[1]);
+					buttons[rc[0]][rc[1]].setIcon(
+							new ImageIcon(renderEmojiToImage(
+									emoji,
+									buttons[rc[0]][rc[1]].getWidth(),
+									buttons[rc[0]][rc[1]].getHeight()
+									))
+							);
+					 buttons[rc[0]][rc[1]].setBackground(new Color(255, 100, 100));
+				}
+			}
+			if (action == GameController.QuestionAction.REVEAL_3X3) {
+				ArrayList<int[]> cells = GameController.reveal3x3RandomGrid(gameNumm, isLeft);
+	            for (int[] cell : cells) {
+	            	 showCell(buttons[cell[0]][cell[1]], cell[0], cell[1], isLeft);
+	            }
+			}
+			GameController.clearPendingQuestionAction();
+		}
+	}
+	//Switch
+	private boolean CheckCanSwitch(int row, int col, Boolean isLeft, JButton[][] buttons) {
+		Boolean CanSwitch= GameController.isCanSwitch();
+		return CanSwitch;
+
+	}
+	//--------------------------------------Reveal-----------------------------------------------
 	private void handleRevealAction(int row, int col, Boolean isLeft, JButton[][] buttons) {
+		if(GameController.IsCellRevealed(gamenum, isLeft, row, col))return;
 		//Mine
 		boolean wasMine = GameController.GetCellType(gamenum, isLeft, row, col).equals("MINE");
 		GameController.PlayCascadeReveal(gamenum, isLeft, row, col);
@@ -666,9 +762,9 @@ public class GameBoards extends JFrame {
 
 	        @Override
 	        public Dimension getPreferredSize() {
-	            FontMetrics fm = getFontMetrics(getFont());
-	            int w = fm.stringWidth(message) + 170;
-	            int h = fm.getHeight() + 30;
+	            FontMetrics fm = getFontMetrics(new Font("Arial", Font.BOLD, 26));
+	            int w = fm.stringWidth(message) + 20; // small padding instead of fixed 170
+	            int h = fm.getHeight() + 20;           // vertical padding
 	            return new Dimension(w, h);
 	        }
 
@@ -691,6 +787,4 @@ public class GameBoards extends JFrame {
 
 	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
 	}
-
 }
-

@@ -20,7 +20,7 @@ public class WindowSizeManager {
     private List<WindowSizeListener> listeners = new ArrayList<>();
     
     // Default size
-    private static final Dimension DEFAULT_SIZE = new Dimension(1200, 750);
+    private static final Dimension DEFAULT_SIZE = new Dimension(1200, 740);
     
     private WindowSizeManager() {
         windowSize = DEFAULT_SIZE;
