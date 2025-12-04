@@ -71,6 +71,7 @@ public class GameController {
 	public static void switchTurn(int gameNum, GameBoards gameBoard) {
 		// Switch current player
 		Game game = getGame(gameNum);
+	    game.setSurpriseActivatedThisTurn(false);
 		if (game.getCurrentPlayer() == 1) game.setCurrentPlayer(2);
 		else game.setCurrentPlayer(1);
 
@@ -271,3 +272,4 @@ public class GameController {
 		return game.getSharedPoints();
 	}
 }
+
