@@ -242,9 +242,6 @@ public class AddQuestion extends JFrame {
                 JOptionPane.showMessageDialog(this, "Failed to add question, check the ID", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "Invalid number format for ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
-         // Show specific message for the missing input
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
         }
@@ -336,4 +333,5 @@ public class AddQuestion extends JFrame {
         }
     }
 }
+
 
