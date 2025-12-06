@@ -290,7 +290,7 @@ public class GameHistoryScreen extends JFrame {
         java.util.List<Model.GameHistory> history = controller.GameHistoryController.getHistoryList();
 
         // Date formatter for readable display
-        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         // Fill the table with history entries
         for (Model.GameHistory gh : history) {
@@ -396,4 +396,5 @@ public class GameHistoryScreen extends JFrame {
         }
     }
 }
+
 
