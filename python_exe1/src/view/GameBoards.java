@@ -579,6 +579,7 @@ public class GameBoards extends JFrame {
 		}
 		// Deduct cost
 		GameController.ActivateQuestion(gameNumm);
+		updateScore(GameController.getSharedPoints(gamenum));
 
 		if (!GameController.iscellUsed(gameNumm, isLeft, row, col)) {
 			QuestionView view = new QuestionView(null, gameNumm, row, col, isLeft);

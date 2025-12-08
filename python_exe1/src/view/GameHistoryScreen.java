@@ -397,4 +397,3 @@ public class GameHistoryScreen extends JFrame {
     }
 }
 
-

@@ -15,7 +15,7 @@ public class QuestionView extends JDialog {
 	private JRadioButton answerDRadio;
 	private ButtonGroup answerGroup;
 	private JLabel okLabel;
-	private  String Correct_Answer;
+	private  String Correct_Answer="A";
 	private int gameNum;
 	private int row;
 	private int col;
