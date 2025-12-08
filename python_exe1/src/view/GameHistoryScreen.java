@@ -129,7 +129,7 @@ public class GameHistoryScreen extends JFrame {
                     searchField.setPlaceholder("🔍 Search by players name");
                     break;
                 default:
-                    searchField.setPlaceholder("🔍 Search by game date");
+                    searchField.setPlaceholder("🔍 Search by game date: dd-mm-yyyy");
                     break;
             }
             searchField.setText("");
@@ -138,7 +138,7 @@ public class GameHistoryScreen extends JFrame {
         });
 
         // Search bar
-        searchField = new PlaceholderTextField("🔍 Search by game date", 20);
+        searchField = new PlaceholderTextField("🔍 Search by game date: dd-mm-yyyy", 20);
         searchField.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
         panel.add(searchField);
 

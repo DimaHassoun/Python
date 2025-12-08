@@ -13,16 +13,16 @@ public class AddQuestion extends JFrame {
 	public JTextArea option3Field;
 	public JTextArea option4Field;
     public JRadioButton diff1;
-	private JRadioButton diff2;
-	private JRadioButton diff3;
-	private JRadioButton diff4;
-    private ButtonGroup difficultyGroup;
+	public JRadioButton diff2;
+	public JRadioButton diff3;
+	public JRadioButton diff4;
+	public ButtonGroup difficultyGroup;
     public JRadioButton ansA;
-	private JRadioButton ansB;
-	private JRadioButton ansC;
-	private JRadioButton ansD;
-    private ButtonGroup answerGroup;
-    private WindowSizeManager windowSizeManager;
+    public JRadioButton ansB;
+    public JRadioButton ansC;
+    public JRadioButton ansD;
+    public ButtonGroup answerGroup;
+    public WindowSizeManager windowSizeManager;
 
     public AddQuestion() {
         setTitle("Add Question");
@@ -295,7 +295,7 @@ public class AddQuestion extends JFrame {
 
     
     // Helper method to clear all input fields and selections after successful submission
-    private void clearFields() {
+    public void clearFields() {
         idField.setText("");
         questionArea.setText("");
         difficultyGroup.clearSelection();
