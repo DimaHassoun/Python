@@ -28,6 +28,9 @@ public class Game {
     
     private int id;  // Unique identifier
     
+    // New field: block actions if surprise activated
+    private boolean surpriseActivatedThisTurn = false;
+    
     public Game(int id, Difficulty difficulty, String player1Name, String player2Name) {
         this.id = id;
         this.difficulty = difficulty;
@@ -44,13 +47,13 @@ public class Game {
 
         switch (difficulty) {
             case EASY:
-                size = 9; mines = 10; questions = 6; surprises = 2; lives = 10;
-                break;
+            	size=9; mines=10; questions=6; surprises=2; lives=10; activationCost=5;
+            	break;
             case MEDIUM:
-                size = 13; mines = 26; questions = 7; surprises = 3; lives = 8;
+            	size=13; mines=26; questions=7; surprises=3; lives=8; activationCost=8;
                 break;
             case HARD:
-                size = 16; mines = 44; questions = 11; surprises = 4; lives = 6;
+            	size=16; mines=44; questions=11; surprises=4; lives=6; activationCost=12; 
                 break;
         }
         board1 = new Board(size, mines, questions, surprises);
@@ -60,6 +63,8 @@ public class Game {
         this.sharedLives = lives;
         this.startTime = LocalDateTime.now();
         this.state = GameState.IN_PROGRESS;
+        this.surpriseActivatedThisTurn = false;
+
     }
     
     public void finish() {
@@ -90,6 +95,33 @@ public class Game {
         }
     }
     
+    // ---------- Surprise Cell ----------
+    public int applySurpriseEffect(boolean good) {
+        int points;
+        switch (difficulty) {
+            case EASY -> points = 8;
+            case MEDIUM -> points = 12;
+            case HARD -> points = 16;
+            default -> points = 0;
+        }
+
+        if (good) {
+            sharedLives += 1;
+            sharedPoints += points;
+        } else {
+            sharedLives -= 1;
+            sharedPoints -= points;
+            if (sharedLives < 0) sharedLives = 0;
+        }
+
+        surpriseActivatedThisTurn = true; // block further actions this turn
+        return points;
+    }
+
+    public boolean canPerformAction() { return !surpriseActivatedThisTurn; }
+    public void setSurpriseActivatedThisTurn(boolean activated) { this.surpriseActivatedThisTurn = activated; }
+    
+    
     /**
      * Check if game is over (no lives left or all cells revealed)
      */
@@ -98,15 +130,15 @@ public class Game {
     }
     
     /**
-     * Check if players won (all non-mine cells revealed on both boards)
+     * Check if players won (all non-mine cells revealed on BOTH boards)
+     * תוקן: שונה מ-OR ל-AND - שני הלוחות צריכים להיות מושלמים
      */
     public boolean isVictory() {
-        // Victory if all non-mine cells revealed OR all mines revealed
-    	  boolean board1Victory = board1.isCompleted() || board1.getMinesRevealed() == board1.getTotalMines();
-    	  boolean board2Victory = board2.isCompleted() || board2.getMinesRevealed() == board2.getTotalMines();
-    	  return board1Victory || board2Victory;
-    	  }
- 
+        boolean board1Victory = board1.isCompleted() || board1.getMinesRevealed() == board1.getTotalMines();
+        boolean board2Victory = board2.isCompleted() || board2.getMinesRevealed() == board2.getTotalMines();
+        return board1Victory && board2Victory; // תוקן: AND במקום OR!
+    }
+    
     // Getters & Setters
     public Difficulty getDifficulty() {
         return difficulty;
@@ -207,5 +239,6 @@ public class Game {
     public void setId(int id) {
         this.id = id;
     }
+    
 
 }
