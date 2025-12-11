@@ -2,6 +2,7 @@ package Model;
 
 public class Cell {
 
+	public enum CellType { MINE, NUMBER, EMPTY, SURPRISE, QUESTION }
 
 	public enum CellType { MINE, NUMBER, EMPTY, SURPRISE, QUESTION }
 

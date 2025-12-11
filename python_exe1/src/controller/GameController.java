@@ -80,10 +80,6 @@ public class GameController {
 		gameBoard.highlightCurrentPlayer(game.getCurrentPlayer());
 	}
 
-	public static int getNextGameId() {
-		return NEXT_ID.get();
-	}
-
 	public static Game getGame(int id) {
 		return activeGames.get(id);
 	}
@@ -101,6 +97,7 @@ public class GameController {
 		if (clickedCell.isRevealed())return true;
 		else return false;
 	}
+	
 	//Play Cascade Reveal
 	public static void PlayCascadeReveal(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -108,6 +105,7 @@ public class GameController {
 		board.cascadeReveal(row, col);
 
 	}
+	
 	//Get Cell Type
 	public static String GetCellType(int gameNum, boolean isLeft,int row, int col) {
 		Game game = getGame(gameNum);
@@ -127,6 +125,7 @@ public class GameController {
 		}
 		return "Error!!";
 	}
+	
 	// returns the display emoji string
 	public static String getCellDisplay(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -141,6 +140,7 @@ public class GameController {
 		Cell cell = board.getCell(row, col);
 		return cell.isFlagged();
 	}
+	
 	//cell setFlagged(false);
 	public static void UnFlaggedCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -148,6 +148,7 @@ public class GameController {
 		Cell cell = board.getCell(row, col);
 		cell.setFlagged(false);
 	}
+	
 	//cell setFlagged(true);
 	public static void FlaggedCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -155,6 +156,7 @@ public class GameController {
 		Cell cell = board.getCell(row, col);
 		cell.setFlagged(true);
 	}
+	
 	//  Reveal cell(true)
 	public static void RevealCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -162,6 +164,7 @@ public class GameController {
 		Cell cell = board.getCell(row, col);
 		cell.setRevealed(true);
 	}
+	
 	//is Current Cell Counted??
 	public static boolean IsCellCounted(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -169,6 +172,7 @@ public class GameController {
 		Cell currentCell = board.getCell(row, col);
 		return currentCell.isCounted();
 	}
+	
 	//currentCell.setCounted(true);
 	public static void setCountedAsCounted(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -193,18 +197,14 @@ public class GameController {
 		}
 		return false;
 	}
-	// board.incrementRemainingMines()
-	public static void IncrementRemainingMinesInBoard(int gameNum, boolean isLeft) {
-		Game game = getGame(gameNum);
-		Board board = isLeft ? game.getBoard1() : game.getBoard2();
-		board.incrementRemainingMines();
-	}
+	
 	//board.decrementRemainingMines();
 	public static void decrementRemainingMinesInBoard(int gameNum, boolean isLeft) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		board.decrementRemainingMines();
 	}
+	
 	//board get Size 
 	public static int getBoardSize(int gameNum, boolean isLeft) {
 		Game game = getGame(gameNum);
@@ -220,26 +220,31 @@ public class GameController {
 		if (game.isGameOver()) return true;
 		else return false;
 	}
+	
 	//game getSharedLives 
 	public static int GameGetSharedLives(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getSharedLives();
 	}
+	
 	//game get Difficulty
 	public static String GameGetDifficulty(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getDifficulty().name();
 	}
+	
 	//game finish
 	public static void GameFinish(int gameNum) {
 		Game game = getGame(gameNum);
 		game.finish();
 	}
+	
 	//isVictory
 	public static boolean IsGameVictory(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.isVictory();
 	}
+	
 	//========================= game =========================
 	//========================= Player =========================	
 	//Get Current Player 
@@ -247,6 +252,7 @@ public class GameController {
 		Game game = getGame(gameNum);
 		return game.getCurrentPlayer();
 	}
+	
 	//========================= Player =========================
 	//========================= Mines =========================	
 	//getRemainingMines
@@ -255,6 +261,7 @@ public class GameController {
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		return board.getRemainingMines();
 	}
+	
 	//========================= Mines =========================
 	//========================= Lives =========================	
 	//getSharedLivesGame
@@ -262,11 +269,13 @@ public class GameController {
 		Game game = getGame(gameNum);
 		return game.getSharedLives();
 	}
+	
 	//setSharedLives
 	public static void UpdateSharedLivesGame(int gameNum,int SharedLives ) {
 		Game game = getGame(gameNum);
 		game.setSharedLives(SharedLives);
 	}
+	
 	//========================= Lives =========================
 	//========================= Points =========================
 	//addSharedPoints
@@ -274,6 +283,7 @@ public class GameController {
 		Game game = getGame(gameNum);
 		game.addSharedPoints(SharedPointsToAdd);
 	}
+	
 	//game.getSharedPoints()
 	public static int getSharedPoints(int gameNum) {
 		Game game = getGame(gameNum);

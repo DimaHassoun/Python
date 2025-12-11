@@ -7,9 +7,15 @@ import controller.GameController;
 import controller.GameHistoryController;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+/**
+ * GameBoards - המחלקה הראשית המנהלת את התצוגה הגרפית של לוח המשחק.
+ * כוללת את הלוחות, הניקוד, התפריטים והאינטראקציה עם המשתמש.
+ */
 public class GameBoards extends JFrame {
 
 	private int rows, cols, leftMines, rightMines, score = 0, gamenum;

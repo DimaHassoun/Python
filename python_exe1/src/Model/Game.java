@@ -130,7 +130,8 @@ public class Game {
     }
     
     /**
-     * Check if players won (all non-mine cells revealed on both boards)
+     * Check if players won (all non-mine cells revealed on BOTH boards)
+     * תוקן: שונה מ-OR ל-AND - שני הלוחות צריכים להיות מושלמים
      */
     public boolean isVictory() {
     	boolean board1Victory = board1.isCompleted() || board1.getMinesRevealed() == board1.getTotalMines();

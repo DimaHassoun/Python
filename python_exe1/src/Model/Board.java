@@ -164,6 +164,7 @@ public class Board {
     
     /**
      * Check if board is completed (all non-mine cells revealed)
+     * תוקן: כעת מתעלם מתאי SURPRISE ו-QUESTION שלא נחשפו
      */
     public boolean isCompleted() {
         for (int i = 0; i < size; i++) {
