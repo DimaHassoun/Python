@@ -15,13 +15,15 @@ public class QuestionView extends JDialog {
 	private JRadioButton answerDRadio;
 	private ButtonGroup answerGroup;
 	private JLabel okLabel;
-	private  String Correct_Answer="A";
+	private  String Correct_Answer;
 	private int gameNum;
 	private int row;
 	private int col;
 	private boolean isLeft;
 	private String Quation_ID="ID";
 	private String difficulty="Difficulty";
+	private boolean questionLoaded = false;//track whether a real question was loaded
+
 
 	public QuestionView(Frame parent, int gameNum, int row, int col, boolean isLeft) {
 		super(parent, "Question", true);
@@ -44,6 +46,13 @@ public class QuestionView extends JDialog {
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent e) {
+		        showSimpleTimedMessage("You can't close the window this way!");
+		    }
+		});
 
 		 Quation_ID="ID";
 		 difficulty="Difficulty";
@@ -52,26 +61,27 @@ public class QuestionView extends JDialog {
 		String bString="Option B";
 		String cString="Option C";
 		String dString="Option D";
-		// --- Load random question ---
 
+		// --- Load random question ---
 		String msg = QuestionManagerLogic.fillQuestion();
 
-		if (msg != null) {
-			JOptionPane.showMessageDialog(
-					this,
-					msg,
-					"Error",
-					JOptionPane.ERROR_MESSAGE
-					);
+		if (msg != null) { 
+		    // Loading failed — show error and stop creating the dialog
+		    JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
+		    // Close this dialog safely and stop initialization
+		    dispose();
+		    return;
 		} else {
-			Quation_ID=QuestionManagerLogic.getQuestion_ID();//ID
-			difficulty=QuestionManagerLogic.getDifficulty();// Difficulty
-			QuestionString=QuestionManagerLogic.getQuestionString(); // Question text
-			aString=QuestionManagerLogic.getaString();// Option A
-			bString=QuestionManagerLogic.getbString(); // Option B
-			cString=QuestionManagerLogic.getcString(); // Option C
-			dString=QuestionManagerLogic.getdString();// Option D
-			Correct_Answer=QuestionManagerLogic.getCorrect_Answer();//Correct Answer 	 
+		    // Successful load: populate fields from QuestionManagerLogic
+		    Quation_ID = QuestionManagerLogic.getQuestion_ID(); // ID
+		    difficulty = QuestionManagerLogic.getDifficulty(); // Difficulty
+		    QuestionString = QuestionManagerLogic.getQuestionString(); // Question text
+		    aString = QuestionManagerLogic.getaString(); // Option A
+		    bString = QuestionManagerLogic.getbString(); // Option B
+		    cString = QuestionManagerLogic.getcString(); // Option C
+		    dString = QuestionManagerLogic.getdString(); // Option D
+		    Correct_Answer = QuestionManagerLogic.getCorrect_Answer();
+		    questionLoaded = true; // mark loaded
 		}
 
 		// Main panel with background image
@@ -86,7 +96,7 @@ public class QuestionView extends JDialog {
 				g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
 			}
 		};
-
+		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 		mainPanel.setBackground(MAIN_BG);
@@ -171,6 +181,12 @@ public class QuestionView extends JDialog {
 	
 	//handleButtonClick
 	private void handleButtonClick(String source) {
+		if (!questionLoaded) {
+			// if dialog somehow opened without a question, close it.
+			JOptionPane.showMessageDialog(this, "No question loaded.", "Error", JOptionPane.ERROR_MESSAGE);
+			dispose();
+			return;
+		}
 		String message="";
 		if ("OK".equals(source)) {
 			// handle OK click
@@ -181,14 +197,40 @@ public class QuestionView extends JDialog {
 			}
 			boolean isCorrect = Correct_Answer.equals(selected);
 			message += GameController.applyQuestionScoring(gameNum, this.difficulty, isCorrect, isLeft, row, col);
+			
+			Icon successIcon = loadAndScaleIcon("/resource/correctAnswer.png", 64, 64);
+			Icon failIcon = loadAndScaleIcon("/resource/failedAnswer.png", 64, 64);
+
+			
 			if (isCorrect) {
-				JOptionPane.showMessageDialog(this, "Selected answer: " + selected + "\nYou are Right!, Action:"+ message );
+				JOptionPane.showMessageDialog(
+					    this,
+					    "Selected answer: " + selected + "\nYou are RIGHT!\nAction: " + message,
+					    "Success",
+					    JOptionPane.INFORMATION_MESSAGE,
+					    successIcon
+					);
 			} else {
-				JOptionPane.showMessageDialog(this, "Selected answer: " + selected + "\nYou are Wrong!, Action:"+ message );
+				JOptionPane.showMessageDialog(
+					    this,
+					    "Selected answer: " + selected + "\nYou are WRONG!\nAction: " + message,
+					    "Wrong Answer",
+					    JOptionPane.WARNING_MESSAGE,
+					    failIcon
+					);
 			}
 			dispose();
 		}
 	}
+	
+	//scale the icon
+	private Icon loadAndScaleIcon(String path, int width, int height) {
+	    ImageIcon icon = new ImageIcon(getClass().getResource(path));
+	    Image scaledImage = icon.getImage().getScaledInstance(
+	            width, height, Image.SCALE_SMOOTH);
+	    return new ImageIcon(scaledImage);
+	}
+
 
 	//button style
 	private JLabel createActionLabel(String text) {
@@ -296,4 +338,27 @@ public class QuestionView extends JDialog {
 		if (answerDRadio.isSelected()) return "D";
 		return null;
 	}
+	private void showSimpleTimedMessage(String message) {
+	    JWindow popup = new JWindow(this); // 'this' is your dialog
+	    JLabel label = new JLabel(message, SwingConstants.CENTER);
+	    label.setOpaque(true);
+	    label.setBackground(new Color(255, 255, 210)); // light yellow background
+	    label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+	    label.setFont(new Font("Arial", Font.PLAIN, 14));
+	    label.setPreferredSize(new Dimension(250, 40));
+	    popup.add(label);
+	    popup.pack();
+
+	    // Position popup at center of this dialog
+	    Point loc = getLocationOnScreen();
+	    int x = loc.x + (getWidth() - popup.getWidth()) / 2;
+	    int y = loc.y + (getHeight() - popup.getHeight()) / 2;
+	    popup.setLocation(x, y);
+
+	    popup.setVisible(true);
+
+	    // Dispose popup after 1.5 seconds
+	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
+	}
+
 }

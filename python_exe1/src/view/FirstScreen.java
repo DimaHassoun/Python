@@ -141,33 +141,10 @@ public class FirstScreen extends JFrame {
                     }
                 });
 
-                JLabel eyeLabel = new JLabel("👀"); 
-                eyeLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                eyeLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20)); 
-
-                JPanel passPanel = new JPanel(new BorderLayout(5, 5));
-                passPanel.add(passwordField, BorderLayout.CENTER);
-                passPanel.add(eyeLabel, BorderLayout.EAST);
-
-                JPanel panel = new JPanel(new BorderLayout(5, 5));
-                panel.add(new JLabel("Please enter Admin Password:"), BorderLayout.NORTH);
-                panel.add(passPanel, BorderLayout.CENTER);
-
-                // Toggle password visibility
-                eyeLabel.addMouseListener(new MouseAdapter() {
-                    private boolean visible = false;
-
-                    public void mouseClicked(MouseEvent e) {
-                        visible = !visible;
-                        if (visible) {
-                            passwordField.setEchoChar((char)0); 
-                            eyeLabel.setText("🙈"); 
-                        } else {
-                            passwordField.setEchoChar('•'); 
-                            eyeLabel.setText("👀"); 
-                        }
-                    }
-                });
+                int result = JOptionPane.showConfirmDialog(
+                        FirstScreen.this, panel, "Admin Authentication Required",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE
+                );
 
                 if (result == JOptionPane.OK_OPTION) {
                     char[] passwordChars = passwordField.getPassword();

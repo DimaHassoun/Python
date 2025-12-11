@@ -667,10 +667,15 @@ public class GameBoards extends JFrame {
 	}
 
 	private void loadHeartImage() {
-		heartIcon = new ImageIcon(getClass().getResource("/resource/heart_image.jpg"));
-		Image img = heartIcon.getImage();
-		Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-		heartIcon = new ImageIcon(scaledImg);
+	    // Load the new PNG heart with transparency
+	    heartIcon = new ImageIcon(getClass().getResource("/resource/NewHeartImage.png"));
+
+	    // Scale the image to 30x30 smoothly
+	    Image img = heartIcon.getImage();
+	    Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+
+	    // Set the scaled icon
+	    heartIcon = new ImageIcon(scaledImg);
 	}
 
 	private void showCell(JButton button, int r, int c, Boolean isLeft) {
