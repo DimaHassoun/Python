@@ -9,21 +9,25 @@ public class FirstScreen extends JFrame {
 
     private JLabel musicLabel;
     private MusicManager musicManager;
+    private WindowSizeManager windowSizeManager;
 
     public FirstScreen() {
         setTitle("Mine Sweeper");
-        setSize(1200, 700);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(true); // allow resizing
+        setResizable(true);
 
-        // Initialize music manager and start background music
+        // Initialize managers
         musicManager = MusicManager.getInstance();
-        musicManager = MusicManager.getInstance();
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
+
+        // Start background music if not playing
         if (musicManager.getCurrentMusicFile() == null) {
             musicManager.playMusic("src/resource/puzzle-game-bright-casual-video-game-music-249202.wav");
         }
-
 
         // Main panel
         BackgroundPanel mainPanel = new BackgroundPanel("src/resource/background.jpg");
@@ -137,10 +141,15 @@ public class FirstScreen extends JFrame {
                     }
                 });
 
+                int result = JOptionPane.showConfirmDialog(
+                        FirstScreen.this, panel, "Admin Authentication Required",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE
+                );
+
                 if (result == JOptionPane.OK_OPTION) {
                     char[] passwordChars = passwordField.getPassword();
                     String inputPassword = new String(passwordChars);
-                    if (inputPassword.equals(CORRECT_PASSWORD)) {
+                    if (inputPassword.equals("1234")) {
                         new QuestionManagerScreen();
                         FirstScreen.this.dispose();
                     } else {
@@ -265,10 +274,7 @@ public class FirstScreen extends JFrame {
         }
     }
 
-    //main
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new FirstScreen());
     }
 }
-
-

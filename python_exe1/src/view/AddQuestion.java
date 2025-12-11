@@ -6,20 +6,34 @@ import java.awt.*;
 
 public class AddQuestion extends JFrame {
 
-    private JTextField idField;
-    private JTextArea questionArea;
-    private JTextArea option1Field, option2Field, option3Field, option4Field;
-    private JRadioButton diff1, diff2, diff3, diff4;
-    private ButtonGroup difficultyGroup;
-    private JRadioButton ansA, ansB, ansC, ansD;
-    private ButtonGroup answerGroup;
+    public JTextField idField;
+    public JTextArea questionArea;
+    public JTextArea option1Field;
+	public JTextArea option2Field;
+	public JTextArea option3Field;
+	public JTextArea option4Field;
+    public JRadioButton diff1;
+	public JRadioButton diff2;
+	public JRadioButton diff3;
+	public JRadioButton diff4;
+	public ButtonGroup difficultyGroup;
+    public JRadioButton ansA;
+    public JRadioButton ansB;
+    public JRadioButton ansC;
+    public JRadioButton ansD;
+    public ButtonGroup answerGroup;
+    public WindowSizeManager windowSizeManager;
 
     public AddQuestion() {
         setTitle("Add Question");
-        setSize(1200, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
+        
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
 
         // Background Panel
         BackgroundPanel addQuestion = new BackgroundPanel("src/resource/background.jpg");
@@ -191,53 +205,31 @@ public class AddQuestion extends JFrame {
     }
 
     // Reading the data entered ,checking and adding it to the system
-    private void onAddQuestion() {
+    public void onAddQuestion() {
         try {
-        	// Check Question ID
-            String idText = idField.getText().trim();
-            if (idText.isEmpty()) {
-                throw new Exception("Please enter Question ID.");
-            }
-            int id = Integer.parseInt(idText);
-            if (id <= 0) {            
-                throw new Exception("ID must be a positive number.");
-            }
+        	 // validate inputs
+            validateInputs();
 
-            // Check Question text
+            // After validation, parse ID:
+            int id = Integer.parseInt(idField.getText().trim());
+
             String question = questionArea.getText().trim();
-            if (question.isEmpty()) {
-                throw new Exception("Please enter the question text.");
-            }
-
-            // Check Options
             String option1 = option1Field.getText().trim();
-            if (option1.isEmpty()) throw new Exception("Please fill Option 1.");
             String option2 = option2Field.getText().trim();
-            if (option2.isEmpty()) throw new Exception("Please fill Option 2.");
             String option3 = option3Field.getText().trim();
-            if (option3.isEmpty()) throw new Exception("Please fill Option 3.");
             String option4 = option4Field.getText().trim();
-            if (option4.isEmpty()) throw new Exception("Please fill Option 4.");
 
-            // Check Difficulty selection
-            int difficulty = 0;
-            if (diff1.isSelected()) difficulty = 1;
-            else if (diff2.isSelected()) difficulty = 2;
-            else if (diff3.isSelected()) difficulty = 3;
-            else if (diff4.isSelected()) difficulty = 4;
-            else throw new Exception("Please select a difficulty level.");
+            int difficulty = diff1.isSelected() ? 1 :
+                             diff2.isSelected() ? 2 :
+                             diff3.isSelected() ? 3 : 4;
 
-            // Check Correct Answer selection
-            char correct = ' ';
-            if (ansA.isSelected()) correct = 'A';
-            else if (ansB.isSelected()) correct = 'B';
-            else if (ansC.isSelected()) correct = 'C';
-            else if (ansD.isSelected()) correct = 'D';
-            else throw new Exception("Please select the correct answer.");
+            char correct = ansA.isSelected() ? 'A' :
+                           ansB.isSelected() ? 'B' :
+                           ansC.isSelected() ? 'C' : 'D';
 
-            // Attempt to add the question
             boolean success = QuestionManagerLogic.addToCSV(
-                    id, question, difficulty, option1, option2, option3, option4, correct);
+                    id, question, difficulty, option1, option2, option3, option4, correct
+            );
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "Question added successfully!");
@@ -250,16 +242,60 @@ public class AddQuestion extends JFrame {
                 JOptionPane.showMessageDialog(this, "Failed to add question, check the ID", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "Invalid number format for ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
-         // Show specific message for the missing input
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
         }
     }
 
+    /**
+     * Validates user input fields.
+     * 
+     * @throws Exception if one of the fields is invalid
+     */
+    public void validateInputs() throws Exception {
+
+        // Check Question ID
+        String idText = idField.getText().trim();
+        if (idText.isEmpty()) {
+            throw new Exception("Please enter Question ID.");
+        }
+
+        try {
+            int id = Integer.parseInt(idText);
+            if (id <= 0) {
+                throw new Exception("ID must be a positive number.");
+            }
+        } catch (NumberFormatException e) {
+            throw new Exception("Invalid number format for ID.");
+        }
+
+        // Check question text
+        if (questionArea.getText().trim().isEmpty()) {
+            throw new Exception("Please enter the question text.");
+        }
+
+        // Options
+        if (option1Field.getText().trim().isEmpty()) throw new Exception("Please fill Option 1.");
+        if (option2Field.getText().trim().isEmpty()) throw new Exception("Please fill Option 2.");
+        if (option3Field.getText().trim().isEmpty()) throw new Exception("Please fill Option 3.");
+        if (option4Field.getText().trim().isEmpty()) throw new Exception("Please fill Option 4.");
+
+        // Difficulty
+        if (!diff1.isSelected() && !diff2.isSelected() &&
+            !diff3.isSelected() && !diff4.isSelected()) {
+            throw new Exception("Please select a difficulty level.");
+        }
+
+        // Answer selection
+        if (!ansA.isSelected() && !ansB.isSelected() &&
+            !ansC.isSelected() && !ansD.isSelected()) {
+            throw new Exception("Please select the correct answer.");
+        }
+    }
+
+    
     // Helper method to clear all input fields and selections after successful submission
-    private void clearFields() {
+    public void clearFields() {
         idField.setText("");
         questionArea.setText("");
         difficultyGroup.clearSelection();

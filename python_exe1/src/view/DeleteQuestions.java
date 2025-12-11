@@ -16,13 +16,18 @@ public class DeleteQuestions extends JFrame {
     private JTable table;
     private DefaultTableModel model;
     private JButton deleteSelectedBtn;
+    private WindowSizeManager windowSizeManager;
 
     public DeleteQuestions(DefaultTableModel originalModel, QuestionManagerScreen parent) {
         setTitle("Delete Questions");
-        setSize(1200, 700);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
+        
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
 
         // --- Background Panel ---
         BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
@@ -48,14 +53,68 @@ public class DeleteQuestions extends JFrame {
             }
         });
 
+     // -------------------------
+        // SEARCH BAR (Find by ID)
+        // -------------------------
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        searchPanel.setOpaque(false);
+
+        JLabel searchLabel = new JLabel("you can search by ID:");
+        searchLabel.setFont(new Font("Verdana", Font.BOLD, 18));
+        searchLabel.setForeground(new Color(246, 230, 138));
+
+        JTextField searchField = new JTextField();
+        searchField.setPreferredSize(new Dimension(120, 35));
+        searchField.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        RoundedButton searchBtn = new RoundedButton("Search");
+        searchBtn.setPreferredSize(new Dimension(150, 45));
+
+        searchPanel.add(searchLabel);
+        searchPanel.add(searchField);
+        searchPanel.add(searchBtn);
+
+        searchBtn.addActionListener(e -> {
+       	    String searchID = searchField.getText().trim();
+
+       	    int rowIndex = QuestionManagerLogic.searchQuestionByID(model, searchID);
+
+       	    if (rowIndex == -1) {
+       	        JOptionPane.showMessageDialog(this, "No question found with ID: " + searchID);
+       	    } else {
+       	        table.setRowSelectionInterval(rowIndex, rowIndex);
+       	        table.scrollRectToVisible(table.getCellRect(rowIndex, 0, true));
+       	    }
+       	});
+
         JLabel instruction = new JLabel("Select the questions you want to delete from the list", SwingConstants.CENTER);
         instruction.setFont(new Font("Verdana", Font.BOLD, 24));
         instruction.setForeground(new Color(246, 230, 138));
         instruction.setBorder(new EmptyBorder(20, 0, 10, 0));
 
-        topPanel.add(back, BorderLayout.NORTH);
-        topPanel.add(instruction, BorderLayout.SOUTH);
-        panel.add(topPanel, BorderLayout.NORTH);
+         // A vertical panel combines Back + Instruction + Search
+        JPanel topContainer = new JPanel();
+        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.Y_AXIS));
+        topContainer.setOpaque(false);
+
+        // Back
+        JPanel backHolder = new JPanel(new BorderLayout());
+        backHolder.setOpaque(false);
+        backHolder.add(back, BorderLayout.EAST);
+        topContainer.add(backHolder);
+
+        // Instruction
+        JPanel instructionHolder = new JPanel();
+        instructionHolder.setOpaque(false);
+        instructionHolder.add(instruction);
+        topContainer.add(instructionHolder);
+
+        // Search Panel
+        JPanel searchHolder = new JPanel();
+        searchHolder.setOpaque(false);
+        searchHolder.add(searchPanel);
+        topContainer.add(searchHolder);
+        panel.add(topContainer, BorderLayout.NORTH);
 
         // -------------------------
         // TABLE SETUP

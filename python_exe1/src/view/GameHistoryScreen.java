@@ -24,6 +24,8 @@ public class GameHistoryScreen extends JFrame {
     private JTable table;
     private JComboBox<String> searchMode;
     private TableRowSorter<DefaultTableModel> sorter;
+    private DefaultTableModel model;
+    private WindowSizeManager windowSizeManager;
 
     // Base dimensions for scaling
     private final int BASE_WIDTH = 1200;
@@ -39,6 +41,7 @@ public class GameHistoryScreen extends JFrame {
     private Rectangle scrollBounds = new Rectangle(BASE_WIDTH / 2 - 450, 220, 900, 350);
 
     private BackgroundPanel panel;
+    
 
     public GameHistoryScreen() {
         setTitle("Game History");
@@ -47,6 +50,11 @@ public class GameHistoryScreen extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         musicManager = MusicManager.getInstance();
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
 
         panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(null);
@@ -121,7 +129,7 @@ public class GameHistoryScreen extends JFrame {
                     searchField.setPlaceholder("🔍 Search by players name");
                     break;
                 default:
-                    searchField.setPlaceholder("🔍 Search by game date");
+                    searchField.setPlaceholder("🔍 Search by game date: dd-mm-yyyy");
                     break;
             }
             searchField.setText("");
@@ -130,13 +138,13 @@ public class GameHistoryScreen extends JFrame {
         });
 
         // Search bar
-        searchField = new PlaceholderTextField("🔍 Search by game date", 20);
+        searchField = new PlaceholderTextField("🔍 Search by game date: dd-mm-yyyy", 20);
         searchField.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
         panel.add(searchField);
 
         // Table
         String[] columns = {"Game No.", "Date", "Player 1", "Player 2", "Difficulty", "Final Score", "Result"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+        model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -160,6 +168,7 @@ public class GameHistoryScreen extends JFrame {
 
         sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
+        populateTable();
 
         // Filtering logic depending on ComboBox choice
         searchField.getDocument().addDocumentListener(new DocumentListener() {
@@ -271,12 +280,40 @@ public class GameHistoryScreen extends JFrame {
         table.setRowHeight((int)(40 * yRatio));
         table.getTableHeader().setFont(table.getTableHeader().getFont().deriveFont((float)(16 * fontRatio)));
     }
+    
+    // Fill game history table
+    private void populateTable() {
+        //  Clear existing rows
+        model.setRowCount(0);
+
+     // Get the history list from the controller
+        java.util.List<Model.GameHistory> history = controller.GameHistoryController.getHistoryList();
+
+        // Date formatter for readable display
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        // Fill the table with history entries
+        for (Model.GameHistory gh : history) {
+            Model.Game g = gh.getGame();
+            String id = String.valueOf(g.getId());
+            String date = gh.getGamedate() != null ? gh.getGamedate().format(fmt) : "";
+            String p1 = g.getPlayer1Name() != null ? g.getPlayer1Name() : "";
+            String p2 = g.getPlayer2Name() != null ? g.getPlayer2Name() : "";
+            String diff = g.getDifficulty() != null ? g.getDifficulty().name() : "";
+            String score = String.valueOf(gh.getScore());
+            String result = gh.getGameResult() != null ? gh.getGameResult().name() : "";
+
+            model.addRow(new Object[]{ id, date, p1, p2, diff, score, result });
+        }
+    }
+
 
     // Music functions
     private void toggleMusic() {
         musicManager.toggleMusic();
         updateMusicIcon();
     }
+   
 
     private void showVolumeControl() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
@@ -359,3 +396,4 @@ public class GameHistoryScreen extends JFrame {
         }
     }
 }
+

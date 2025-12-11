@@ -20,14 +20,20 @@ public class EditQuestion extends JFrame {
     private ButtonGroup difficultyGroup; // To ensure only one difficulty is selected
     private JRadioButton ansA, ansB, ansC, ansD;
     private ButtonGroup answerGroup; // To ensure only one answer is selected
+    private WindowSizeManager windowSizeManager;
 
     // Constructor takes the table model, row index, and path to CSV
     public EditQuestion(DefaultTableModel model, int rowIndex, String csvPath) {
         setTitle("Edit Question");
-        setSize(1200, 700);
-        setLocationRelativeTo(null); 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
         setLayout(new BorderLayout(10, 10));
+        
+        windowSizeManager = WindowSizeManager.getInstance();
+        
+        // Apply saved window size BEFORE setting location
+        windowSizeManager.applyToFrame(this);
+        setLocationRelativeTo(null);
+        
         BackgroundPanel editQuestion = new BackgroundPanel("src/resource/background.jpg");
         editQuestion.setLayout(new BoxLayout(editQuestion, BoxLayout.Y_AXIS));
         editQuestion.setBorder(BorderFactory.createEmptyBorder(20, 50, 10, 50));
