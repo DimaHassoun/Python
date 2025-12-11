@@ -28,7 +28,7 @@ public class Game {
     
     private int id;  // Unique identifier
     
-    // New field: block actions if surprise activated
+ // New field: block actions if surprise activated
     private boolean surpriseActivatedThisTurn = false;
     
     public Game(int id, Difficulty difficulty, String player1Name, String player2Name) {
@@ -113,6 +113,8 @@ public class Game {
             sharedPoints -= points;
             if (sharedLives < 0) sharedLives = 0;
         }
+        // Apply added hearts
+        setSharedLives(sharedLives);
 
         surpriseActivatedThisTurn = true; // block further actions this turn
         return points;
@@ -130,14 +132,13 @@ public class Game {
     }
     
     /**
-     * Check if players won (all non-mine cells revealed on BOTH boards)
-     * תוקן: שונה מ-OR ל-AND - שני הלוחות צריכים להיות מושלמים
+     * Check if players won (all non-mine cells revealed on both boards)
      */
     public boolean isVictory() {
-        boolean board1Victory = board1.isCompleted() || board1.getMinesRevealed() == board1.getTotalMines();
-        boolean board2Victory = board2.isCompleted() || board2.getMinesRevealed() == board2.getTotalMines();
-        return board1Victory && board2Victory; // תוקן: AND במקום OR!
-    }
+    	boolean board1Victory = board1.isCompleted() || board1.getMinesRevealed() == board1.getTotalMines();
+    	boolean board2Victory = board2.isCompleted() || board2.getMinesRevealed() == board2.getTotalMines();
+    	return board1Victory || board2Victory;
+  	  }
     
     // Getters & Setters
     public Difficulty getDifficulty() {

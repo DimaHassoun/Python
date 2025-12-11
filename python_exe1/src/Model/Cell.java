@@ -2,10 +2,12 @@ package Model;
 
 public class Cell {
 
+
 	public enum CellType { MINE, NUMBER, EMPTY, SURPRISE, QUESTION }
 
 	private int x;
 	private int y;
+	private int board_id;
 
 	private CellType type;
 	private int surroundingMines;  // מספר מוקשים מסביב (0–8)
@@ -33,6 +35,9 @@ public class Cell {
 
 	public int getY() { return y; }
 	public void setY(int y) { this.y = y; }
+
+	public int getBoard_id() { return board_id; }
+	public void setBoard_id(int board_id) { this.board_id = board_id; }
 
 	public CellType getType() { return type; }
 	public void setType(CellType type) { this.type = type; }
