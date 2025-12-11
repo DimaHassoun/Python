@@ -170,8 +170,13 @@ public class Board {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Cell cell = board[i][j];
-                // If it's not a mine and not revealed, board is not complete
-                if ((cell.getType() != Cell.CellType.MINE) && !cell.isRevealed()) {
+                Cell.CellType type = cell.getType();
+                
+                // רק תאים רגילים (לא מוקשים ולא מיוחדים) צריכים להיות מגולים
+                if (type != Cell.CellType.MINE && 
+                    type != Cell.CellType.SURPRISE && 
+                    type != Cell.CellType.QUESTION && 
+                    !cell.isRevealed()) {
                     return false;
                 }
             }

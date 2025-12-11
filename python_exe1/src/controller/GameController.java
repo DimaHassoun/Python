@@ -180,12 +180,14 @@ public class GameController {
 		Cell currentCell = board.getCell(row, col);
 		currentCell.setCounted(true); 
 	}
+	
 	public static boolean iscellUsed(int gameNum, boolean isLeft,int row ,int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
 		return cell.isUsed();
 	}
+	
 	//========================= Cell =========================
 	//========================= board =========================
 	//board NOT null
@@ -315,11 +317,13 @@ public class GameController {
 
 		return (good ? "GOOD:" : "BAD:") + pointsChanged ;
 	}
+	
 	// ========================= Question Cell Logic =========================
 	public static int GetGameSurpriseQuestionCoust(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getActivationCost();
 	}
+	
 	public static void ActivateQuestion(int gameNum) {
 		Game game = getGame(gameNum);
 		int cost = game.getActivationCost();
@@ -328,32 +332,35 @@ public class GameController {
 	
 	private static  boolean canSwitch;//tell game it can switch turns
 	private static QuestionAction pendingQuestionAction = QuestionAction.NONE;
+	
 	//getter and setter
 	public static boolean isCanSwitch() {
 		return canSwitch;
 	}
+	
 	public static  void setCanSwitch(boolean canswitch) {
 		canSwitch = canswitch;
 	}
-	//Cancel 
-	public static void sourceCancel() {
-		setCanSwitch(false);
-	}
+	
 	//random Helper
 	private static boolean random50() {
 		return Math.random() < 0.5;
 	}
+	
 	public enum QuestionAction {
 	    NONE,
 	    REVEAL_RANDOM_MINE,
 	    REVEAL_3X3
 	}
+	
 	public static QuestionAction getPendingQuestionAction() {
 		return pendingQuestionAction;
 	}
+	
 	public static void clearPendingQuestionAction() {
 	    pendingQuestionAction = QuestionAction.NONE;
 	}
+	
 	//Scoring Question
 	public static String applyQuestionScoring(int gameNum, String questionLevel,boolean isCorrect, boolean isLeft,int row,int col){
 		Game game = getGame(gameNum);
