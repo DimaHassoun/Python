@@ -43,7 +43,7 @@ public class Game {
      * Initialize boards and start the game according to difficulty.
      */
     public void start() {
-        int size = 8, mines = 10, questions = 3, surprises = 2, lives = 3;
+        int size = 9, mines = 10, questions = 6, surprises = 2, lives = 10;
 
         switch (difficulty) {
             case EASY:
@@ -241,5 +241,6 @@ public class Game {
         this.id = id;
     }
     
+
 
 }
