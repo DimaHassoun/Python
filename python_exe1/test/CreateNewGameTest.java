@@ -1,5 +1,8 @@
 import Model.Game;
+import Model.GameResult;
 import controller.GameController;
+import controller.GameHistoryController;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
   /*
@@ -66,7 +69,7 @@ public class CreateNewGameTest {
         // Should throw exception
         GameController.createNewGame("Najwa", "Meson", "SUPERHARD");
     }
-    
+  
     //Test that an empty difficulty throws an IllegalArgumentException
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNewGame_EmptyDifficulty() {
@@ -91,12 +94,13 @@ public class CreateNewGameTest {
         GameController.createNewGame("Player1", null, "EASY");
     }
     
-    
+   
     
     //Test that game IDs increment correctly
     @Test
     public void testGameIdIncrement() {
         Game g1 = GameController.createNewGame("Najwa", "Meson", "EASY");
+        GameHistoryController.createHistoryEntry(g1, GameResult.Victory);
         Game g2 = GameController.createNewGame("Eslam", "Najwa", "EASY");
         assertTrue(g2.getId() > g1.getId());
     }
