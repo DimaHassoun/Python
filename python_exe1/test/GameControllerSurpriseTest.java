@@ -11,12 +11,12 @@ import Model.Game;
 // already used surprise cells, and activation when the game cannot perform actions.
 //============================
 
-class GameControllerSurpriseTest {
+public class GameControllerSurpriseTest {
 
     private int gameNum;
 
     @BeforeEach
-    void setUp() {
+   void setUp() {
         // Create a new EASY game for testing
         gameNum = GameController.createNewGame("Alice", "Bob", "EASY").getId();
         GameController.getGame(gameNum).start();
