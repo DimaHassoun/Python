@@ -9,11 +9,11 @@ import controller.GameController;
 // Test class for GameController - focuses on question scoring and game state updates,
 // ============================
 
-class QuestionTestGameController {
+public class QuestionTestGameController {
 	private int gameNum;
 
 	@BeforeEach
-	void setUp() {
+	public void setUp() {
 		// Create a new game for testing (default EASY)
 		gameNum = GameController.createNewGame("Alice", "Bob", "EASY").getId();
 		GameController.getGame(gameNum).start();
@@ -22,7 +22,7 @@ class QuestionTestGameController {
 	// TEST 1: ID:CS_t Test to check if canSwitch is set to true after applyQuestionScoring
 	// ============================
 	@Test
-	void test_CanSwitch_IsTrue_AfterScoring() {
+	public void test_CanSwitch_IsTrue_AfterScoring() {
 		// Before scoring, canSwitch should be false or unknown state, just to be safe reset
 		GameController.setCanSwitch(false);
 
@@ -36,7 +36,7 @@ class QuestionTestGameController {
 	// ============================
 	/** ID: R1_t, EASY , question level 1 , incorrect (random -3 or 0 points)*/
 	@RepeatedTest(5)
-	void testEasyLevel1_IncorrectRandomPoints() {
+	public void testEasyLevel1_IncorrectRandomPoints() {
 		String message = GameController.applyQuestionScoring(gameNum, "1", false/*incorrect answer*/, true/* left=board1*/, 0, 0);
 		int points = GameController.getGame(gameNum).getSharedPoints();
 
@@ -51,7 +51,7 @@ class QuestionTestGameController {
 	}
 	/** ID: R2_t, EASY - question level 2 - incorrect (random -6 or 0 points)*/
 	@RepeatedTest(5)
-	void testEasyLevel2_IncorrectRandomPoints() {
+	public void testEasyLevel2_IncorrectRandomPoints() {
 		String message = GameController.applyQuestionScoring(gameNum, "2", false, true, 0, 0);
 		int points = GameController.getGame(gameNum).getSharedPoints();
 
@@ -67,7 +67,7 @@ class QuestionTestGameController {
 
 	/** ID: R3_t, MEDIUM - question level 2 - incorrect (random -10 points or 0 points AND random -1 heart or 0 hearts)*/
 	@RepeatedTest(5)
-	void testMediumLevel2_IncorrectRandomPointsHearts() {
+	public void testMediumLevel2_IncorrectRandomPointsHearts() {
 		// Create MEDIUM game
 		gameNum = GameController.createNewGame("Alice", "Bob", "MEDIUM").getId();
 		GameController.getGame(gameNum).start();
@@ -94,7 +94,7 @@ class QuestionTestGameController {
 
 	/** ID: R4_t, MEDIUM - question level 4 - incorrect ( hearts -1 or -2 randomly)*/
 	@RepeatedTest(5)
-	void testMediumLevel4_IncorrectRandomHearts() {
+	public void testMediumLevel4_IncorrectRandomHearts() {
 		gameNum = GameController.createNewGame("Alice", "Bob", "MEDIUM").getId();
 		GameController.getGame(gameNum).start();
 
@@ -111,7 +111,7 @@ class QuestionTestGameController {
 	}
 	/** ID: R5_t, HARD - question level 2 - correct ( hearts +1 or +2 randomly)*/
 	@RepeatedTest(5)
-	void testHardLevel2_CorrectRandomHearts() {
+	public void testHardLevel2_CorrectRandomHearts() {
 		gameNum = GameController.createNewGame("Alice", "Bob", "HARD").getId();
 		GameController.getGame(gameNum).start();
 
@@ -129,7 +129,7 @@ class QuestionTestGameController {
 
 	/** ID: R6_t, HARD - question level 2 - incorrect ( hearts -1 or -2 randomly)*/
 	@RepeatedTest(5)
-	void testHardLevel2_IncorrectRandomHearts() {
+	public void testHardLevel2_IncorrectRandomHearts() {
 		gameNum = GameController.createNewGame("Alice", "Bob", "HARD").getId();
 		GameController.getGame(gameNum).start();
 
@@ -149,7 +149,7 @@ class QuestionTestGameController {
 	// ============================
 	/**ID: AQ_C_T1 ,EASY – cost must be 5 and deduction must be correct*/
 	@Test
-	void testActivateQuestion_EasyCostAndDeduction() {
+	public void testActivateQuestion_EasyCostAndDeduction() {
 
 		int cost = GameController.GetGameSurpriseQuestionCoust(gameNum);
 		assertEquals(5, cost, "EASY game should have activation cost of 5");
@@ -164,7 +164,7 @@ class QuestionTestGameController {
 	}
 	/**MEDIUM – cost must be 8 and deduction must be correct*/
 	@Test
-	void testActivateQuestion_MediumCostAndDeduction() {
+	public void testActivateQuestion_MediumCostAndDeduction() {
 		gameNum = GameController.createNewGame("Alice", "Bob", "MEDIUM").getId();
 		GameController.getGame(gameNum).start();
 
@@ -181,7 +181,7 @@ class QuestionTestGameController {
 	}
 	/**HARD – cost must be 12 and deduction must be correct*/
 	@Test
-	void testActivateQuestion_HardCostAndDeduction() {
+	public void testActivateQuestion_HardCostAndDeduction() {
 		gameNum = GameController.createNewGame("Alice", "Bob", "HARD").getId();
 		GameController.getGame(gameNum).start();
 
@@ -200,7 +200,7 @@ class QuestionTestGameController {
 	// TEST 4: ID: HM_t4, revealRandomHiddenMine reveals one mine and decreases remaining mines count
 	// ============================
 	@Test
-	void testRevealRandomHiddenMine_revealsOneMine() {
+	public void testRevealRandomHiddenMine_revealsOneMine() {
 
 		int minesBefore = GameController.getGame(gameNum).getBoard1().getRemainingMines();
 
@@ -218,7 +218,7 @@ class QuestionTestGameController {
     // TEST 5:  ID: 3X3G_t5, reveal3x3RandomGrid reveals correct cells and respects board bounds
     // =========================
     @Test
-    void test_Reveal3x3RandomGrid_RevealsCellsWithinBounds() {
+    public void test_Reveal3x3RandomGrid_RevealsCellsWithinBounds() {
         // Call the method to reveal a 3x3 grid on left board
         ArrayList<int[]> revealedCells = GameController.reveal3x3RandomGrid(gameNum, true);
 
@@ -242,7 +242,7 @@ class QuestionTestGameController {
 	// TEST 6: clearPendingQuestionAction resets to NONE
 	// =========================
 	@Test
-	void test_ClearPendingQuestionAction_ResetsToNone() {
+	public void test_ClearPendingQuestionAction_ResetsToNone() {
 		// Set pending action to something else first
 		GameController.applyQuestionScoring(gameNum, "2", true, true, 0, 0); // sets pendingQuestionAction to REVEAL_RANDOM_MINE for EASY level 2
 		assertNotEquals(GameController.QuestionAction.NONE, GameController.getPendingQuestionAction());
@@ -257,7 +257,7 @@ class QuestionTestGameController {
 	// ============================
 	/**ID:UQA_t1 ,Test For 3x3 reveal (Question level 3)*/
 	@Test
-	void test_PendingAction_IsSet_ForHardLevel3() {
+	public void test_PendingAction_IsSet_ForHardLevel3() {
 		GameController.clearPendingQuestionAction();
 
 		GameController.applyQuestionScoring(gameNum, "3", true, true, 0, 0);
@@ -267,7 +267,7 @@ class QuestionTestGameController {
 	}
 	/** ID:UQA_t2, Test for Reveal hidden Mine on Q_level 1*/
 	@Test
-	void test_PendingAction_IsSet_ForEasyLevel2() {
+	public void test_PendingAction_IsSet_ForEasyLevel2() {
 		gameNum = GameController.createNewGame("Alice", "Bob", "EASY").getId();
 		GameController.getGame(gameNum).start();
 
