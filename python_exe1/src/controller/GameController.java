@@ -327,7 +327,11 @@ public class GameController {
 		int cost = game.getActivationCost();
 		game.addSharedPoints(-cost);
 	}
-	
+	public static void FaildeToLoadQuestion(int gameNum) {
+		Game game = getGame(gameNum);
+		int cost = game.getActivationCost();
+		game.addSharedPoints(+cost);
+	}
 	private static  boolean canSwitch;//tell game it can switch turns
 	private static QuestionAction pendingQuestionAction = QuestionAction.NONE;
 	//getter and setter
