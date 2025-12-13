@@ -1,0 +1,22 @@
+ID,Question,Difficulty,A,B,C,D,Correct Answer
+1,What is the main goal of software engineering?,1,Writing code as fast as possible,Developing cost effective and reliable software,Replacing computer hardware,Designing only graphical interfaces,B
+2,Which of the following is a non-functional requirement?,1,Exporting reports,Login functionality,Updating user profile,System response time,D
+3,What is the first phase of the software life cycle?,1,Design,Maintenance,Requirements,Integration,C
+4,What do structural models describe?,1,User roles,System organization and components,Execution flow,Database performance,B
+5,Which type of requirement specifies constraints on system properties like reliability and performance?,1,Non Functional,Functional,Domain,Interface,A
+6,The waterfall model is best suited when?,2,Requirements change frequently,The system must be delivered in increments,Requirements are well understood and stable,The team prefers prototyping,C
+7,functional requirement describes?,2,What the system should do,How fast the system should run,The system security level,Maintenance policies,A
+8,"In MVC, the component responsible for handling user actions?",2,Model,View,Controller,Database,C
+9,Which architectural style organizes the system into hierarchical?,2,Client-Server,Layered Architecture,Black-Box Architecture,Spiral Architecture,B
+10,What is a goal in non-functional requirements?,2,A general intention of the user,A precise testable constraint,A documented error,A formal specification,A
+11,What is the main disadvantage of incremental development?,3,No user feedback,System structure may degrade without refactoring,Cannot be used for large systems,Too much documentation is required,B
+12,Which requirement property checks whether the requirement can actually be tested?,3,Consistency,Adaptability,Verifiability,Completeness,C
+13,Which UML diagram models dynamic behavior based on events?,3,State diagram,Class diagram,Deployment diagram,Use case diagram,A
+14,"In client-server architecture, what is the main drawback?",3,Too many layers,Single point of failure,Impossible to scale,No shared database,B
+15,"In the MVC pattern, which component is responsible for managing the system data and business logic?",3,Model,View,Controller,Database,A
+16,"What is ""architectural erosion""?",4,Design decisions that violate the original architecture,Adding new modules to outdated hardware,Upgrading the software with better documentation,Removing unused features,A
+17,"In Requirements Engineering (Requirements Elicitation and Analysis), which activity resolves conflicting requirements?",4,Requirements discovery,Requirements validation,Prioritization and negotiation,Requirements documentation,C
+18,What is a main practical disadvantage of layered architecture regarding interaction between layers?,4,Lower-level layers cannot provide core services,High-level layers may need to bypass intermediate layers,Layers cannot be replaced independently,Multiple layers always improve performance,B
+19,What is the primary limitation of a throw away prototype in software development?,4,It can be fully optimized for performance,It often cannot be used as a basis for the production system due to incomplete functionality and degraded structure,It eliminates the need for requirements validation,It guarantees non functional requirements are fully met,B
+20,"In UML interaction modeling, what is the main purpose of a sequence diagram?",4,To illustrate the sequence of interactions between actors and system objects during a use case,To show the static structure of the system classes and their associations,To define the system boundaries and context,To document the overall software architecture,A
+21,What of this options is a color?,1,Red,Circel,shape,Name,A
