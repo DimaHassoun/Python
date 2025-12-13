@@ -68,9 +68,6 @@ public class QuestionView extends JDialog {
 		if (msg != null) { 
 		    // Loading failed — show error and stop creating the dialog
 		    JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
-		    // Close this dialog safely and stop initialization
-		    dispose();
-		    return;
 		} else {
 		    // Successful load: populate fields from QuestionManagerLogic
 		    Quation_ID = QuestionManagerLogic.getQuestion_ID(); // ID
@@ -184,6 +181,7 @@ public class QuestionView extends JDialog {
 		if (!questionLoaded) {
 			// if dialog somehow opened without a question, close it.
 			JOptionPane.showMessageDialog(this, "No question loaded.", "Error", JOptionPane.ERROR_MESSAGE);
+			GameController.FaildeToLoadQuestion(gameNum);
 			dispose();
 			return;
 		}
