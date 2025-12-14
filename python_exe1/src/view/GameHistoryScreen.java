@@ -177,21 +177,26 @@ public class GameHistoryScreen extends JFrame {
             public void changedUpdate(DocumentEvent e) { filter(); }
 
             private void filter() {
+            	// Get the text from the search field and remove leading/trailing spaces
                 String text = searchField.getText().trim();
+                // Get the currently selected search mode from a dropdown
                 String mode = (String) searchMode.getSelectedItem();
-
+             // If the search field is empty, remove any filters from the table sorter and exit
                 if (text.isEmpty()) {
                     sorter.setRowFilter(null);
                     return;
                 }
-
+             // Apply a filter based on the selected search mode
                 switch (mode) {
                     case "By Players Name":
+                    	// Filter rows based on the text, ignoring case, in columns 2 and 3 (player names)
                         sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 2, 3));
                         break;
                     default:
+                    	 // Filter rows based on the text, ignoring case, in column 1 (default column)
                         sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 1));
                 }
+                // Refresh the table display
                 table.repaint();
             }
         });
@@ -318,33 +323,36 @@ public class GameHistoryScreen extends JFrame {
     private void showVolumeControl() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+        // Create a label showing the current volume as a percentage, centered and bold
         JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
         volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-
+        // Create a slider for volume control (0-100) initialized to current volume
         JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
         volumeSlider.setMajorTickSpacing(25);
         volumeSlider.setMinorTickSpacing(5);
         volumeSlider.setPaintTicks(true);
         volumeSlider.setPaintLabels(true);
-
+     // Update volume in real-time as slider moves
         volumeSlider.addChangeListener(e -> {
             int value = volumeSlider.getValue();
-            musicManager.setVolume(value / 100.0f);
-            volumeLabel.setText("Volume: " + value + "%");
+            musicManager.setVolume(value / 100.0f);// Convert percent to 0.0-1.0 range
+            volumeLabel.setText("Volume: " + value + "%");// Update label text
         });
-
+        // Add components to the panel
         panel.add(volumeLabel, BorderLayout.NORTH);
         panel.add(volumeSlider, BorderLayout.CENTER);
-
+        // Display the panel in a modal dialog
         JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
 
     private void updateMusicIcon() {
+    	// Check if music is currently playing
         if (musicManager.isPlaying()) {
+        	// Set the label to a musical note and use a bright yellow color
             musicLabel.setText("♪");
             musicLabel.setForeground(new Color(246, 230, 138));
         } else {
+        	 // Set the label to a muted icon and use a gray color
             musicLabel.setText("🔇");
             musicLabel.setForeground(new Color(180, 180, 180));
         }
@@ -352,24 +360,25 @@ public class GameHistoryScreen extends JFrame {
 
     class PlaceholderTextField extends JTextField {
         private String placeholder;
-
+        // Constructor
         public PlaceholderTextField(String placeholder, int columns) {
             super(columns);
             this.placeholder = placeholder;
         }
-
+     // Method to update the placeholder text
         public void setPlaceholder(String placeholder) {
             this.placeholder = placeholder;
-            repaint();
+            repaint();// Repaint the field to show the new placeholder
         }
-
+     // Custom painting for placeholder
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+         // Draw placeholder only if the text field is empty
             if (getText().isEmpty()) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setColor(Color.GRAY);
                 g2.setFont(getFont());
-                Insets insets = getInsets();
+                Insets insets = getInsets();// Consider padding
                 g2.drawString(placeholder, insets.left, getHeight() / 2 + getFont().getSize() / 2 - 2);
                 g2.dispose();
             }
