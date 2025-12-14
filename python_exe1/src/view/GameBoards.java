@@ -73,31 +73,34 @@ public class GameBoards extends JFrame {
 		setContentPane(mainBackground);
 
 		// ========================= CENTER PANEL =========================
+		// Creates the center panel containing the left and right player boards.
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2, 20, 0));
 		centerPanel.setOpaque(false);
 
-		// LEFT PLAYER
+		// ========================= LEFT PLAYER =========================
+		// Player name panel
 		leftPlayerPanel = new RoundedPanel(15, Color.white);
 		leftPlayerPanel.setPreferredSize(new Dimension(200, 50));
 		leftPlayerPanel.setLayout(new BorderLayout());
 		leftPlayerLabel = new JLabel(nameL, SwingConstants.CENTER);
 		leftPlayerLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		leftPlayerPanel.add(leftPlayerLabel, BorderLayout.CENTER);
+		// Wrapper for centering the player panel
 		JPanel leftWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		leftWrapper.setOpaque(false);
 		leftWrapper.add(leftPlayerPanel);
-
+		// Minesweeper board
 		leftBoardPanel = new RoundedPanel(15);
 		leftBoardPanel.setPreferredSize(new Dimension(500, 500));
 		leftBoardPanel.setLayout(new BorderLayout());
 		JPanel leftBoardInner = createBoard(true);
 		leftBoardPanel.add(leftBoardInner, BorderLayout.CENTER);
 		leftGridPanel = leftBoardInner;
-
+		// Remaining mines label
 		leftMinesLabel = new JLabel("Remaining Mines: " + leftMines, SwingConstants.CENTER);
 		leftMinesLabel.setForeground(new Color(255, 215, 0));
 		leftMinesLabel.setFont(new Font("Arial", Font.BOLD, 16));
-
+		// Top info layout (name + board + mines)
 		JPanel leftTopInfo = new JPanel();
 		leftTopInfo.setLayout(new BoxLayout(leftTopInfo, BoxLayout.Y_AXIS));
 		leftTopInfo.setOpaque(false);
@@ -106,35 +109,37 @@ public class GameBoards extends JFrame {
 		leftTopInfo.add(leftBoardPanel);
 		leftTopInfo.add(Box.createVerticalStrut(5));
 		leftTopInfo.add(leftMinesLabel);
-
+		// Background panel with rounded corners and semi-transparent purple
 		leftBackground = new RoundedPanel(15, new Color(128, 0, 128, 128));
 		leftBackground.setBorderColor(new Color(255, 215, 0));
 		leftBackground.setLayout(new BorderLayout());
 		leftBackground.add(leftTopInfo, BorderLayout.NORTH);
 
-		// RIGHT PLAYER
+		// ========================= RIGHT PLAYER =========================
+		// Player name panel
 		rightPlayerPanel = new RoundedPanel(15, Color.white);
 		rightPlayerPanel.setPreferredSize(new Dimension(200, 50));
 		rightPlayerPanel.setLayout(new BorderLayout());
 		rightPlayerLabel = new JLabel(nameR, SwingConstants.CENTER);
 		rightPlayerLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		rightPlayerPanel.add(rightPlayerLabel, BorderLayout.CENTER);
+		// Wrapper for centering the player panel
 		JPanel rightWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		rightWrapper.setOpaque(false);
 		rightWrapper.add(rightPlayerPanel);
-
+		// Minesweeper board
 		rightBoardPanel = new RoundedPanel(15);
 		rightBoardPanel.setPreferredSize(new Dimension(500, 500));
 		rightBoardPanel.setLayout(new BorderLayout());
-		JPanel rightBoardInner = createBoard(false);
+		JPanel rightBoardInner = createBoard(false); // false = right player
 		rightBoardPanel.add(rightBoardInner, BorderLayout.CENTER);
 		rightGridPanel = rightBoardInner;
 		rightGridPanel.setOpaque(false);
-
+		// Remaining mines label
 		rightMinesLabel = new JLabel("Remaining Mines: " + rightMines, SwingConstants.CENTER);
 		rightMinesLabel.setForeground(new Color(255, 215, 0));
 		rightMinesLabel.setFont(new Font("Arial", Font.BOLD, 16));
-
+		// Top info layout (name + board + mines)
 		JPanel rightTopInfo = new JPanel();
 		rightTopInfo.setLayout(new BoxLayout(rightTopInfo, BoxLayout.Y_AXIS));
 		rightTopInfo.setOpaque(false);
@@ -143,27 +148,29 @@ public class GameBoards extends JFrame {
 		rightTopInfo.add(rightBoardPanel);
 		rightTopInfo.add(Box.createVerticalStrut(5));
 		rightTopInfo.add(rightMinesLabel);
-
+		// Background panel with rounded corners and border
 		rightBackground = new RoundedPanel(15);
 		rightBackground.setBorderColor(new Color(255, 215, 0));
 		rightBackground.setLayout(new BorderLayout());
 		rightBackground.add(rightTopInfo, BorderLayout.NORTH);
-
+		// ========================= ADD TO CENTER PANEL =========================
 		centerPanel.add(leftBackground);
 		centerPanel.add(rightBackground);
+		// Add center panel to the main frame or parent container
 		add(centerPanel, BorderLayout.CENTER);
 
 		// ========================= SOUTH PANEL =========================
 		JPanel southPanel = new JPanel(new BorderLayout());
 		southPanel.setOpaque(false);
-
+		// ========================= HEARTS PANEL =========================
+		// Panel displaying the players' shared lives using heart icons.
 		heartsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		heartsPanel.setOpaque(false);
-		loadHeartImage();
-		setSharedHearts(GameController.GameGetSharedLives(gamenum));
+		loadHeartImage();// Load heart icon images
+		setSharedHearts(GameController.GameGetSharedLives(gamenum));// Load heart icon images
 		southPanel.add(heartsPanel, BorderLayout.CENTER);
 
-		// Exit button
+		// ========================= EXIT BUTTON =========================
 		JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
 		bottomRightPanel.setOpaque(false);
 		exitLabel = new JLabel("Exit");
@@ -173,22 +180,24 @@ public class GameBoards extends JFrame {
 		exitLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
-				handleButtonClick("Exit", -1, -1, false);
+				handleButtonClick("Exit", -1, -1, false);// Trigger exit logic
 			}
 		});
 		bottomRightPanel.add(exitLabel);
+		// Add exit panel to the south panel
 		southPanel.add(bottomRightPanel, BorderLayout.EAST);
+		// Add the south panel to the main frame or parent container
 		add(southPanel, BorderLayout.SOUTH);
 
 		// ========================= TOP PANEL =========================
 		settingsLabel = new JLabel("⚙");
 		settingsLabel.setFont(new Font("Dialog", Font.BOLD, 35));
 		settingsLabel.setForeground(new Color(246, 230, 138));
-		settingsLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		settingsLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));// Change cursor to hand when hovering
 		settingsLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
-				showSettingsMenu();
+				showSettingsMenu();// Call the method to display the settings menu when clicked
 			}
 		});
 
@@ -199,31 +208,33 @@ public class GameBoards extends JFrame {
 		musicLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
-				toggleMusic();
+				toggleMusic();// Toggle music playback when the label is clicked
 			}
 		});
 
 		JPanel topPanel = new JPanel(new BorderLayout());
 		topPanel.setOpaque(false);
 
+		// Left-aligned panel for icons (settings and music)
 		JPanel topLeftIcons = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
 		topLeftIcons.setOpaque(false);
 		topLeftIcons.add(settingsLabel);
 		topLeftIcons.add(musicLabel);
-
+		// Labels for game information
 		gameNumberLabel = new JLabel("Game No. " + gamenum, SwingConstants.CENTER);
 		scoreLabel = new JLabel("Score: " + score, SwingConstants.CENTER);
 		difficultyLabel = new JLabel("Difficulty Level: " + GameController.GameGetDifficulty(gamenum), SwingConstants.CENTER);
-
+		// Set text color to gold
 		gameNumberLabel.setForeground(new Color(255, 215, 0));
 		scoreLabel.setForeground(new Color(255, 215, 0));
 		difficultyLabel.setForeground(new Color(255, 215, 0));
 
+		// Set font for all top labels
 		Font topFont = new Font("Arial", Font.BOLD, 16);
 		gameNumberLabel.setFont(topFont);
 		scoreLabel.setFont(topFont);
 		difficultyLabel.setFont(topFont);
-
+		// Center panel to stack the three labels vertically
 		JPanel topCenterPanel = new JPanel(new GridLayout(3, 1, 2, 2));
 		topCenterPanel.setOpaque(false);
 		topCenterPanel.add(gameNumberLabel);
@@ -233,7 +244,7 @@ public class GameBoards extends JFrame {
 		topPanel.add(topLeftIcons, BorderLayout.WEST);
 		topPanel.add(topCenterPanel, BorderLayout.CENTER);
 		add(topPanel, BorderLayout.NORTH);
-
+		// Highlight the current player
 		highlightCurrentPlayer(GameController.GameGetCurrentPlayer(gamenum));
 		
 		// Apply window size again to ensure it's set after all components are added
@@ -303,38 +314,42 @@ public class GameBoards extends JFrame {
 	}
 
 	private void restartGame() {
+		// Show a confirmation dialog to the user
 		int response = JOptionPane.showConfirmDialog(this,
 			"Are you sure you want to restart the game? All progress will be lost.",
 			"Restart Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
+		// If the user clicks "Yes"
 		if (response == JOptionPane.YES_OPTION) {
+		    // Get the current game difficulty
 			String difficulty = GameController.GameGetDifficulty(gamenum);
+			// Create a new game with the same players and difficulty
 			Model.Game newGame = GameController.createNewGame(player1Name, player2Name, difficulty);
-			newGame.start();
-
+			newGame.start();// Start the new game
+			// Create a new GameBoards window for the new game
 			GameBoards newGameBoard = new GameBoards(
 				newGame.getBoard1().getSize(), newGame.getBoard1().getSize(),
 				newGame.getBoard1().getTotalMines(), newGame.getBoard2().getTotalMines(),
 				player1Name, player2Name, newGame.getId());
-			newGameBoard.setVisible(true);
-			GameBoards.this.dispose();
+			newGameBoard.setVisible(true);// Show the new game window
+			GameBoards.this.dispose();// Close the current game window
 		}
 	}
 
 	private void stopGame() {
+		// Show a confirmation dialog asking the user if they want to stop the game
 		int response = JOptionPane.showConfirmDialog(this,
 			"Are you sure you want to stop the game and return to the main menu?",
 			"Stop Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
+		 // If the user clicks "Yes"
 		if (response == JOptionPane.YES_OPTION) {
-			new FirstScreen();
-			GameBoards.this.dispose();
+			new FirstScreen();// Open the main menu (first screen)
+			GameBoards.this.dispose();// Close the current game window
 		}
 	}
 
 	private void toggleMusic() {
-		musicManager.toggleMusic();
-		updateMusicIcon();
+		musicManager.toggleMusic();// Toggle the music playback (play or pause)
+		updateMusicIcon();// Update the icon to reflect the current state
 	}
 
 	private void updateMusicIcon() {
@@ -346,16 +361,20 @@ public class GameBoards extends JFrame {
 			musicLabel.setForeground(new Color(180, 180, 180));
 		}
 	}
-
+	// Creates a game board represented as a JPanel containing a grid of buttons.
 	private JPanel createBoard(boolean isLeft) {
+		 // Create a JPanel with a GridLayout matching the number of rows and columns
+	    // with 3-pixel gaps between cells
 		JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 3, 3));
+		 // Create a 2D array to store references to each button (cell)
 		JButton[][] board = new JButton[rows][cols];
-
+		 // Loop through each row and column to create buttons
 		for (int r = 0; r < rows; r++) {
 			for (int c = 0; c < cols; c++) {
 				JButton cell = new JButton();
 				cell.setPreferredSize(new Dimension(30, 30));
 				final int row = r, col = c;
+				 // Add a mouse listener to handle left and right clicks
 				cell.addMouseListener(new java.awt.event.MouseAdapter() {
 					@Override
 					public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -369,13 +388,14 @@ public class GameBoards extends JFrame {
 				boardPanel.add(cell);
 			}
 		}
+		// Save the board reference to the corresponding instance variable
 		if (isLeft) leftBoard = board;
 		else rightBoard = board;
 		return boardPanel;
 	}
-	//Button Actions
+	//Handles actions triggered by clicking a cell button on either the left or right board.
 	private void handleButtonClick(String source, int row, int col, boolean isFlag) {
-		//Exit
+		// Handle the "Exit" action: prompt user to confirm exit and return to the new game screen
 		if (source.equals("Exit")) {
 			int response = JOptionPane.showConfirmDialog(
 			        this,
@@ -390,8 +410,9 @@ public class GameBoards extends JFrame {
 			    }
 			    return;
 		}
+		// If the game is already over, ignore further clicks
 		if (GameController.GameIsGameOver(gamenum)) return;
-
+		// Check if the current player is allowed to click on this board
 		int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
 		if ((currentPlayer == 1 && source.equals("Right")) || (currentPlayer == 2 && source.equals("Left"))) {
 			JOptionPane.showMessageDialog(this, "It's not your turn!", "Wait", JOptionPane.WARNING_MESSAGE);
@@ -403,9 +424,9 @@ public class GameBoards extends JFrame {
 		boolean shouldSwitchTurn = true;
 		String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
 		Boolean IsCellUsed=GameController.iscellUsed(gamenum, isLeft, row, col);
-		
+		 // Ignore clicks on already revealed cells unless it's a SURPRISE or QUESTION cell
 		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)&&!cellType.equals("SURPRISE")&&!cellType.equals("QUESTION")){return;}
-		//Cell Revealed: if is Surprise or Question: Do
+		// Handle clicks on revealed special cells
 		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)) {
 			if (cellType.equals("SURPRISE")) {
 				shouldSwitchTurn = handleActionOfSurprise(row, col, isLeft, buttons);
@@ -418,7 +439,7 @@ public class GameBoards extends JFrame {
 				}
 			}
 		}
-		//Flag Action
+		 // Handle flag placement or removal
 		else if (isFlag) {
 			handleFlagAction(isLeft, row, col, buttons);
 		} 
@@ -426,16 +447,16 @@ public class GameBoards extends JFrame {
 		if (GameController.IsCellFlagged(gamenum, isLeft, row, col)&&!isFlag) {
 			return;
 		}
-		//Not action flag
+		 // Reveal the cell if it's not a flag action
 		 if (!isFlag) {
 		    handleRevealAction(row, col, isLeft, buttons);
 		}
-
+		 // Update shared game state in the UI
 		updateScore(GameController.getSharedPoints(gamenum));
 		setSharedHearts(GameController.getSharedLivesGame(gamenum));
 		updateLeftMines(GameController.getRemainingMines(gamenum, true));
 		updateRightMines(GameController.getRemainingMines(gamenum, false));
-
+		// Handle defeat condition
 		if (GameController.getSharedLivesGame(gamenum) <= 0) {
 			DefeatScreen defeatScreen = new DefeatScreen(GameController.getSharedPoints(gamenum) , this);
 			 // Reveal all cells before showing defeat screen
@@ -443,7 +464,7 @@ public class GameBoards extends JFrame {
 		    
 	        defeatScreen.setVisible(true);
 			
-			// save history game:
+	     // Save game history
 			 GameHistoryController.createHistoryEntry(
 				        GameController.getGame(gamenum),
 				        GameResult.Defeat
@@ -451,6 +472,7 @@ public class GameBoards extends JFrame {
 			GameController.GameFinish(gamenum);
 			return;
 		}
+		// Handle victory condition
 		if (GameController.IsGameVictory(gamenum)) {
 		    // Reveal all cells first
 		    revealAllCells();
@@ -485,28 +507,35 @@ public class GameBoards extends JFrame {
 		    GameController.GameFinish(gamenum);
 		    return;
 		}
+		 // Switch the turn if applicable
 		if (shouldSwitchTurn) {
 		    GameController.switchTurn(gamenum, this);
 		}
 	}
 	//--------------------------------------Flag-----------------------------------------------
+	// Handles placing or removing a flag on a cell in the game board.
 	private void handleFlagAction(Boolean isLeft, int row, int col, JButton[][] buttons) {
 		if (GameController.IsCellFlagged(gamenum, isLeft, row, col)) {
+			// Unflag the cell
 			GameController.UnFlaggedCell(gamenum, isLeft, row, col);
 			String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
 			if (cellType.equals("MINE")) GameController.IncrementRemainingMinesInBoard(gamenum, isLeft);
+			 // Reveal the cell visually
 			GameController.RevealCell(gamenum, isLeft, row, col);
 			showCell(buttons[row][col], row, col, isLeft);
 		} else {
+			 // Flag the cell
 			GameController.FlaggedCell(gamenum, isLeft, row, col);
 			String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
 			if (cellType.equals("MINE")) {
+				 // Correctly flagged a mine: gain 1 point, reveal, and decrement remaining mines
 				GameController.UpdateSharedPoints(gamenum, 1);
 				showTimedMessage("MINE: +1 points", new Color(0, 200, 0), buttons[row][col]);
 				GameController.RevealCell(gamenum, isLeft, row, col);
 				GameController.decrementRemainingMinesInBoard(gamenum, isLeft);
 				showCell(buttons[row][col], row, col, isLeft);
 			} else {
+				// Incorrectly flagged: lose 3 points and show a flag emoji
 				GameController.UpdateSharedPoints(gamenum, -3);
 				showTimedMessage("Not MINE: -3 Points", Color.red, buttons[row][col]);
 				buttons[row][col].setIcon(new ImageIcon(
@@ -515,10 +544,12 @@ public class GameBoards extends JFrame {
 		}
 	}
 	//--------------------------------------Surprise-----------------------------------------------
+	// Handles the action triggered when a player interacts with a "SURPRISE" cell.
 	private boolean handleActionOfSurprise(int row, int col, Boolean isLeft, JButton[][] buttons) {
-		//Surprise
+		// Check if this cell is a SURPRISE and has been revealed
 	    boolean wasSurprise = GameController.GetCellType(gamenum, isLeft, row, col).equals("SURPRISE");
 	    if (wasSurprise && GameController.IsCellRevealed(gamenum, isLeft, row, col)) {
+	    	 // If the surprise has not yet been used, prompt for activation cost
 	        if(!GameController.iscellUsed(gamenum, isLeft, row, col)) {
 	        int cost = GameController.GetGameSurpriseQuestionCoust(gamenum);
 	        int choice = JOptionPane.showConfirmDialog(
@@ -529,10 +560,10 @@ public class GameBoards extends JFrame {
 	        );
 
 	        if (choice != JOptionPane.OK_OPTION) {
-	            return false;
+	            return false;// Player declined to activate the surprise
 	        }
-	        //NOTHING BELOW IS CHANGED
 	        }
+	     // Activate the surprise via GameController
 	    	String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
 	    	String[] parts = result.split(":");
 	    	String type = parts[0]; // GOOD, BAD, or ALREADY_USED
@@ -556,6 +587,7 @@ public class GameBoards extends JFrame {
 	    			return true;
 	    		}
 	    	} else if ("ALREADY_USED".equals(type)) {
+	    		// Surprise already used this turn
 	    		showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
 	    		return false;
 	    	} else {
@@ -563,16 +595,18 @@ public class GameBoards extends JFrame {
 	    		return false;
 	    	}
 	    }
-	    return true;
+	    return true;// No special action needed; turn can continue
 	}
 	//--------------------------------------Question-----------------------------------------------
+	// Handles the action triggered when a player interacts with a "QUESTION" cell.
 	private void handleActionOfQuestion(int gameNumm,int row, int col, Boolean isLeft, JButton[][] buttons) {
+		// If already used this turn, do nothing
 		if (GameController.iscellUsed(gameNumm, isLeft, row, col)) {
 			showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
 			GameController.setCanSwitch(false);
 			return;
 			}
-		// Ask player if they want to pay the cost
+		// Ask player if they want to pay the cost to attempt the question
 		int cost = GameController.GetGameSurpriseQuestionCoust(gameNumm);
 		int choice = JOptionPane.showConfirmDialog(
 				this,
@@ -582,19 +616,20 @@ public class GameBoards extends JFrame {
 				);
 
 		if (choice != JOptionPane.OK_OPTION) {
-			// Player canceled -> don't charge points and allow them to answer later
-			GameController.setCanSwitch(false); // will make shouldSwitchTurn = false
+			// Player canceled -> don't charge points and allow them to answer later; prevent turn switching
+			GameController.setCanSwitch(false); 
 			return;
 		}
-		// Deduct cost
+		// Deduct cost and update score
 		GameController.ActivateQuestion(gameNumm);
 		updateScore(GameController.getSharedPoints(gamenum));
 
 		if (!GameController.iscellUsed(gameNumm, isLeft, row, col)) {
+			 // Show question dialog
 			QuestionView view = new QuestionView(null, gameNumm, row, col, isLeft);
 			view.setVisible(true); 
 
-			// after dialog closes, update GUI
+			// Update cell and GUI after dialog
 			String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, row, col);
 			updateScore(GameController.getSharedPoints(gamenum));
 			setSharedHearts(GameController.getSharedLivesGame(gamenum));
@@ -626,13 +661,14 @@ public class GameBoards extends JFrame {
 			GameController.clearPendingQuestionAction();
 		}
 	}
-	//Switch
+	//Checks whether the turn can be switched after a question cell action.
 	private boolean CheckCanSwitch(int row, int col, Boolean isLeft, JButton[][] buttons) {
 		Boolean CanSwitch= GameController.isCanSwitch();
 		return CanSwitch;
 
 	}
 	//--------------------------------------Reveal-----------------------------------------------
+	// Handles the action of revealing a cell when the player clicks on it.
 	private void handleRevealAction(int row, int col, Boolean isLeft, JButton[][] buttons) {
 		if(GameController.IsCellRevealed(gamenum, isLeft, row, col))return;
 		//Mine
@@ -662,11 +698,13 @@ public class GameBoards extends JFrame {
 		if (isLeft) updateLeftMines(GameController.getRemainingMines(gamenum, isLeft));
 		else updateRightMines(GameController.getRemainingMines(gamenum, isLeft));
 	}
-
+	// Updates score display
 	public void updateScore(int score) { scoreLabel.setText("Score: " + score); }
+	// Updates remaining mines for left board
 	public void updateLeftMines(int remaining) { leftMinesLabel.setText("Remaining Mines: " + remaining); }
+	// Updates remaining mines for right board
 	public void updateRightMines(int remaining) { rightMinesLabel.setText("Remaining Mines: " + remaining); }
-
+	// Updates the hearts panel showing remaining lives
 	public void setSharedHearts(int lives) {
 		heartsPanel.removeAll();
 		int displayLives = Math.min(lives, 10);
@@ -686,7 +724,8 @@ public class GameBoards extends JFrame {
 	    // Set the scaled icon
 	    heartIcon = new ImageIcon(scaledImg);
 	}
-
+	 /* Updates the visual representation of a single cell.
+	 * Sets the icon (emoji) and background color based on cell type.*/
 	private void showCell(JButton button, int r, int c, Boolean isLeft) {
 		if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) return;
 
@@ -704,7 +743,7 @@ public class GameBoards extends JFrame {
 		button.setBorderPainted(false);
 		button.setEnabled(false);
 	}
-
+	// Converts a string emoji to a BufferedImage of specified width and height.
 	private BufferedImage renderEmojiToImage(String emoji, int width, int height) {
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
@@ -718,7 +757,7 @@ public class GameBoards extends JFrame {
 		g.dispose();
 		return img;
 	}
-
+	// Highlights the current player panel and enables/disables the respective board.
 	public void highlightCurrentPlayer(int player) {
 		if (player == 1) {
 			leftPlayerPanel.setBackgroundColor(new Color(255, 215, 0));
@@ -732,13 +771,14 @@ public class GameBoards extends JFrame {
 			enableBoard(leftBoard, false);
 		}
 	}
-
+	
+	//Enables or disables all buttons in a board.
 	private void enableBoard(JButton[][] board, boolean enable) {
 		for (int r = 0; r < board.length; r++)
 			for (int c = 0; c < board[0].length; c++)
 				board[r][c].setEnabled(enable);
 	}
-
+	// Custom JPanel with rounded corners and optional border.
 	static class RoundedPanel extends JPanel {
 		private int cornerRadius;
 		private Color backgroundColor, borderColor;
@@ -769,7 +809,7 @@ public class GameBoards extends JFrame {
 			}
 		}
 	}
-	//show Messages
+	//Shows a small temporary popup message near a JButton for feedback (points, life changes, etc.)
 	private void showTimedMessage(String message, Color color, JButton button) {
 	    JComponent msg = new JComponent() {
 	        @Override
