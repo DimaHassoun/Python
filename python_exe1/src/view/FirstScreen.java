@@ -10,7 +10,7 @@ public class FirstScreen extends JFrame {
     private JLabel musicLabel;
     private MusicManager musicManager;
     private WindowSizeManager windowSizeManager;
-
+    // Constructs the main menu screen for the Mine Sweeper game.
     public FirstScreen() {
         setTitle("Mine Sweeper");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -232,7 +232,7 @@ public class FirstScreen extends JFrame {
                 JOptionPane.PLAIN_MESSAGE
         );
     }
-
+    // Updates the music icon and its color based on the current playback state.
     private void updateMusicIcon() {
         if (musicManager.isPlaying()) {
             musicLabel.setText("♪");
