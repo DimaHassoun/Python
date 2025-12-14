@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class DefeatScreen extends JFrame {
-
+	// Constructs the "Defeat Screen" window shown when the player loses the game.
     public DefeatScreen(int finalScore, JFrame previousWindow) {
         setTitle("Game Over");
         setSize(550, 480);
