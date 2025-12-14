@@ -9,32 +9,32 @@ import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
 
-// Custom panel with rounded corners and border
+// A customizable JPanel with rounded corners, optional background color, and optional border.
 public class RoundedPanel extends JPanel {
 
     private Color backgroundColor;
     private int cornerRadius;
     private Color borderColor = Color.BLACK; // optional border
     private int borderThickness = 2;
-    
+ // Constructor with corner radius
     public RoundedPanel(int radius) {
         super();
         cornerRadius = radius;
-        setOpaque(false); // so we can paint rounded corners
+        setOpaque(false); // allows custom painting of rounded corners
     }
-
+    // Constructor with corner radius and background color
     public RoundedPanel(int radius, Color bgColor) {
         super();
         cornerRadius = radius;
         backgroundColor = bgColor;
-        setOpaque(false); // so we can paint rounded corners
+        setOpaque(false);  // allows custom painting of rounded corners
     }
-
+ // Set or change background color
     public void setBackgroundColor(Color bg) {
         backgroundColor = bg;
         repaint();
     }
-
+ // Set or change border color
     public void setBorderColor(Color color) {
         borderColor = color;
         repaint();
@@ -44,10 +44,10 @@ public class RoundedPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
-
+        // Enable anti-aliasing for smooth rounded corners
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // fill rounded rectangle
+     // Fill rounded rectangle with background color
         g2.setColor(backgroundColor);
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
 
