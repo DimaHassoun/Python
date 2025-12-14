@@ -17,7 +17,7 @@ public class DeleteQuestions extends JFrame {
     private DefaultTableModel model;
     private JButton deleteSelectedBtn;
     private WindowSizeManager windowSizeManager;
-
+    // Constructs the "Delete Questions" window, allowing the user to view, search, and delete questions from a table.
     public DeleteQuestions(DefaultTableModel originalModel, QuestionManagerScreen parent) {
         setTitle("Delete Questions");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -238,7 +238,7 @@ public class DeleteQuestions extends JFrame {
     class CenteredTextAreaRenderer implements TableCellRenderer {
         private final JPanel panel;
         private final JTextArea textArea;
-
+        // Constructs the renderer, initializing the JPanel and JTextArea with proper layout, wrapping, and styling.
         public CenteredTextAreaRenderer() {
             panel = new JPanel(new GridBagLayout());
             panel.setOpaque(true);
@@ -258,16 +258,19 @@ public class DeleteQuestions extends JFrame {
             gbc.insets = new Insets(5, 5, 5, 5);
             panel.add(textArea, gbc);
         }
-
+        
+        /* Returns the component used for drawing the cell. This method
+         * configures the text and adjusts the background and foreground
+         * depending on selection.*/
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
             textArea.setText(value == null ? "" : value.toString());
-            
+            // Set preferred width for proper wrapping
             int width = table.getColumnModel().getColumn(column).getWidth();
             textArea.setSize(new Dimension(width - 10, 100));
-
+            // Adjust colors depending on selection
             if (isSelected) {
                 panel.setBackground(table.getSelectionBackground());
                 textArea.setForeground(table.getSelectionForeground());
