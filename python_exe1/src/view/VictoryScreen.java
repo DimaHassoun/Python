@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class VictoryScreen extends JFrame {
-
+	//A JFrame that displays a victory screen when the player wins the game.
     public VictoryScreen(int finalScore ,JFrame previousWindow) {
         setTitle("Victory!");
         setSize(550, 480);
@@ -13,7 +13,7 @@ public class VictoryScreen extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-
+     // Main panel with vertical layout and gradient background
         JPanel mainPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -31,7 +31,7 @@ public class VictoryScreen extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 40, 40));
         setContentPane(mainPanel);
 
-         // ⭐ A big star
+         // Big star emoji at the top
         JLabel starLabel = new JLabel("🥇", SwingConstants.CENTER);
         starLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 100));
         starLabel.setForeground(new Color(255, 204, 0));
@@ -40,14 +40,14 @@ public class VictoryScreen extends JFrame {
         mainPanel.add(starLabel);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        // VICTORY main text
+        // Main congratulatory message
         JLabel messageLabel = new JLabel("Congratulations!", SwingConstants.CENTER);
         messageLabel.setFont(new Font("Audiowide", Font.BOLD, 38));
         messageLabel.setForeground(new Color(0, 255, 140));
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(messageLabel);
 
-        // Additional text
+        // Subtext
         JLabel subLabel = new JLabel("You win The Game!", SwingConstants.CENTER);
         subLabel.setFont(new Font("Arial", Font.PLAIN, 22));
         subLabel.setForeground(new Color(255, 210, 210));
@@ -56,7 +56,7 @@ public class VictoryScreen extends JFrame {
 
         mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // the final points
+        // Display final score
         JLabel scoreLabel = new JLabel("Final Score: " + finalScore, SwingConstants.CENTER);
         scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
         scoreLabel.setForeground(new Color(255, 220, 150));
@@ -65,7 +65,7 @@ public class VictoryScreen extends JFrame {
 
         mainPanel.add(Box.createRigidArea(new Dimension(0, 40)));
 
-        // buttons
+        // Buttons panel
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
         buttonsPanel.setOpaque(false);
@@ -73,7 +73,7 @@ public class VictoryScreen extends JFrame {
 
         JButton btnNewGame = createRoundedButton("Start New Game");
         JButton btnMainMenu = createRoundedButton("Return to Main Menu");
-
+     // Button actions
         btnNewGame.addActionListener((ActionEvent e) -> {
         	 dispose();
              if(previousWindow != null) previousWindow.dispose();
@@ -94,7 +94,7 @@ public class VictoryScreen extends JFrame {
         mainPanel.add(buttonsPanel);
     }
 
-    // RoundedButton
+    // Creates a custom rounded JButton with gradient background and fixed size.
     private JButton createRoundedButton(String text) {
         JButton button = new JButton(text) {
             @Override
