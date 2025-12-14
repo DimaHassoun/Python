@@ -23,7 +23,7 @@ public class AddQuestion extends JFrame {
     public JRadioButton ansD;
     public ButtonGroup answerGroup;
     public WindowSizeManager windowSizeManager;
-
+    // Constructs the "Add Question" window for the quiz application.
     public AddQuestion() {
         setTitle("Add Question");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -193,7 +193,7 @@ public class AddQuestion extends JFrame {
         setVisible(true);
         addButton.addActionListener(e -> onAddQuestion());
     }
-
+    // Creates a JPanel containing a label and a scrollable text area.
     private JPanel labeledArea(String label, JTextArea area) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
