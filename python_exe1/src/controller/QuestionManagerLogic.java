@@ -199,7 +199,7 @@ public class QuestionManagerLogic {
 	private static String dString;
 	private static String Correct_Answer;
 
-	//Dima --- New function to get a random question row ---
+	//--- New function to get a random question row ---
 	public static String[] getRandomQuestion(String csvPath) throws IOException {
 		DefaultTableModel model = loadCSVToTable(csvPath);
 		int rowCount = model.getRowCount();

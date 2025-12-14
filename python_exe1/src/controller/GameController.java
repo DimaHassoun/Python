@@ -69,18 +69,27 @@ public class GameController {
 		activeGames.put(id, game);
 		return game;
 	}
-
+	/**
+	 * Returns the next game ID based on the game history.
+	 * If the game history list is empty, the method returns 1.
+	 * Otherwise, it retrieves the last game in the history and returns
+	 * its ID incremented by one.
+	 */
 	public static int getNextGameIdFromHistory() {
 		List<GameHistory> history = GameHistoryController.getHistoryList();
 		if (history.isEmpty()) {
 			return 1; // If no history exists, start from 1
 		} else {
-			// If no history exists, start from 1
+			 // Get the last game in history and increment its ID
 			GameHistory last = history.get(history.size() - 1);
 			return last.getGame().getId() + 1;
 		}
 	}
-
+	/**
+	 * Switches the turn to the other player in the specified game.
+	 * toggles the current player between Player 1 and Player 2,
+	 * and updates the game board UI to highlight the new current player.
+	 */
 	public static void switchTurn(int gameNum, GameBoards gameBoard) {
 		// Switch current player
 		Game game = getGame(gameNum);
@@ -105,6 +114,7 @@ public class GameController {
 	}
 
 	//========================= Cell =========================
+	//Checks whether a specific cell is already revealed.
 	public static boolean IsCellRevealed(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
@@ -113,14 +123,16 @@ public class GameController {
 		if (clickedCell.isRevealed())return true;
 		else return false;
 	}
-	//Play Cascade Reveal
+	
+	// Performs a cascade reveal starting from the specified cell.
+	 
 	public static void PlayCascadeReveal(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		board.cascadeReveal(row, col);
 
 	}
-	//Get Cell Type
+	//Returns the type of a specific cell as a string.
 	public static String GetCellType(int gameNum, boolean isLeft,int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
@@ -146,48 +158,49 @@ public class GameController {
 		return board.getCell(row, col).getDisplay();
 	}
 
-	//cell.isFlagged()
+	//Checks whether a cell is flagged.
 	public static boolean IsCellFlagged(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
 		return cell.isFlagged();
 	}
-	//cell setFlagged(false);
+	// Removes a flag from a cell.
 	public static void UnFlaggedCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
 		cell.setFlagged(false);
 	}
-	//cell setFlagged(true);
+	//Flags a cell.
 	public static void FlaggedCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
 		cell.setFlagged(true);
 	}
-	//  Reveal cell(true)
+	//  Reveals a cell.
 	public static void RevealCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
 		cell.setRevealed(true);
 	}
-	//is Current Cell Counted??
+	//Checks whether a cell has already been counted (e.g., for scoring).
 	public static boolean IsCellCounted(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell currentCell = board.getCell(row, col);
 		return currentCell.isCounted();
 	}
-	//currentCell.setCounted(true);
+	//Marks a cell as counted.
 	public static void setCountedAsCounted(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell currentCell = board.getCell(row, col);
 		currentCell.setCounted(true); 
 	}
+	//Checks whether a cell has already been used.
 	public static boolean iscellUsed(int gameNum, boolean isLeft,int row ,int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
@@ -226,42 +239,42 @@ public class GameController {
 
 	//========================= board =========================
 	//========================= game =========================
-	//game isGameOver 
+	//Checks whether the specified game is over.
 	public static boolean GameIsGameOver(int gameNum) {
 		Game game = getGame(gameNum);
 		if (game.isGameOver()) return true;
 		else return false;
 	}
-	//game getSharedLives 
+	// Returns the number of shared lives remaining in the game. 
 	public static int GameGetSharedLives(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getSharedLives();
 	}
-	//game get Difficulty
+	//Returns the difficulty level of the game.
 	public static String GameGetDifficulty(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getDifficulty().name();
 	}
-	//game finish
+	//Finishes the game and marks it as ended.
 	public static void GameFinish(int gameNum) {
 		Game game = getGame(gameNum);
 		game.finish();
 	}
-	//isVictory
+	//Checks whether the game ended in a victory.
 	public static boolean IsGameVictory(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.isVictory();
 	}
 	//========================= game =========================
 	//========================= Player =========================	
-	//Get Current Player 
+	//Returns the current player number. 
 	public static int GameGetCurrentPlayer(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getCurrentPlayer();
 	}
 	//========================= Player =========================
 	//========================= Mines =========================	
-	//getRemainingMines
+	//Returns the number of remaining mines on the specified board.
 	public static int getRemainingMines(int gameNum, boolean isLeft) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
@@ -269,98 +282,108 @@ public class GameController {
 	}
 	//========================= Mines =========================
 	//========================= Lives =========================	
-	//getSharedLivesGame
+	//Returns the number of shared lives remaining in the game.
 	public static int getSharedLivesGame(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getSharedLives();
 	}
-	//setSharedLives
+	//Updates the number of shared lives in the game.
 	public static void UpdateSharedLivesGame(int gameNum,int SharedLives ) {
 		Game game = getGame(gameNum);
 		game.setSharedLives(SharedLives);
 	}
 	//========================= Lives =========================
 	//========================= Points =========================
-	//addSharedPoints
+	//Adds points to the shared score.
 	public static void UpdateSharedPoints(int gameNum,int SharedPointsToAdd) {
 		Game game = getGame(gameNum);
 		game.addSharedPoints(SharedPointsToAdd);
 	}
-	//game.getSharedPoints()
+	//Returns the current shared score.
 	public static int getSharedPoints(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getSharedPoints();
 	}
 
 	// ========================= Surprise Cell Logic =========================
+	//Activates a surprise cell if possible.
 	public static String ActivateSurpriseCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
 
-		// בדיקות
+		// Validation checks
 		if (cell.getType() != Cell.CellType.SURPRISE) return "NOT_SURPRISE";
 		if (!cell.isRevealed()) return "NOT_REVEALED";
 		if (cell.isUsed()) return "ALREADY_USED";
 		if (!game.canPerformAction()) return "ALREADY_USED";
 
-		// מורידים נקודות הפעלה
+		// Deduct activation cost
 		int cost = game.getActivationCost();
 		game.addSharedPoints(-cost);
 
-		// מסמנים שהופעלה
+		// Mark cell as used
 		cell.setUsed(true);
 
-		// סיכוי 50/50
+		 // 50/50 chance for good or bad effect
 		boolean good = Math.random() < 0.5;
 		int pointsChanged = game.applySurpriseEffect(good);
 
 		return (good ? "GOOD:" : "BAD:") + pointsChanged ;
 	}
 	// ========================= Question Cell Logic =========================
+	//Returns the activation cost for a question or surprise action in the game.
 	public static int GetGameSurpriseQuestionCoust(int gameNum) {
 		Game game = getGame(gameNum);
 		return game.getActivationCost();
 	}
+	//Activates a question by deducting the activation cost from shared points.
 	public static void ActivateQuestion(int gameNum) {
 		Game game = getGame(gameNum);
 		int cost = game.getActivationCost();
 		game.addSharedPoints(-cost);
 	}
+	// Refunds the activation cost if the question failed to load.
 	public static void FaildeToLoadQuestion(int gameNum) {
 		Game game = getGame(gameNum);
 		int cost = game.getActivationCost();
 		game.addSharedPoints(+cost);
 	}
-	private static  boolean canSwitch;//tell game it can switch turns
+	// Indicates whether the game is currently allowed to switch turns.
+	private static  boolean canSwitch;
+	// Stores a pending action that should be applied after answering a question.
 	private static QuestionAction pendingQuestionAction = QuestionAction.NONE;
-	//getter and setter
+	// Returns whether the game can switch turns.
 	public static boolean isCanSwitch() {
 		return canSwitch;
 	}
+	// Sets whether the game can switch turns.
 	public static  void setCanSwitch(boolean canswitch) {
 		canSwitch = canswitch;
 	}
-	//Cancel 
+	// Cancels the current question source and prevents turn switching.
 	public static void sourceCancel() {
 		setCanSwitch(false);
 	}
-	//random Helper
+	// Returns true with a 50% probability.
 	private static boolean random50() {
 		return Math.random() < 0.5;
 	}
+	// Defines special actions that can be triggered by question rewards.
 	public enum QuestionAction {
 	    NONE,
 	    REVEAL_RANDOM_MINE,
 	    REVEAL_3X3
 	}
+	// Returns the currently pending question action.
 	public static QuestionAction getPendingQuestionAction() {
 		return pendingQuestionAction;
 	}
+	// Clears any pending question action.
 	public static void clearPendingQuestionAction() {
 	    pendingQuestionAction = QuestionAction.NONE;
 	}
-	//Scoring Question
+	// Applies scoring, lives, and special actions based on the question result.
 	public static String applyQuestionScoring(int gameNum, String questionLevel,boolean isCorrect, boolean isLeft,int row,int col){
 		Game game = getGame(gameNum);
 		Game.Difficulty gameLevel= game.getDifficulty();
@@ -372,6 +395,7 @@ public class GameController {
 		int pointsChange = 0;
 		int heartsChange = 0;
 		String actionMessage = ""; 
+		 /* ===== SCORING LOGIC (by difficulty) ===== */
 		// EASY GAME 
 		if (gameLevel == Game.Difficulty.EASY) {
 			//EASY
@@ -502,7 +526,7 @@ public class GameController {
 			}
 		}
 
-		// ===== APPLY =====
+		 // ===== APPLY RESULTS =====
 		game.addSharedPoints(pointsChange);
 		game.setSharedLives(game.getSharedLives() + heartsChange);
 
@@ -523,7 +547,7 @@ public class GameController {
 		setCanSwitch(true);
 		return message;
 	}
-	
+	// Reveals a random hidden mine on the specified board.
 	public static int[] revealRandomHiddenMine(int gameNum, boolean isLeft) {
 	    Game game = getGame(gameNum);
 	    Board board = isLeft ? game.getBoard1() : game.getBoard2();
@@ -553,7 +577,7 @@ public class GameController {
 	    return chosen; // {row, col}
 	}
 
-	//3x3 random grid
+	// Reveals a random 3x3 grid of cells on the specified board.
 	public static ArrayList<int[]> reveal3x3RandomGrid(int gameNum, boolean isLeft) {
 	    Game game = getGame(gameNum);
 	    Board board = isLeft ? game.getBoard1() : game.getBoard2();
