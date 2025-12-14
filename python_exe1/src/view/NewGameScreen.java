@@ -193,7 +193,8 @@ public class NewGameScreen extends JFrame {
 
         setVisible(true);
     }
-
+    /* Positions and sizes all GUI components within the container.
+    * This method uses absolute positioning by setting bounds for each component.*/
     private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, JLabel back,
                                     JLabel gameNum, JLabel dateLbl, RoundedPanel diffPanel, JLabel diffTitle,
                                     JRadioButton easy, JRadioButton medium, JRadioButton hard,
@@ -227,41 +228,45 @@ public class NewGameScreen extends JFrame {
         musicManager.toggleMusic();
         updateMusicIcon();
     }
-
+    // Displays a modal dialog for controlling the application's music volume.
     private void showVolumeControl() {
+    	  // Create panel with BorderLayout and spacing
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+     // Label showing current volume percentage
         JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
         volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-
+     // Slider for adjusting volume
         JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
         volumeSlider.setMajorTickSpacing(25);
         volumeSlider.setMinorTickSpacing(5);
         volumeSlider.setPaintTicks(true);
         volumeSlider.setPaintLabels(true);
+        // Update volume in real-time when slider changes
         volumeSlider.addChangeListener(e -> {
             int value = volumeSlider.getValue();
             musicManager.setVolume(value / 100.0f);
             volumeLabel.setText("Volume: " + value + "%");
         });
-
+     // Add components to panel
         panel.add(volumeLabel, BorderLayout.NORTH);
         panel.add(volumeSlider, BorderLayout.CENTER);
-
+     // Show panel in a modal dialog
         JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
-
+    // Updates the music icon based on the current playback state.
     private void updateMusicIcon() {
         if (musicManager.isPlaying()) {
-            musicLabel.setText("♪");
+            musicLabel.setText("♪");// Music is playing
             musicLabel.setForeground(new Color(246, 230, 138));
         } else {
-            musicLabel.setText("🔇");
+            musicLabel.setText("🔇");// Music is muted
             musicLabel.setForeground(new Color(180, 180, 180));
         }
     }
 
-    // HELPER METHODS
+ // ================= Helper Methods =================
+    // Creates a styled JRadioButton with a specified label.
     private JRadioButton createOption(String label, int y) {
         JRadioButton rb = new JRadioButton(label);
         rb.setFont(new Font("Verdana", Font.BOLD, 22));
@@ -269,7 +274,7 @@ public class NewGameScreen extends JFrame {
         rb.setForeground(Color.WHITE);
         return rb;
     }
-
+    //Creates a customized JTextField with a placeholder text.
     private JTextField createTextField(String placeholder) {
         JTextField tf = new JTextField() {
             protected void paintComponent(Graphics g) {
