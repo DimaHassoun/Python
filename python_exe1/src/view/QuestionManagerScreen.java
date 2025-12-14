@@ -307,13 +307,13 @@ public class QuestionManagerScreen extends JFrame {
         setVisible(true);
     }
 
-    // --- Helper Methods ---
-
+ // ================= Music Helper Methods =================
+  //Toggles the music playback on or off.  
     private void toggleMusic() {
         musicManager.toggleMusic();
         updateMusicIcon();
     }
-
+    //Displays a modal dialog allowing the user to adjust the music volume.
     private void showVolumeControl() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -333,7 +333,7 @@ public class QuestionManagerScreen extends JFrame {
         panel.add(volumeSlider, BorderLayout.CENTER);
         JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
-
+    //Updates the music label icon and color based on the current music playback state.
     private void updateMusicIcon() {
         if (musicManager.isPlaying()) {
             musicLabel.setText("♪");
@@ -344,21 +344,21 @@ public class QuestionManagerScreen extends JFrame {
         }
     }
 
-    // --- Inner Classes ---
-
+ // ================= Inner Classes =================
+    //A JTextField with placeholder text support.
     class PlaceholderTextField extends JTextField {
         private String placeholder;
-
+        //Constructor.
         public PlaceholderTextField(String placeholder, int columns) {
             super(columns);
             this.placeholder = placeholder;
         }
-
+        //Updates the placeholder text and repaints the field.
         public void setPlaceholder(String placeholder) {
             this.placeholder = placeholder;
             repaint();
         }
-
+        //A JButton with rounded corners and custom styling.
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -398,7 +398,7 @@ public class QuestionManagerScreen extends JFrame {
             super.paintComponent(g);
         }
     }
-
+    //A TableCellRenderer that centers text in a JTextArea inside a JPanel.
     class CenteredTextAreaRenderer implements TableCellRenderer {
         private final JPanel panel;
         private final JTextArea textArea;
