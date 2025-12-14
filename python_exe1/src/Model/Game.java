@@ -39,11 +39,10 @@ public class Game {
         this.state = GameState.CREATED;
     }
     
-    /**
-     * Initialize boards and start the game according to difficulty.
-     */
+    
+     // Initialize boards and start the game according to difficulty. 
     public void start() {
-        int size = 9, mines = 10, questions = 6, surprises = 2, lives = 10;
+        int size = 8, mines = 10, questions = 3, surprises = 2, lives = 3;
 
         switch (difficulty) {
             case EASY:
@@ -66,15 +65,13 @@ public class Game {
         this.surpriseActivatedThisTurn = false;
 
     }
-    
+    // Marks the game as finished and records the time at which the game ended.
     public void finish() {
         this.state = GameState.FINISHED;
         this.endTime = LocalDateTime.now();
     }
     
-    /**
-     * Add points to shared score (can be positive or negative)
-     */
+     // Add points to shared score (can be positive or negative)
     public void addSharedPoints(int points) {
         this.sharedPoints += points;
     }
@@ -96,6 +93,9 @@ public class Game {
     }
     
     // ---------- Surprise Cell ----------
+    
+    /* Applies the effect of a surprise cell, updating shared points and lives
+     * based on whether the surprise is good or bad */
     public int applySurpriseEffect(boolean good) {
         int points;
         switch (difficulty) {
@@ -119,21 +119,21 @@ public class Game {
         surpriseActivatedThisTurn = true; // block further actions this turn
         return points;
     }
+    // Checks whether the player can perform an action this turn.
+    public boolean canPerformAction() { 
+    	return !surpriseActivatedThisTurn; 
+    }
+    // Sets the state indicating whether a surprise has been activated during the current turn.
+    public void setSurpriseActivatedThisTurn(boolean activated) { 
+    	this.surpriseActivatedThisTurn = activated;
+    }
 
-    public boolean canPerformAction() { return !surpriseActivatedThisTurn; }
-    public void setSurpriseActivatedThisTurn(boolean activated) { this.surpriseActivatedThisTurn = activated; }
-    
-    
-    /**
-     * Check if game is over (no lives left or all cells revealed)
-     */
+    // Check if game is over (no lives left or all cells revealed)   
     public boolean isGameOver() {
         return this.sharedLives <= 0 || isVictory();
     }
-    
-    /**
-     * Check if players won (all non-mine cells revealed on both boards)
-     */
+
+    // Check if players won (all non-mine cells revealed on both boards)
     public boolean isVictory() {
     	boolean board1Victory = board1.isCompleted() || board1.getMinesRevealed() == board1.getTotalMines();
     	boolean board2Victory = board2.isCompleted() || board2.getMinesRevealed() == board2.getTotalMines();
@@ -241,6 +241,5 @@ public class Game {
         this.id = id;
     }
     
-
 
 }
