@@ -10,12 +10,12 @@ public class Cell {
 	private int board_id;
 
 	private CellType type;
-	private int surroundingMines;  // מספר מוקשים מסביב (0–8)
+	private int surroundingMines;  // Number of mines around (0–8)
 
 	private boolean revealed;
 	private boolean flagged;
-	private boolean used; // לשימוש בהפתעה/שאלה
-	private boolean counted; // מסמן אם מוקש כבר נחשב בהפחתת remainingMines
+	private boolean used; // For use as a surprise/question
+	private boolean counted; // Indicates whether a mine has already been counted in reducing remainingMines
 
 	public Cell(int x, int y, CellType type) {
 		this.x = x;
@@ -58,7 +58,7 @@ public class Cell {
 	public void setCounted(boolean counted) { this.counted = counted; }
 
 	// ---------- Display for GUI ----------
-
+	// Returns a string representation of the cell for display purposes.
 	public String getDisplay() {
 		if (!revealed) {
 			return flagged ? "🚩" : " ";
