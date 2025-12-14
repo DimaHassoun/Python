@@ -21,7 +21,7 @@ public class Board {
         this.board = new Cell[size][size];
         initializeBoard();
     }
-
+    // Initializes the game board.
     private void initializeBoard() {
         // Initialize all cells as empty
         for (int i = 0; i < size; i++) {
@@ -39,7 +39,7 @@ public class Board {
         // Place question & surprise cells
         placeSpecialCells();
     }
-
+    //  Randomly places mines on the game board.
     private void placeMines() {
         Random rand = new Random();
         int placed = 0;
@@ -52,21 +52,21 @@ public class Board {
             }
         }
     }
-
+    // Calculates the number of surrounding mines for each cell on the board.
     private void calculateNumbers() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-
+            	 // Skip cells that contain a mine
                 if (board[i][j].getType() == Cell.CellType.MINE)
                     continue;
 
                 int mineCount = 0;
-
+             // Check all surrounding cells
                 for (int di = -1; di <= 1; di++) {
                     for (int dj = -1; dj <= 1; dj++) {
                         int ni = i + di;
                         int nj = j + dj;
-
+                        // Ensure indices are within bounds
                         if (ni >= 0 && ni < size && nj >= 0 && nj < size) {
                             if (board[ni][nj].getType() == Cell.CellType.MINE) {
                                 mineCount++;
@@ -74,7 +74,7 @@ public class Board {
                         }
                     }
                 }
-
+                // Update cell type based on mine count
                 if (mineCount > 0) {
                     board[i][j].setType(Cell.CellType.NUMBER);
                     board[i][j].setSurroundingMines(mineCount);
@@ -84,12 +84,12 @@ public class Board {
             }
         }
     }
-
+    // Randomly places special cells on the game board.
     private void placeSpecialCells() {
         Random rand = new Random();
         List<int[]> emptyPositions = new ArrayList<>();
 
-        // Collect empty cells
+        // Collect all empty cells
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (board[i][j].getType() == Cell.CellType.EMPTY) {
@@ -98,34 +98,34 @@ public class Board {
             }
         }
 
-        // Place questions
+     // Randomly place QUESTION cells
         for (int q = 0; q < questions && !emptyPositions.isEmpty(); q++) {
             int idx = rand.nextInt(emptyPositions.size());
             int[] pos = emptyPositions.remove(idx);
             board[pos[0]][pos[1]].setType(Cell.CellType.QUESTION);
         }
 
-        // Place surprises
+     // Randomly place SURPRISE cells
         for (int s = 0; s < surprises && !emptyPositions.isEmpty(); s++) {
             int idx = rand.nextInt(emptyPositions.size());
             int[] pos = emptyPositions.remove(idx);
             board[pos[0]][pos[1]].setType(Cell.CellType.SURPRISE);
         }
     }
-
+    // Returns the cell located at the specified row and column.
     public Cell getCell(int row, int col) {
         if (row >= 0 && row < size && col >= 0 && col < size) {
             return board[row][col];
         }
         return null;
     }
-
+    // Reveals the cell at the specified position.
     public void revealCell(int row, int col) {
         if (getCell(row, col) != null) {
             getCell(row, col).setRevealed(true);
         }
     }
-
+    // Recursively reveals cells starting from the specified position.
     public void cascadeReveal(int row, int col) {
         if (row < 0 || row >= size || col < 0 || col >= size) return;
 
@@ -148,8 +148,7 @@ public class Board {
         }
         // Stop cascade automatically if it's a NUMBER or MINE (revealed but no recursion)
     }
-
-
+    // Counts and returns the number of mine cells that have been revealed on the board.
     public int getMinesRevealed() {
         int count = 0;
         for (int i = 0; i < size; i++) {
@@ -162,9 +161,8 @@ public class Board {
         return count;
     }
     
-    /**
-     * Check if board is completed (all non-mine cells revealed)
-     */
+    
+     // Check if board is completed (all non-mine cells revealed)
     public boolean isCompleted() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -178,25 +176,21 @@ public class Board {
         return true;
     }
     
-    /**
-     * Get remaining mines (total mines - flagged mines)
-     */
+    
+     // Get remaining mines (total mines - flagged mines)
     public int getRemainingMines() {
         return remainingMines;
     }
     
-    /**
-     * Decrement remaining mines count (when a mine is flagged)
-     */
+     // Decrement remaining mines count (when a mine is flagged)
     public void decrementRemainingMines() {
         if (remainingMines > 0) {
             remainingMines--;
         }
     }
     
-    /**
-     * Increment remaining mines count (when a flag is removed from mine)
-     */
+   
+     // Increment remaining mines count (when a flag is removed from mine)
     public void incrementRemainingMines() {
         if (remainingMines < mines) {
             remainingMines++;
