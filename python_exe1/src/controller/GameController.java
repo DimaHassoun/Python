@@ -7,6 +7,7 @@ import Model.Cell;
 import view.GameBoards;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -577,7 +578,7 @@ public class GameController {
 	    return chosen; // {row, col}
 	}
 
-	// Reveals a random 3x3 grid of cells on the specified board.
+	// Reveals a random 3x3 grid of cells on the specified board with fallback
 	public static ArrayList<int[]> reveal3x3RandomGrid(int gameNum, boolean isLeft) {
 	    Game game = getGame(gameNum);
 	    Board board = isLeft ? game.getBoard1() : game.getBoard2();
@@ -597,35 +598,85 @@ public class GameController {
 
 	    if (hiddenCells.isEmpty()) return new ArrayList<>(); // nothing to reveal
 
-	    // Pick a random center cell for the 3x3 block
-	    int[] center = hiddenCells.get((int)(Math.random() * hiddenCells.size()));
-	    int centerRow = center[0];
-	    int centerCol = center[1];
-
-	    ArrayList<int[]> revealedCells = new ArrayList<>();
-
-	    // Reveal all cells in 3x3 block around the center (respect board bounds)
-	    for (int dr = -1; dr <= 1; dr++) {
-	        for (int dc = -1; dc <= 1; dc++) {
-	            int r = centerRow + dr;
-	            int c = centerCol + dc;
-	            if (r >= 0 && r < size && c >= 0 && c < size) {
-	                Cell cell = board.getCell(r, c);
-	                if (!cell.isRevealed()) {
-	                    cell.setRevealed(true);
-	                    revealedCells.add(new int[]{r, c});
-
-	                    // If it's a mine and not counted, decrement remaining mines and mark counted
-	                    if (cell.getType() == Cell.CellType.MINE && !cell.isCounted()) {
-	                        decrementRemainingMinesInBoard(gameNum, isLeft);
-	                        setCountedAsCounted(gameNum, isLeft, r, c);
+	    // Find the best center (most unrevealed cells in 3x3)
+	    int[] bestCenter = null;
+	    int maxUnrevealed = 0;
+	    
+	    for (int[] pos : hiddenCells) {
+	        int row = pos[0];
+	        int col = pos[1];
+	        
+	        // Count unrevealed cells in 3x3 around this position
+	        int count = 0;
+	        for (int dr = -1; dr <= 1; dr++) {
+	            for (int dc = -1; dc <= 1; dc++) {
+	                int r = row + dr;
+	                int c = col + dc;
+	                if (r >= 0 && r < size && c >= 0 && c < size) {
+	                    if (!board.getCell(r, c).isRevealed()) {
+	                        count++;
 	                    }
 	                }
 	            }
 	        }
+	        
+	        // Update best center if this one has more unrevealed cells
+	        if (count > maxUnrevealed) {
+	            maxUnrevealed = count;
+	            bestCenter = pos;
+	        }
 	    }
 
-	    return revealedCells; // List of {row, col} revealed
+	    ArrayList<int[]> revealedCells = new ArrayList<>();
+
+	    if (bestCenter != null && maxUnrevealed >= 3) {
+	        // Reveal 3x3 around best center
+	        int centerRow = bestCenter[0];
+	        int centerCol = bestCenter[1];
+
+	        for (int dr = -1; dr <= 1; dr++) {
+	            for (int dc = -1; dc <= 1; dc++) {
+	                int r = centerRow + dr;
+	                int c = centerCol + dc;
+	                if (r >= 0 && r < size && c >= 0 && c < size) {
+	                    Cell cell = board.getCell(r, c);
+	                    if (!cell.isRevealed()) {
+	                        cell.setRevealed(true);
+	                        revealedCells.add(new int[]{r, c});
+
+	                        if (cell.getType() == Cell.CellType.MINE && !cell.isCounted()) {
+	                            decrementRemainingMinesInBoard(gameNum, isLeft);
+	                            setCountedAsCounted(gameNum, isLeft, r, c);
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    } else {
+	        // Fallback: reveal up to 3 random cells
+	    	int toReveal = Math.min(3, hiddenCells.size());
+	    	ArrayList<int[]> shuffled = new ArrayList<>(hiddenCells);
+	    	Collections.shuffle(shuffled);
+
+	    	for (int i = 0; i < toReveal; i++) {
+	    	    int[] pos = shuffled.get(i);
+	    	    int r = pos[0];
+	    	    int c = pos[1];
+	    	    Cell cell = board.getCell(r, c);
+
+	    	    if (!cell.isRevealed()) {
+	    	        cell.setRevealed(true);
+	    	        revealedCells.add(new int[]{r, c});
+
+	    	        if (cell.getType() == Cell.CellType.MINE && !cell.isCounted()) {
+	    	            decrementRemainingMinesInBoard(gameNum, isLeft);
+	    	            setCountedAsCounted(gameNum, isLeft, r, c);
+	    	        }
+	    	    }
+	    	}
+	    }
+
+	    return revealedCells;
 	}
 
 }
