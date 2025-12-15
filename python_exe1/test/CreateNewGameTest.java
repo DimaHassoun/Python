@@ -13,7 +13,8 @@ import static org.junit.Assert.*;
 
 public class CreateNewGameTest {
 
-    @Test
+	// TG_1
+    @Test 
     public void testCreateNewGame_Easy() {
         Game game = GameController.createNewGame("Meson", "Dima", "EASY");
         //Test that a new EASY game is created correctly with all expected values
@@ -37,6 +38,7 @@ public class CreateNewGameTest {
         assertTrue(game.getCurrentPlayer() == 1 || game.getCurrentPlayer() == 2);
     }
 
+ // TG_2
     @Test
     public void testCreateNewGame_Medium() {
         Game game = GameController.createNewGame("Najwa", "Dima", "MEDIUM");
@@ -50,6 +52,7 @@ public class CreateNewGameTest {
         assertTrue(game.getCurrentPlayer() == 1 || game.getCurrentPlayer() == 2);
     }
 
+ // TG_3
     @Test
     public void testCreateNewGame_Hard() {
         Game game = GameController.createNewGame("Eslam", "Najwa", "HARD");
@@ -63,6 +66,7 @@ public class CreateNewGameTest {
         assertTrue(game.getCurrentPlayer() == 1 || game.getCurrentPlayer() == 2);
     }
 
+    // TG_4
     //Test that invalid difficulty input throws an IllegalArgumentException.
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNewGame_InvalidDifficulty() {
@@ -70,24 +74,28 @@ public class CreateNewGameTest {
         GameController.createNewGame("Najwa", "Meson", "SUPERHARD");
     }
   
+    // TG_5:
     //Test that an empty difficulty throws an IllegalArgumentException
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNewGame_EmptyDifficulty() {
         GameController.createNewGame("Player1", "Player2", "");
     }
     
+    // TG_6:
     // Test that an null difficulty throws an NullPointerException
     @Test(expected = NullPointerException.class)
     public void testCreateNewGame_NullDifficulty() {
         GameController.createNewGame("Player1", "Player2", null);
     }
     
+    // TG_7:
     //Player1 name null → exception
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNewGame_Player1NameNull() {
         GameController.createNewGame(null, "Player2", "EASY");
     }
 
+    // TG_8:
     //Player2 name null → exception
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNewGame_Player2NameNull() {
@@ -95,7 +103,7 @@ public class CreateNewGameTest {
     }
     
    
-    
+    // TG_9:
     //Test that game IDs increment correctly
     @Test
     public void testGameIdIncrement() {
@@ -104,7 +112,7 @@ public class CreateNewGameTest {
         Game g2 = GameController.createNewGame("Eslam", "Najwa", "EASY");
         assertTrue(g2.getId() > g1.getId());
     }
-
+    // TG_10:
     //Test that new games are added to the activeGames map
     @Test
     public void testGameAddedToActiveGames() {
