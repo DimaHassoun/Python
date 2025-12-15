@@ -1,5 +1,3 @@
-
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +15,7 @@ public class AddQuestionTest {
     }
 
     // ============================
-    // VALID INPUT TEST
+    // VALID INPUT TEST - ID : T01
     // ============================
     @Test
     void testValidateInputs_valid() {
@@ -34,8 +32,9 @@ public class AddQuestionTest {
     }
 
     // ============================
-    // ID TESTS
+    // ID TESTS 
     // ============================
+    // ID : T02
     @Test
     void testValidateInputs_missingID() {
         addQuestion.idField.setText(""); //empty ID
@@ -44,6 +43,7 @@ public class AddQuestionTest {
         assertEquals("Please enter Question ID.", e.getMessage());
     }
 
+    // ID : T03
     @Test
     void testValidateInputs_invalidID() {
         addQuestion.idField.setText("abc"); // ID not number
@@ -52,6 +52,7 @@ public class AddQuestionTest {
         assertEquals("Invalid number format for ID.", e.getMessage());
     }
     
+    // ID : T04
     @Test
     void testValidateInputs_negativeID() {
         addQuestion.idField.setText("-5");  // Negative ID 
@@ -60,6 +61,7 @@ public class AddQuestionTest {
         assertEquals("ID must be a positive number.", e.getMessage());
     }
 
+    // ID : T05
     @Test
     void testValidateInputs_zeroID() {
         addQuestion.idField.setText("0");  // ID = 0
@@ -70,7 +72,7 @@ public class AddQuestionTest {
 
 
     // ============================
-    // QUESTION TEXT TEST
+    // QUESTION TEXT TEST - ID : T06
     // ============================
     @Test
     void testValidateInputs_missingQuestionText() {
@@ -84,6 +86,7 @@ public class AddQuestionTest {
     // ============================
     // OPTIONS TESTS (SEPARATE)
     // ============================
+    // ID : T07
     @Test
     void testValidateInputs_missingOption1() {
         addQuestion.idField.setText("1");
@@ -99,6 +102,7 @@ public class AddQuestionTest {
         assertEquals("Please fill Option 1.", e.getMessage());
     }
 
+    // ID : T08
     @Test
     void testValidateInputs_missingOption2() {
         addQuestion.idField.setText("1");
@@ -113,7 +117,8 @@ public class AddQuestionTest {
         Exception e = assertThrows(Exception.class, () -> addQuestion.validateInputs());
         assertEquals("Please fill Option 2.", e.getMessage());
     }
-
+    
+    // ID : T09
     @Test
     void testValidateInputs_missingOption3() {
         addQuestion.idField.setText("1");
@@ -129,6 +134,7 @@ public class AddQuestionTest {
         assertEquals("Please fill Option 3.", e.getMessage());
     }
 
+    // ID : T10
     @Test
     void testValidateInputs_missingOption4() {
         addQuestion.idField.setText("1");
@@ -145,7 +151,7 @@ public class AddQuestionTest {
     }
 
     // ============================
-    // DIFFICULTY TEST
+    // DIFFICULTY TEST - ID : T11
     // ============================
     @Test
     void testValidateInputs_missingDifficulty() {
@@ -161,7 +167,7 @@ public class AddQuestionTest {
     }
 
     // ============================
-    // CORRECT ANSWER TEST
+    // CORRECT ANSWER TEST - ID : T12
     // ============================
     @Test
     void testValidateInputs_missingCorrectAnswer() {
@@ -178,7 +184,7 @@ public class AddQuestionTest {
     }
 
     // ============================
-    // CLEAR FIELDS TEST
+    // CLEAR FIELDS TEST - ID : T13
     // ============================
     @Test
     void testClearFields() {
