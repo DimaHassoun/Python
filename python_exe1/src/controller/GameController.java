@@ -469,17 +469,11 @@ public class GameController {
 	    REVEAL_3X3
 	}
 	public enum QuestionResult {
-	    ALREADY_USED,
 	    CANCELED,
 	    ACTIVATED
 	}
 	public static QuestionResult handleQuestion(
 	        int gameNum, Boolean isLeft, int row, int col, boolean confirmed) {
-
-	    if (iscellUsed(gameNum, isLeft, row, col)) {
-	        setCanSwitch(false);
-	        return QuestionResult.ALREADY_USED;
-	    }
 
 	    if (!confirmed) {
 	        setCanSwitch(false);
@@ -801,5 +795,6 @@ public class GameController {
 	}
 
 }
+
 
 
