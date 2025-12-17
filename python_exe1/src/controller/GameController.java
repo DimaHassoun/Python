@@ -692,6 +692,13 @@ public class GameController {
 	    return chosen; // {row, col}
 	}
 
+	/**
+	 * Reveals a 3x3 grid of cells randomly on the specified board -> 
+	 * Priority is given to revealing the full 3x3 grid whenever possible.
+	 * However, if there isn't enough space to reveal a complete 3x3 grid,
+	 * the method will reveal a smaller grid that fits within the board boundaries.
+	 */
+
 	// Reveals a random 3x3 grid of cells on the specified board with fallback
 	public static ArrayList<int[]> reveal3x3RandomGrid(int gameNum, boolean isLeft) {
 	    Game game = getGame(gameNum);
@@ -794,4 +801,5 @@ public class GameController {
 	}
 
 }
+
 
