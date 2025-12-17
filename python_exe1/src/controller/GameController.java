@@ -405,7 +405,7 @@ public class GameController {
 		return "SurpriseCell";
 	}
 	
-	//Activates a surprise cell if possible.
+	//Activates a surprise:
 	public static String ActivateSurpriseCell(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
@@ -794,3 +794,4 @@ public class GameController {
 	}
 
 }
+
