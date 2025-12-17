@@ -1,13 +1,18 @@
 import Model.Game;
+import Model.GameResult;
 import controller.GameController;
+import controller.GameHistoryController;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/*
+Unit tests for the createNewGame() function in GameController.
+*/
 
-//Unit tests for the createNewGame() function in GameController.
 public class CreateNewGameTest {
 
-	// TEST ID – TG_1
+	  // TEST ID – TG_1
     // Test that a new EASY game is successfully created and is not null
     @Test
     public void testCreateNewGame_Easy_NotNull() {
