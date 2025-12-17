@@ -259,6 +259,7 @@ public class GameController {
 	    REVEALED_SAFE,
 	    ALREADY_REVEALED
 	}
+	//------------------------------handleReveal-----------------------------
 	public static RevealResult handleReveal(int gamenum, Boolean isLeft, int row, int col) {
 
 	    if (IsCellRevealed(gamenum, isLeft, row, col)) {
@@ -267,26 +268,18 @@ public class GameController {
 
 	    boolean wasMine = GetCellType(gamenum, isLeft, row, col).equals("MINE");
 
-	    PlayCascadeReveal(gamenum, isLeft, row, col);
-
-	    int size = getBoardSize(gamenum, isLeft);
-
-	    for (int r = 0; r < size; r++) {
-	        for (int c = 0; c < size; c++) {
-	            // Check mine counting
-	            if (GetCellType(gamenum, isLeft, r, c).equals("MINE") &&
-	                IsCellRevealed(gamenum, isLeft, r, c) &&
-	                !IsCellCounted(gamenum, isLeft, r, c)) {
-	                decrementRemainingMinesInBoard(gamenum, isLeft);
-	                setCountedAsCounted(gamenum, isLeft, r, c);
-	            }
-	        }
-	    }
-
 	    if (wasMine) {
+	        // Reveal mine directly
+	        RevealCell(gamenum, isLeft, row, col);
+	        if (!IsCellCounted(gamenum, isLeft, row, col)) {
+	            decrementRemainingMinesInBoard(gamenum, isLeft);
+	            setCountedAsCounted(gamenum, isLeft, row, col);
+	        }
 	        UpdateSharedLivesGame(gamenum, getSharedLivesGame(gamenum) - 1);
 	        return RevealResult.REVEALED_MINE;
 	    } else {
+	        PlayCascadeReveal(gamenum, isLeft, row, col);
+	        // Update points for safe reveal
 	        UpdateSharedPoints(gamenum, 1);
 	        return RevealResult.REVEALED_SAFE;
 	    }
@@ -795,6 +788,7 @@ public class GameController {
 	}
 
 }
+
 
 
 
