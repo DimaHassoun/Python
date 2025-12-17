@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import controller.QuestionManagerLogic;
-public class validationQuestionDataTest {
+public class ValidationQuestionDataTest {
 
     @BeforeEach
     void setUp() {
@@ -208,4 +208,5 @@ public class validationQuestionDataTest {
         assertFalse(result);
         assertEquals("Please select the correct answer.", QuestionManagerLogic.lastErrorMessage);
     }
+
 
