@@ -11,6 +11,7 @@ public class validationQuestionDataTest {
         QuestionManagerLogic.lastErrorMessage = "";
     }
 
+    //ID : T01
     @Test
     void testValidateQuestionData_valid() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -28,6 +29,7 @@ public class validationQuestionDataTest {
     // ============================
     // ID TESTS
     // ============================
+    //ID : T02
     @Test
     void testValidateQuestionData_missingID() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -42,6 +44,7 @@ public class validationQuestionDataTest {
         assertEquals("Please enter Question ID.", QuestionManagerLogic.lastErrorMessage);
     }
 
+    //ID : T03
     @Test
     void testValidateQuestionData_invalidID() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -56,6 +59,7 @@ public class validationQuestionDataTest {
         assertEquals("Invalid number format for ID.", QuestionManagerLogic.lastErrorMessage);
     }
 
+    //ID : T04
     @Test
     void testValidateQuestionData_negativeID() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -70,6 +74,7 @@ public class validationQuestionDataTest {
         assertEquals("ID must be a positive number.", QuestionManagerLogic.lastErrorMessage);
     }
     
+    //ID : T05
     @Test
     void testValidateQuestionData_zeroID() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -85,7 +90,7 @@ public class validationQuestionDataTest {
     }
 
     // ============================
-    // QUESTION TEXT TEST 
+    // QUESTION TEXT TEST -ID : T06
     // ============================
     @Test
     void testValidateQuestionData_missingQuestionText() {
@@ -104,6 +109,7 @@ public class validationQuestionDataTest {
     // ============================
     // OPTIONS TESTS
     // ============================
+    //ID : T07
     @Test
     void testValidateQuestionData_missingOption1() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -119,6 +125,7 @@ public class validationQuestionDataTest {
         assertEquals("Please fill Option A.", QuestionManagerLogic.lastErrorMessage);
     }
 
+    //ID : T08
     @Test
     void testValidateQuestionData_missingOption2() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -135,7 +142,8 @@ public class validationQuestionDataTest {
         assertEquals("Please fill Option B.", QuestionManagerLogic.lastErrorMessage);
     }
 
-  @Test
+    //ID : T09
+    @Test
     void testValidateQuestionData_missingOption3() {
         boolean result = QuestionManagerLogic.validateQuestionData(
                 "1",
@@ -151,6 +159,7 @@ public class validationQuestionDataTest {
         assertEquals("Please fill Option C.", QuestionManagerLogic.lastErrorMessage);
     }
 
+    //ID : T10
     @Test
     void testValidateQuestionData_missingOption4() {
         boolean result = QuestionManagerLogic.validateQuestionData(
@@ -167,7 +176,7 @@ public class validationQuestionDataTest {
     }
 
     // ============================
-    // DIFFICULTY TEST
+    // DIFFICULTY TEST - ID : T11
     // ============================
     @Test
     void testValidateQuestionData_missingDifficulty() {
@@ -184,7 +193,7 @@ public class validationQuestionDataTest {
     }
 
     // ============================
-    // CORRECT ANSWER TEST 
+    // CORRECT ANSWER TEST - ID : T12
     // ============================
     @Test
     void testValidateQuestionData_missingCorrectAnswer() {
@@ -199,5 +208,4 @@ public class validationQuestionDataTest {
         assertFalse(result);
         assertEquals("Please select the correct answer.", QuestionManagerLogic.lastErrorMessage);
     }
-}
 
