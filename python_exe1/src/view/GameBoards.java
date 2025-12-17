@@ -616,7 +616,12 @@ public class GameBoards extends JFrame {
 	//--------------------------------------Question-----------------------------------------------
 	// Handles the action triggered when a player interacts with a "QUESTION" cell.
 	private void handleActionOfQuestion(int gameNumm,int row, int col, Boolean isLeft, JButton[][] buttons) {
-
+		 // First check if the cell was already used, skip popup if yes
+	    if (GameController.iscellUsed(gameNumm, isLeft, row, col)) {
+	    	GameController.setCanSwitch(false);//don't switch
+	        showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
+	        return;
+	    }
 		// Ask cost (UI)
 		int cost = GameController.GetGameSurpriseQuestionCoust(gameNumm);
 		int choice = JOptionPane.showConfirmDialog(
@@ -625,17 +630,11 @@ public class GameBoards extends JFrame {
 				"Question Cost",
 				JOptionPane.OK_CANCEL_OPTION
 				);
-
 		boolean confirmed = (choice == JOptionPane.OK_OPTION);
-
 		// Game logic
 		GameController.QuestionResult result = GameController.handleQuestion(gameNumm, isLeft, row, col, confirmed );
-
+		
 		switch (result) {
-
-		case ALREADY_USED:
-			showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
-			return;
 
 		case CANCELED:
 			return;
@@ -947,4 +946,5 @@ public class GameBoards extends JFrame {
 	    
 	    return bonusPoints;
 	}
+
 }
