@@ -119,10 +119,7 @@ public class Game {
         surpriseActivatedThisTurn = true; // block further actions this turn
         return points;
     }
-    // Checks whether the player can perform an action this turn.
-    public boolean canPerformAction() { 
-    	return !surpriseActivatedThisTurn; 
-    }
+    
     // Sets the state indicating whether a surprise has been activated during the current turn.
     public void setSurpriseActivatedThisTurn(boolean activated) { 
     	this.surpriseActivatedThisTurn = activated;
