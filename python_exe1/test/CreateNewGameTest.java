@@ -1,7 +1,5 @@
 import Model.Game;
-import Model.GameResult;
 import controller.GameController;
-import controller.GameHistoryController;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -89,3 +87,4 @@ public class CreateNewGameTest {
         assertTrue(true);
     }
 }
+
