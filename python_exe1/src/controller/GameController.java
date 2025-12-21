@@ -394,7 +394,6 @@ public class GameController {
 		if (!wasSurprise) return "NOT_SURPRISE";
 		if (!IsRevealed) return "NOT_REVEALED";
 		if (IsUsed) return "ALREADY_USED";
-		//if (!game.canPerformAction()) return "ALREADY_USED";
 		return "SurpriseCell";
 	}
 	
@@ -788,6 +787,7 @@ public class GameController {
 	}
 
 }
+
 
 
 
