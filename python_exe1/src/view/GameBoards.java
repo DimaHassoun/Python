@@ -345,14 +345,19 @@ public class GameBoards extends JFrame {
 
 	private void stopGame() {
 		// Show a confirmation dialog asking the user if they want to stop the game
-		int response = JOptionPane.showConfirmDialog(this,
-			"Are you sure you want to stop the game and return to the main menu?",
-			"Stop Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int response = JOptionPane.showOptionDialog(GameBoards.this,
+	            "The game is paused.",
+	            "Paused",
+	            JOptionPane.DEFAULT_OPTION,
+	            JOptionPane.INFORMATION_MESSAGE,
+	            null,
+	            new String[]{"Resume the game"},
+	            "Resume the game"
+	        );
 		 // If the user clicks "Yes"
-		if (response == JOptionPane.YES_OPTION) {
-			new FirstScreen();// Open the main menu (first screen)
-			GameBoards.this.dispose();// Close the current game window
-		}
+		 if (response == 0) {
+	            GameController.togglePause(gamenum); // Resume
+	        }
 	}
 
 	private void toggleMusic() {
