@@ -18,6 +18,19 @@ public class GameController {
 
 	private static final AtomicInteger NEXT_ID = new AtomicInteger(1);
 	private static final Map<Integer, Game> activeGames = new ConcurrentHashMap<>();
+	private static final Map<Integer, Boolean> pausedGames = new ConcurrentHashMap<>();
+	
+	// Toggle Pause/Resume state
+	public static void togglePause(int gameNum) {
+	    boolean paused = pausedGames.getOrDefault(gameNum, false);
+	    pausedGames.put(gameNum, !paused);
+	}
+
+	// Check if the game is stopped
+	public static boolean isPaused(int gameNum) {
+	    return pausedGames.getOrDefault(gameNum, false);
+	}
+	
 	public static int startingPlayer;
 	public GameController() {}
 	
@@ -787,8 +800,3 @@ public class GameController {
 	}
 
 }
-
-
-
-
-
