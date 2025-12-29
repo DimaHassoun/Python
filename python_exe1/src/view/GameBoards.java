@@ -586,6 +586,11 @@ public class GameBoards extends JFrame {
 	        }
 	        else {
 	        	String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
+				//Not enough cash → stop here
+	        	 if (result.equals("NOT_ENOUGH_POINTS")) {
+	        	        return false;
+	        	    }
+	        	 // enough cash → do active
 		    	String[] parts = result.split(":");
 		    	String type = parts[0]; // GOOD, BAD
 		    	int points = Integer.parseInt(parts[1]);
@@ -953,3 +958,4 @@ public class GameBoards extends JFrame {
 	}
 
 }
+
