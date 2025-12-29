@@ -415,20 +415,36 @@ public class GameController {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
-
-		// Score - cost 
 		int cost = game.getActivationCost();
-		game.addSharedPoints(-cost);
+		if (cost > game.getSharedPoints()) {
+			 int missing = cost - game.getSharedPoints();
 
-		// Mark cell as used
-		cell.setUsed(true);
+			    JOptionPane.showOptionDialog(
+			            null,
+			            "You can't open the surprise!!\n You need more " + missing + " points to unlock the surprise.",
+			            "Not Enough points",
+			            JOptionPane.DEFAULT_OPTION,
+			            JOptionPane.WARNING_MESSAGE,
+			            null,
+			            new Object[]{"OK"},
+			            "OK"
+			    );
+			 return "NOT_ENOUGH_POINTS";
+		}
+		//cost =< game.getSharedPoints()
+		else {
+			game.addSharedPoints(-cost);
+			// Mark cell as used
+			cell.setUsed(true);
 
-		 // 50/50 chance for good or bad effect
-		boolean good = Math.random() < 0.5;
-		int pointsChanged = game.applySurpriseEffect(good);
+			 // 50/50 chance for good or bad effect
+			boolean good = Math.random() < 0.5;
+			int pointsChanged = game.applySurpriseEffect(good);
 
-		return (good ? "GOOD:" : "BAD:") + pointsChanged ;
+			return (good ? "GOOD:" : "BAD:") + pointsChanged ;
+		}
 	}
+	
 	// ========================= Question Cell Logic =========================
 	//Returns the activation cost for a question or surprise action in the game.
 	public static int GetGameSurpriseQuestionCoust(int gameNum) {
@@ -800,3 +816,4 @@ public class GameController {
 	}
 
 }
+
