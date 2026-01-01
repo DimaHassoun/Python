@@ -35,3 +35,4 @@ public class DefeatScreen extends ResultScreen {
     }
 
 }
+

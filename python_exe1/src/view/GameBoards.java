@@ -573,7 +573,24 @@ public class GameBoards extends JFrame {
 	private boolean handleActionOfSurprise(int row, int col, Boolean isLeft, JButton[][] buttons) {
 		String checkSurprise = GameController.IsSurprise(gamenum, isLeft, row, col);
 		if (checkSurprise.equals("SurpriseCell")) {
-			String getSurpriseCostActivate =GameController.getSurpriseCostActivate(gamenum, isLeft, row, col);
+			 // Check if player has enough points FIRST
+			//Not enough cash → stop here
+			int getIfPlayerHasEnoughPoints = GameController.CheckActivateCost(gamenum);
+			if(getIfPlayerHasEnoughPoints < 0)
+			{
+				JOptionPane.showOptionDialog(
+			            null,
+			            "You can't open the surprise!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the surprise.",
+			            "Not Enough points",
+			            JOptionPane.DEFAULT_OPTION,
+			            JOptionPane.WARNING_MESSAGE,
+			            null,
+			            new Object[]{"OK"},
+			            "OK"
+			    );
+				 return false;
+			}
+			String getSurpriseCostActivate = GameController.getSurpriseCostActivate(gamenum, isLeft, row, col);
 			int choice = JOptionPane.showConfirmDialog(
 	                this,
 	                getSurpriseCostActivate + " \nDo you want to continue?",
@@ -584,13 +601,8 @@ public class GameBoards extends JFrame {
 	        if (choice != JOptionPane.OK_OPTION) {
 	            return false;// Player declined to activate the surprise
 	        }
-	        else {
+	        else {  //if player Agreed and enough cash → do active
 	        	String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
-				//Not enough cash → stop here
-	        	 if (result.equals("NOT_ENOUGH_POINTS")) {
-	        	        return false;
-	        	    }
-	        	 // enough cash → do active
 		    	String[] parts = result.split(":");
 		    	String type = parts[0]; // GOOD, BAD
 		    	int points = Integer.parseInt(parts[1]);
@@ -632,6 +644,24 @@ public class GameBoards extends JFrame {
 	        showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
 	        return;
 	    }
+	    //Check if player has enough points FIRST
+		//Not enough cash → stop here
+		int getIfPlayerHasEnoughPoints = GameController.CheckActivateCost(gamenum);
+		if(getIfPlayerHasEnoughPoints < 0)
+		{
+			JOptionPane.showOptionDialog(
+		            null,
+		            "You can't open the question!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the question.",
+		            "Not Enough points",
+		            JOptionPane.DEFAULT_OPTION,
+		            JOptionPane.WARNING_MESSAGE,
+		            null,
+		            new Object[]{"OK"},
+		            "OK"
+		    );
+			GameController.setCanSwitch(false);//don't switch
+			return;
+		}
 		// Ask cost (UI)
 		int cost = GameController.GetGameSurpriseQuestionCoust(gameNumm);
 		int choice = JOptionPane.showConfirmDialog(
@@ -958,4 +988,3 @@ public class GameBoards extends JFrame {
 	}
 
 }
-
