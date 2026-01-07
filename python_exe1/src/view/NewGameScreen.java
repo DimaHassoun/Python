@@ -14,6 +14,8 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
     private JLabel musicLabel;
     private MusicManager musicManager;
     private WindowSizeManager windowSizeManager;
+    private JTextField p1;
+    private JTextField p2;
 
     public NewGameScreen() {
         setTitle("Start a New Game");
@@ -162,8 +164,8 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
         diffPanel.add(hard);
 
         // PLAYER 1 & PLAYER 2
-        JTextField p1 = createTextField("First Player Name...");
-        JTextField p2 = createTextField("Second Player Name...");
+        p1 = createTextField("First Player Name...");
+        p2 = createTextField("Second Player Name...");
         panel.add(p1);
         panel.add(p2);
 
@@ -347,6 +349,12 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
             g2.setColor(new Color(0, 0, 0, 60));
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
         }
+    }
+    
+    //for the Result Screen
+    public void setPlayerNames(String player1, String player2) {
+        p1.setText(player1);
+        p2.setText(player2);
     }
     
  // ==========  CLEANUP ==========
