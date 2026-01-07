@@ -6,8 +6,8 @@ import javax.swing.JFrame;
 
 public class DefeatScreen extends ResultScreen {
 
-    public DefeatScreen(int finalScore, JFrame previousWindow) {
-        super(finalScore, previousWindow);
+    public DefeatScreen(int finalScore, JFrame previousWindow, String player1, String player2) {
+        super(finalScore, previousWindow, player1, player2);
     }
 
     protected String getWindowTitle() {
@@ -35,4 +35,3 @@ public class DefeatScreen extends ResultScreen {
     }
 
 }
-
