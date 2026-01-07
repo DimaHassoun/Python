@@ -10,6 +10,7 @@ import javax.swing.table.TableCellRenderer;
 
 import Model.Consts;
 import controller.QuestionManagerLogic;
+import view.EditQuestion.RoundedButton;
 
 public class DeleteQuestions extends JFrame {
 
@@ -41,19 +42,7 @@ public class DeleteQuestions extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        JLabel back = new JLabel("Back");
-        back.setFont(new Font("Verdana", Font.BOLD, 28));
-        back.setForeground(new Color(246, 230, 138));
-        back.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        back.setHorizontalAlignment(SwingConstants.RIGHT);
-        back.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                new QuestionManagerScreen();
-                DeleteQuestions.this.dispose();
-            }
-        });
-
-     // -------------------------
+         // -------------------------
         // SEARCH BAR (Find by ID)
         // -------------------------
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
@@ -96,12 +85,6 @@ public class DeleteQuestions extends JFrame {
         JPanel topContainer = new JPanel();
         topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.Y_AXIS));
         topContainer.setOpaque(false);
-
-        // Back
-        JPanel backHolder = new JPanel(new BorderLayout());
-        backHolder.setOpaque(false);
-        backHolder.add(back, BorderLayout.EAST);
-        topContainer.add(backHolder);
 
         // Instruction
         JPanel instructionHolder = new JPanel();
@@ -189,19 +172,27 @@ public class DeleteQuestions extends JFrame {
         
         panel.add(scroll, BorderLayout.CENTER);
 
-        // -------------------------
-        // DELETE BUTTON
+        
+         // -------------------------
+        // BOTTOM BUTTONS: Back + Delete Selected
         // -------------------------
         deleteSelectedBtn = new RoundedButton("Delete Selected");
-        deleteSelectedBtn.setPreferredSize(new Dimension(250, 55));
-        
-        JPanel buttonPanel = new JPanel();
+        deleteSelectedBtn.setPreferredSize(new Dimension(185, 45));
+
+        RoundedButton backBtn = new RoundedButton("Back");
+        backBtn.setPreferredSize(new Dimension(185, 45));
+        backBtn.addActionListener(e -> {
+            new QuestionManagerScreen().setVisible(true);
+            this.dispose();
+        });
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setOpaque(false);
+
         buttonPanel.add(deleteSelectedBtn);
-        buttonPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
+        buttonPanel.add(backBtn);
 
         panel.add(buttonPanel, BorderLayout.SOUTH);
-
+        
         // -------------------------
         // DELETE LOGIC
         // -------------------------
