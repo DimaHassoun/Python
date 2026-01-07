@@ -537,7 +537,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		updateRightMines(GameController.getRemainingMines(gamenum, false));
 		// Handle defeat condition
 		if (GameController.getSharedLivesGame(gamenum) <= 0) {
-			DefeatScreen defeatScreen = new DefeatScreen(GameController.getSharedPoints(gamenum) , this);
+			String player1 = GameController.getGame(gamenum).getPlayer1Name();
+			String player2 = GameController.getGame(gamenum).getPlayer2Name();
+			DefeatScreen defeatScreen = new DefeatScreen(GameController.getSharedPoints(gamenum) , this, player1 ,player2);
 			 // Reveal all cells before showing defeat screen
 		    revealAllCells();
 		    
@@ -575,7 +577,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		            JOptionPane.INFORMATION_MESSAGE);
 		    }
 		    
-		    VictoryScreen victoryScreen = new VictoryScreen(finalScore, this);
+		    String player1 = GameController.getGame(gamenum).getPlayer1Name();
+			String player2 = GameController.getGame(gamenum).getPlayer2Name();
+		    VictoryScreen victoryScreen = new VictoryScreen(finalScore, this ,player1 ,player2);
 		    victoryScreen.setVisible(true);
 		    
 		    // Save history game
