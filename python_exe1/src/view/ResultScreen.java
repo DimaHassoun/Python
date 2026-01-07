@@ -8,10 +8,15 @@ public abstract class ResultScreen extends JFrame {
 
     protected int finalScore;
     protected JFrame previousWindow;
+    protected String player1;
+    protected String player2;
 
-    public ResultScreen(int finalScore, JFrame previousWindow) {
+    public ResultScreen(int finalScore, JFrame previousWindow , String player1 , String player2 ) {
         this.finalScore = finalScore;
         this.previousWindow = previousWindow;
+        this.player1 = player1;
+        this.player2 = player2;
+
 
         setupFrame();
         JPanel mainPanel = createMainPanel();
@@ -124,13 +129,16 @@ public abstract class ResultScreen extends JFrame {
         buttonsPanel.setOpaque(false);
         buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton btnNewGame = createRoundedButton("Start New Game");
-        JButton btnMainMenu = createRoundedButton("Return to Main Menu");
+        JButton btnNewGame = createStyledButton("Start New Game");
+        JButton btnMainMenu = createStyledButton("Return to Main Menu");
 
         btnNewGame.addActionListener((ActionEvent e) -> {
             dispose();
             if (previousWindow != null) previousWindow.dispose();
-            new NewGameScreen().setVisible(true);
+            // فتح NewGameScreen مع نفس الأسماء
+            NewGameScreen newGameScreen = new NewGameScreen();
+            newGameScreen.setPlayerNames(player1, player2); // تحتاج دالة لتعيين الحقول
+            newGameScreen.setVisible(true);
         });
 
         btnMainMenu.addActionListener((ActionEvent e) -> {
@@ -145,6 +153,7 @@ public abstract class ResultScreen extends JFrame {
 
         panel.add(buttonsPanel);
     }
+
 
     // ===== Shared Button Style =====
     protected JButton createRoundedButton(String text) {
@@ -175,4 +184,47 @@ public abstract class ResultScreen extends JFrame {
 
         return button;
     }
+    
+    
+    
+    protected JButton createStyledButton(String text) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                GradientPaint gp = new GradientPaint(
+                        0, 0, new Color(130, 80, 220),
+                        0, getHeight(), new Color(90, 40, 160)
+                );
+
+                g2.setPaint(gp);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 35, 35);
+                super.paintComponent(g);
+            }
+        };
+
+        button.setForeground(new Color(255, 235, 130));
+        button.setFont(new Font("Arial", Font.BOLD, 22));
+        button.setFocusPainted(false);
+        button.setPreferredSize(new Dimension(300, 70));
+        button.setMaximumSize(new Dimension(300, 70));
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setForeground(Color.WHITE);
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setForeground(new Color(255, 235, 130));
+            }
+        });
+
+        return button;
+    }
+
 }
