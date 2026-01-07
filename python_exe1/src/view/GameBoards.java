@@ -5,12 +5,14 @@ import javax.swing.*;
 import controller.GameController;
 import controller.GameHistoryController;
 
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class GameBoards extends JFrame implements MusicManager.MusicStateListener {
 
+	
 	private int rows, cols, leftMines, rightMines, score = 0;
 	private static int gamenum;
 	private JButton[][] leftBoard, rightBoard;
@@ -24,7 +26,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private String player1Name, player2Name;
 	private MusicManager musicManager;
 	private WindowSizeManager windowSizeManager;
+	private JPanel leftWrapper,rightWrapper;
 	
+	// boards color:
+	private static final Color PLAYER1_ACTIVE_COLOR = new Color(180, 160, 220);  // סגול בהיר כמו בתמונה
+	private static final Color PLAYER2_ACTIVE_COLOR = new Color(140, 80, 100);   // red
+	private static final Color DISABLED_BOARD_COLOR = new Color(105, 105, 105);  // Gray
+		
 	public int GetGameNum() {
 		return gamenum;
 	}
@@ -84,14 +92,14 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 		// ========================= LEFT PLAYER =========================
 		// Player name panel
-		leftPlayerPanel = new RoundedPanel(15, Color.white);
+		leftPlayerPanel = new RoundedPanel(0, Color.white);
 		leftPlayerPanel.setPreferredSize(new Dimension(200, 50));
 		leftPlayerPanel.setLayout(new BorderLayout());
 		leftPlayerLabel = new JLabel(nameL, SwingConstants.CENTER);
 		leftPlayerLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		leftPlayerPanel.add(leftPlayerLabel, BorderLayout.CENTER);
 		// Wrapper for centering the player panel
-		JPanel leftWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		leftWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		leftWrapper.setOpaque(false);
 		leftWrapper.add(leftPlayerPanel);
 		// Minesweeper board
@@ -109,29 +117,31 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		JPanel leftTopInfo = new JPanel();
 		leftTopInfo.setLayout(new BoxLayout(leftTopInfo, BoxLayout.Y_AXIS));
 		leftTopInfo.setOpaque(false);
-		leftTopInfo.add(leftWrapper);
-		leftTopInfo.add(Box.createVerticalStrut(5));
 		leftTopInfo.add(leftBoardPanel);
 		leftTopInfo.add(Box.createVerticalStrut(5));
 		leftTopInfo.add(leftMinesLabel);
+		leftMinesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// Background panel with rounded corners and semi-transparent purple
-		leftBackground = new RoundedPanel(15, new Color(128, 0, 128, 128));
+		leftBackground = new RoundedPanel(15);
 		leftBackground.setBorderColor(new Color(255, 215, 0));
 		leftBackground.setLayout(new BorderLayout());
 		leftBackground.add(leftTopInfo, BorderLayout.NORTH);
-
+		leftBackground.setBackgroundColor(new Color(180, 160, 220, 100));
+		
 		// ========================= RIGHT PLAYER =========================
 		// Player name panel
-		rightPlayerPanel = new RoundedPanel(15, Color.white);
+		rightPlayerPanel = new RoundedPanel(0, Color.white);
 		rightPlayerPanel.setPreferredSize(new Dimension(200, 50));
 		rightPlayerPanel.setLayout(new BorderLayout());
 		rightPlayerLabel = new JLabel(nameR, SwingConstants.CENTER);
 		rightPlayerLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		rightPlayerPanel.add(rightPlayerLabel, BorderLayout.CENTER);
+		
 		// Wrapper for centering the player panel
-		JPanel rightWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		rightWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		rightWrapper.setOpaque(false);
 		rightWrapper.add(rightPlayerPanel);
+		
 		// Minesweeper board
 		rightBoardPanel = new RoundedPanel(15);
 		rightBoardPanel.setPreferredSize(new Dimension(500, 500));
@@ -148,16 +158,17 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		JPanel rightTopInfo = new JPanel();
 		rightTopInfo.setLayout(new BoxLayout(rightTopInfo, BoxLayout.Y_AXIS));
 		rightTopInfo.setOpaque(false);
-		rightTopInfo.add(rightWrapper);
-		rightTopInfo.add(Box.createVerticalStrut(5));
 		rightTopInfo.add(rightBoardPanel);
 		rightTopInfo.add(Box.createVerticalStrut(5));
 		rightTopInfo.add(rightMinesLabel);
+		rightMinesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// Background panel with rounded corners and border
 		rightBackground = new RoundedPanel(15);
 		rightBackground.setBorderColor(new Color(255, 215, 0));
 		rightBackground.setLayout(new BorderLayout());
 		rightBackground.add(rightTopInfo, BorderLayout.NORTH);
+		rightBackground.setBackgroundColor(new Color(0, 0, 0, 150));
+		
 		// ========================= ADD TO CENTER PANEL =========================
 		centerPanel.add(leftBackground);
 		centerPanel.add(rightBackground);
@@ -246,9 +257,30 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		topCenterPanel.add(scoreLabel);
 		topCenterPanel.add(difficultyLabel);
 
+		JPanel centerAndPlayersWrapper = new JPanel();
+		centerAndPlayersWrapper.setLayout(new BorderLayout());
+		centerAndPlayersWrapper.setOpaque(false);
+
+		// מוסיפים את ה-topCenterPanel (מספר המשחק + ניקוד) למעלה
+		centerAndPlayersWrapper.add(topCenterPanel, BorderLayout.NORTH);
+
+		// מוסיפים את השחקנים מתחת
+		JPanel playersWrapper = new JPanel(new BorderLayout());
+		playersWrapper.setOpaque(false);
+
+		// מוסיפים את השחקנים בצדדים הרחוקים
+		playersWrapper.add(leftWrapper, BorderLayout.WEST);
+		playersWrapper.add(rightWrapper, BorderLayout.EAST);
+		leftWrapper.setBorder(BorderFactory.createEmptyBorder(0, 100, 0, 0));    
+		rightWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 180));  
+
+
+		centerAndPlayersWrapper.add(playersWrapper, BorderLayout.CENTER);
+
 		topPanel.add(topLeftIcons, BorderLayout.WEST);
-		topPanel.add(topCenterPanel, BorderLayout.CENTER);
+		topPanel.add(centerAndPlayersWrapper, BorderLayout.CENTER);
 		add(topPanel, BorderLayout.NORTH);
+		
 		// Highlight the current player
 		highlightCurrentPlayer(GameController.GameGetCurrentPlayer(gamenum));
 		
@@ -380,35 +412,65 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 	// Creates a game board represented as a JPanel containing a grid of buttons.
 	private JPanel createBoard(boolean isLeft) {
-		 // Create a JPanel with a GridLayout matching the number of rows and columns
-	    // with 3-pixel gaps between cells
-		JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 3, 3));
-		 // Create a 2D array to store references to each button (cell)
-		JButton[][] board = new JButton[rows][cols];
-		 // Loop through each row and column to create buttons
-		for (int r = 0; r < rows; r++) {
-			for (int c = 0; c < cols; c++) {
-				JButton cell = new JButton();
-				cell.setPreferredSize(new Dimension(30, 30));
-				final int row = r, col = c;
-				 // Add a mouse listener to handle left and right clicks
-				cell.addMouseListener(new java.awt.event.MouseAdapter() {
-					@Override
-					public void mouseClicked(java.awt.event.MouseEvent e) {
-						if (SwingUtilities.isLeftMouseButton(e))
-							handleButtonClick(isLeft ? "Left" : "Right", row, col, false);
-						else if (SwingUtilities.isRightMouseButton(e))
-							handleButtonClick(isLeft ? "Left" : "Right", row, col, true);
-					}
-				});
-				board[r][c] = cell;
-				boardPanel.add(cell);
-			}
-		}
-		// Save the board reference to the corresponding instance variable
-		if (isLeft) leftBoard = board;
-		else rightBoard = board;
-		return boardPanel;
+	    JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 1, 1));
+	    JButton[][] board = new JButton[rows][cols];
+
+	    for (int r = 0; r < rows; r++) {
+	        for (int c = 0; c < cols; c++) {
+	            JButton cell = new JButton() {
+	                @Override
+	                protected void paintComponent(Graphics g) {
+	                    Graphics2D g2 = (Graphics2D) g.create();
+	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	                    // צבע רקע מעוגל
+	                    g2.setColor(getBackground());
+	                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+
+	                    super.paintComponent(g2);
+	                    g2.dispose();
+	                }
+
+	                @Override
+	                protected void paintBorder(Graphics g) {
+	                    Graphics2D g2 = (Graphics2D) g.create();
+	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	                    if (getBorder() != null) {
+	                        g2.setColor(new Color(50, 40, 60));
+	                        g2.setStroke(new BasicStroke(1));
+	                        g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+	                    }
+	                    g2.dispose();
+	                }
+	            };
+
+	            cell.setPreferredSize(new Dimension(30, 30));
+	            cell.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
+	            cell.setOpaque(false);
+	            cell.setContentAreaFilled(false);
+	            cell.setBorderPainted(false);
+
+	            final int row = r, col = c;
+	            cell.addMouseListener(new java.awt.event.MouseAdapter() {
+	                @Override
+	                public void mouseClicked(java.awt.event.MouseEvent e) {
+	                    if (SwingUtilities.isLeftMouseButton(e))
+	                        handleButtonClick(isLeft ? "Left" : "Right", row, col, false);
+	                    else if (SwingUtilities.isRightMouseButton(e))
+	                        handleButtonClick(isLeft ? "Left" : "Right", row, col, true);
+	                }
+	            });
+
+	            board[r][c] = cell;
+	            boardPanel.add(cell);
+	        }
+	    }
+
+	    if (isLeft) leftBoard = board;
+	    else rightBoard = board;
+
+	    return boardPanel;
 	}
 	//Handles actions triggered by clicking a cell button on either the left or right board.
 	private void handleButtonClick(String source, int row, int col, boolean isFlag) {
@@ -828,17 +890,69 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	// Highlights the current player panel and enables/disables the respective board.
 	public void highlightCurrentPlayer(int player) {
 		if (player == 1) {
-			leftPlayerPanel.setBackgroundColor(new Color(255, 215, 0));
+			// leftPlayer  Active
+			leftPlayerPanel.setBackgroundColor(new Color(212, 175, 55));
+			leftPlayerPanel.setBorder(
+				    BorderFactory.createCompoundBorder(
+				            BorderFactory.createLineBorder(new Color(0, 100, 0, 150), 3, true), 
+				            BorderFactory.createCompoundBorder(
+				                BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true), 
+				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true)       
+				            )
+				        )
+				    );
 			enableBoard(leftBoard, true);
-			rightPlayerPanel.setBackgroundColor(Color.lightGray);
-			enableBoard(rightBoard, false);
+	        updateBoardColors(leftBoard, true, true);
+	        //  rightPlayer UnActive
+	        rightPlayerPanel.setBackgroundColor(Color.lightGray);
+	        rightPlayerPanel.setBorder(null);
+	        enableBoard(rightBoard, false);
+	        updateBoardColors(rightBoard, false, false);
+	        
 		} else {
-			rightPlayerPanel.setBackgroundColor(new Color(255, 215, 0));
+			 //  rightPlayer Active
+			
+			rightPlayerPanel.setBackgroundColor(new Color(212, 175, 55));
+			rightPlayerPanel.setBorder(
+				    BorderFactory.createCompoundBorder(
+				            BorderFactory.createLineBorder(new Color(0, 100, 0, 150), 3, true), 
+				            BorderFactory.createCompoundBorder(
+				                BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true), 
+				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true)       
+				            )
+				        )
+				    );
 			enableBoard(rightBoard, true);
-			leftPlayerPanel.setBackgroundColor(Color.lightGray);
-			enableBoard(leftBoard, false);
+	        updateBoardColors(rightBoard, true, false);
+	    	// leftPlayer UnActive
+	        leftPlayerPanel.setBackgroundColor(Color.lightGray);
+	        leftPlayerPanel.setBorder(null);
+	        enableBoard(leftBoard, false);
+	        updateBoardColors(leftBoard, false, true); 
 		}
 	}
+	
+	// Update and make sure boards color acorrding the turn
+		private void updateBoardColors(JButton[][] board, boolean isActive, boolean isLeft) {
+		    Color cellColor;
+		    
+		    if (isActive) {
+		        // צבע פעיל - סגול לשמאל, חום לימין
+		        cellColor = isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR;
+		    } else {
+		        // צבע לא פעיל - אפור
+		        cellColor = DISABLED_BOARD_COLOR;
+		    }
+		    
+		    for (int r = 0; r < board.length; r++) {
+		        for (int c = 0; c < board[0].length; c++) {
+		            // רק משבצות שעדיין לא נפתחו
+		            if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) {
+		                board[r][c].setBackground(cellColor);
+		            }
+		        }
+		    }
+		}
 	
 	//Enables or disables all buttons in a board.
 	private void enableBoard(JButton[][] board, boolean enable) {
@@ -846,37 +960,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			for (int c = 0; c < board[0].length; c++)
 				board[r][c].setEnabled(enable);
 	}
-	// Custom JPanel with rounded corners and optional border.
-	static class RoundedPanel extends JPanel {
-		private int cornerRadius;
-		private Color backgroundColor, borderColor;
-
-		public RoundedPanel(int radius) { this(radius, Color.white); }
-		public RoundedPanel(int radius, Color bgColor) {
-			cornerRadius = radius;
-			backgroundColor = bgColor;
-		}
-
-		public void setBorderColor(Color color) { borderColor = color; }
-		public void setBackgroundColor(Color color) {
-			backgroundColor = color;
-			repaint();
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			Graphics2D g2 = (Graphics2D) g;
-			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g2.setColor(backgroundColor);
-			g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius);
-			if (borderColor != null) {
-				g2.setColor(borderColor);
-				g2.setStroke(new BasicStroke(2));
-				g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius);
-			}
-		}
-	}
+	
 	//Shows a small temporary popup message near a JButton for feedback (points, life changes, etc.)
 	private void showTimedMessage(String message, Color color, JButton button) {
 	    JComponent msg = new JComponent() {
