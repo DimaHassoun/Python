@@ -879,18 +879,19 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	}
 	// Converts a string emoji to a BufferedImage of specified width and height.
 	private BufferedImage renderEmojiToImage(String emoji, int width, int height) {
-		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = img.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, height - 4));
-		FontMetrics fm = g.getFontMetrics();
-		int x = (width - fm.stringWidth(emoji)) / 2;
-		int y = ((height - fm.getHeight()) / 2) + fm.getAscent();
-		g.setColor(Color.BLACK);
-		g.drawString(emoji, x, y);
-		g.dispose();
-		return img;
+	    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g = img.createGraphics();
+	    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	    g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, height - 4));
+	    FontMetrics fm = g.getFontMetrics();
+	    int x = (width - fm.stringWidth(emoji)) / 2;
+	    int y = ((height - fm.getHeight()) / 2) + fm.getAscent() + 5;  // moved down by 5 pixels
+	    g.setColor(Color.BLACK);
+	    g.drawString(emoji, x, y);
+	    g.dispose();
+	    return img;
 	}
+
 	// Highlights the current player panel and enables/disables the respective board.
 	public void highlightCurrentPlayer(int player) {
 		if (player == 1) {
