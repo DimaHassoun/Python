@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
-public class GameHistoryScreen extends JFrame {
+public class GameHistoryScreen extends JFrame implements MusicManager.MusicStateListener {
 
     private PlaceholderTextField searchField;
     private JLabel musicLabel;
@@ -52,6 +52,8 @@ public class GameHistoryScreen extends JFrame {
         musicManager = MusicManager.getInstance();
         windowSizeManager = WindowSizeManager.getInstance();
         
+        musicManager.addMusicStateListener(this);
+        
         // Apply saved window size BEFORE setting location
         windowSizeManager.applyToFrame(this);
         setLocationRelativeTo(null);
@@ -62,16 +64,50 @@ public class GameHistoryScreen extends JFrame {
 
         // Create menu for settings
         JPopupMenu settingsMenu = new JPopupMenu();
+        settingsMenu.setBackground(new Color(60, 0, 90));
+        settingsMenu.setBorder(BorderFactory.createLineBorder(
+                new Color(246, 230, 138), 2
+        ));
+        settingsMenu.setOpaque(true);
 
-        // Option 1: Game Rules
+        Font menuFont = new Font("Verdana", Font.BOLD, 14);
+        Color bg = new Color(60, 0, 90);
+        Color bgHover = new Color(65, 0, 95);
+        Color textColor = new Color(246, 230, 138);
+
+        // -------- Game Rules --------
         JMenuItem rulesItem = new JMenuItem("Game Rules");
+        rulesItem.setFont(menuFont);
+        rulesItem.setForeground(textColor);
+        rulesItem.setBackground(bg);
+        rulesItem.setOpaque(true);
+        rulesItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        rulesItem.setFocusPainted(false);
         rulesItem.addActionListener(e -> new GameRulesScreen());
-        settingsMenu.add(rulesItem);
 
-        // Option 2: Sound settings
+        // -------- Separator --------
+        JSeparator separator = new JSeparator();
+        separator.setForeground(textColor);
+
+        // -------- Sound Settings --------
         JMenuItem soundItem = new JMenuItem("Sound Settings");
+        soundItem.setFont(menuFont);
+        soundItem.setForeground(textColor);
+        soundItem.setBackground(bg);
+        soundItem.setOpaque(true);
+        soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        soundItem.setFocusPainted(false);
         soundItem.addActionListener(e -> showVolumeControl());
+
+        // -------- Fix Swing hover colors --------
+        UIManager.put("MenuItem.selectionBackground", bgHover);
+        UIManager.put("MenuItem.selectionForeground", textColor);
+
+        // -------- Add --------
+        settingsMenu.add(rulesItem);
+        settingsMenu.add(separator);
         settingsMenu.add(soundItem);
+
 
         // Settings icon
         JLabel settingsIcon = new JLabel("⚙");
@@ -80,7 +116,7 @@ public class GameHistoryScreen extends JFrame {
         settingsIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         settingsIcon.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                settingsMenu.show(settingsIcon, e.getX(), e.getY());
+                settingsMenu.show(settingsIcon, 0, settingsIcon.getHeight());
             }
         });
         panel.add(settingsIcon);
@@ -316,7 +352,6 @@ public class GameHistoryScreen extends JFrame {
     // Music functions
     private void toggleMusic() {
         musicManager.toggleMusic();
-        updateMusicIcon();
     }
    
 
@@ -344,15 +379,14 @@ public class GameHistoryScreen extends JFrame {
         // Display the panel in a modal dialog
         JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
-
+    // Updates the music icon based on the current playback state.
     private void updateMusicIcon() {
-    	// Check if music is currently playing
+        if (musicLabel == null) return;
+
         if (musicManager.isPlaying()) {
-        	// Set the label to a musical note and use a bright yellow color
             musicLabel.setText("♪");
             musicLabel.setForeground(new Color(246, 230, 138));
         } else {
-        	 // Set the label to a muted icon and use a gray color
             musicLabel.setText("🔇");
             musicLabel.setForeground(new Color(180, 180, 180));
         }
@@ -404,5 +438,22 @@ public class GameHistoryScreen extends JFrame {
             }
         }
     }
+    
+    /**
+     * Observer callback - automatically called when music state changes
+     */
+    @Override
+    public void onMusicStateChanged() {
+        updateMusicIcon();
+        System.out.println("📢 GameHistoryScreen: Music state updated");
+    }
+ // ========== ADD CLEANUP ==========
+    @Override
+    public void dispose() {
+        musicManager.removeMusicStateListener(this);
+        System.out.println("✓ GameHistoryScreen: Unregistered from music updates");
+        super.dispose();
+    }
+    // =================================
 }
 

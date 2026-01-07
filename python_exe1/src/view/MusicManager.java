@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Singleton class to manage background music playback across all screens
+ * Singleton + Observer Pattern
+ * Manages background music and notifies all screens when state changes
  */
 public class MusicManager {
     
@@ -15,18 +16,18 @@ public class MusicManager {
     private boolean isPlaying;
     private boolean isMuted;
     private String currentMusicFile;
-    private float volume = 0.6f; // Default volume (0.0 to 1.0) - 60%
+    private float volume = 0.6f;
     private FloatControl volumeControl;
+    
+    // ========== OBSERVER PATTERN ==========
     private List<MusicStateListener> listeners = new ArrayList<>();
-    // Private constructor for singleton
+    // ======================================
+    
     private MusicManager() {
         isPlaying = false;
         isMuted = false;
     }
     
-    /**
-     * Get the singleton instance
-     */
     public static MusicManager getInstance() {
         if (instance == null) {
             instance = new MusicManager();
@@ -34,24 +35,28 @@ public class MusicManager {
         return instance;
     }
     
+    // ========== OBSERVER PATTERN METHODS ==========
+    
     /**
-     * Add a listener to be notified of music state changes
+     * Register a screen to receive music state updates
      */
     public void addMusicStateListener(MusicStateListener listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
+            System.out.println("✓ Music listener added: " + listener.getClass().getSimpleName());
         }
     }
     
     /**
-     * Remove a listener
+     * Unregister a screen
      */
     public void removeMusicStateListener(MusicStateListener listener) {
         listeners.remove(listener);
+        System.out.println("✓ Music listener removed: " + listener.getClass().getSimpleName());
     }
     
     /**
-     * Notify all listeners of state changes
+     * Notify all registered screens about state change
      */
     private void notifyListeners() {
         for (MusicStateListener listener : listeners) {
@@ -59,20 +64,18 @@ public class MusicManager {
         }
     }
     
+    // ==============================================
     
     /**
      * Play background music from a file
-     * @param musicFilePath Path to the music file (WAV format)
      */
     public void playMusic(String musicFilePath) {
         try {
-            // Stop current music if playing
             if (clip != null) {
                 clip.stop();
                 clip.close();
             }
 
-            // Load the audio file
             File musicFile = new File(musicFilePath);
             if (!musicFile.exists()) {
                 System.err.println("Music file not found: " + musicFilePath);
@@ -83,20 +86,17 @@ public class MusicManager {
             clip = AudioSystem.getClip();
             clip.open(audioStream);
 
-            // Get volume control
             if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
                 if (isMuted) {
-                    mute(); // Apply mute if needed
+                    mute();
                 } else {
                     setVolume(volume);
                 }
             }
 
-            // Loop continuously
             clip.loop(Clip.LOOP_CONTINUOUSLY);
 
-            // Start playing only if not muted
             if (!isMuted) {
                 clip.start();
                 isPlaying = true;
@@ -105,6 +105,7 @@ public class MusicManager {
             }
 
             currentMusicFile = musicFilePath;
+            notifyListeners(); // ← NOTIFY ALL SCREENS!
 
             System.out.println("✓ Music loaded: " + musicFilePath + " | Muted: " + isMuted);
 
@@ -113,7 +114,6 @@ public class MusicManager {
         }
     }
 
-    
     /**
      * Stop the currently playing music
      */
@@ -124,6 +124,7 @@ public class MusicManager {
             }
             clip.close();
             isPlaying = false;
+            notifyListeners(); // ← NOTIFY ALL SCREENS!
             System.out.println("✓ Music stopped");
         }
     }
@@ -137,6 +138,7 @@ public class MusicManager {
         } else {
             resumeMusic();
         }
+        notifyListeners(); // ← NOTIFY ALL SCREENS!
     }
     
     /**
@@ -146,6 +148,7 @@ public class MusicManager {
         if (clip != null && clip.isRunning()) {
             clip.stop();
             isPlaying = false;
+            notifyListeners(); // ← NOTIFY ALL SCREENS!
             System.out.println("⏸ Music paused");
         }
     }
@@ -157,27 +160,25 @@ public class MusicManager {
         if (clip != null) {
             if (!clip.isRunning()) {
                 if (!isMuted) {
-                    clip.start(); // Only turn it on if it's not muted
+                    clip.start();
                     isPlaying = true;
+                    notifyListeners(); // ← NOTIFY ALL SCREENS!
                     System.out.println("▶ Music resumed");
                 } else {
-                	// If it's muted, don't turn it on, but set the flag to isPlaying
-                	isPlaying = false;
+                    isPlaying = false;
                     System.out.println("🔇 Music is muted, not resuming");
                 }
             }
         } else if (currentMusicFile != null) {
-        	// If Clip is muted, reload but respect the muted state
-        	playMusic(currentMusicFile);
+            playMusic(currentMusicFile);
             if (isMuted) {
-                mute(); // Re-mute after uploading the file
+                mute();
             }
         }
     }
 
-    
     /**
-     * Mute/Unmute the music
+     * Toggle mute
      */
     public void toggleMute() {
         if (isMuted) {
@@ -194,6 +195,7 @@ public class MusicManager {
         if (volumeControl != null) {
             volumeControl.setValue(volumeControl.getMinimum());
             isMuted = true;
+            notifyListeners(); // ← NOTIFY ALL SCREENS!
             System.out.println("🔇 Music muted");
         }
     }
@@ -205,6 +207,7 @@ public class MusicManager {
         if (volumeControl != null) {
             setVolume(volume);
             isMuted = false;
+            notifyListeners(); // ← NOTIFY ALL SCREENS!
             System.out.println("🔊 Music unmuted");
         }
     }
@@ -213,15 +216,13 @@ public class MusicManager {
      * Set the volume (0.0 to 1.0)
      */
     public void setVolume(float newVolume) {
-        this.volume = Math.max(0.0f, Math.min(1.0f, newVolume)); // Clamp between 0 and 1
+        this.volume = Math.max(0.0f, Math.min(1.0f, newVolume));
         
         if (volumeControl != null) {
             try {
                 float min = volumeControl.getMinimum();
                 float max = volumeControl.getMaximum();
                 
-                // Convert linear volume (0.0-1.0) to decibels
-                // Using logarithmic scale for better volume perception
                 float dB;
                 if (this.volume == 0.0f) {
                     dB = min;
@@ -231,6 +232,7 @@ public class MusicManager {
                 
                 volumeControl.setValue(dB);
                 isMuted = false;
+                notifyListeners(); // ← NOTIFY ALL SCREENS!
                 System.out.println("🔊 Volume set to: " + (int)(this.volume * 100) + "%");
                 
             } catch (Exception e) {
@@ -255,44 +257,28 @@ public class MusicManager {
         setVolume(newVolume);
     }
     
-    /**
-     * Get current volume (0.0 to 1.0)
-     */
+    // ========== GETTERS ==========
+    
     public float getVolume() {
         return volume;
     }
     
-    /**
-     * Get current volume as percentage (0-100)
-     */
     public int getVolumePercent() {
         return (int)(volume * 100);
     }
     
-    /**
-     * Check if music is currently playing
-     */
     public boolean isPlaying() {
-    	return isPlaying;
-    	}
+        return isPlaying;
+    }
     
-    /**
-     * Check if music is muted
-     */
     public boolean isMuted() {
         return isMuted;
     }
     
-    /**
-     * Get the current music file path
-     */
     public String getCurrentMusicFile() {
         return currentMusicFile;
     }
     
-    /**
-     * Get current playback position in microseconds
-     */
     public long getPosition() {
         if (clip != null) {
             return clip.getMicrosecondPosition();
@@ -300,9 +286,6 @@ public class MusicManager {
         return 0;
     }
     
-    /**
-     * Get total length of current track in microseconds
-     */
     public long getLength() {
         if (clip != null) {
             return clip.getMicrosecondLength();
@@ -310,22 +293,22 @@ public class MusicManager {
         return 0;
     }
     
-    /**
-     * Restart the current track from the beginning
-     */
     public void restart() {
         if (clip != null) {
             clip.setMicrosecondPosition(0);
             if (!isPlaying) {
                 clip.start();
                 isPlaying = true;
+                notifyListeners(); // ← NOTIFY ALL SCREENS!
             }
             System.out.println("🔄 Music restarted");
         }
     }
     
+    // ========== LISTENER INTERFACE ==========
+    
     /**
-     * Interface for listening to music state changes
+     * Interface that all screens must implement to receive music updates
      */
     public interface MusicStateListener {
         void onMusicStateChanged();

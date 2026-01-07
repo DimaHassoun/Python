@@ -5,54 +5,87 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class FirstScreen extends JFrame {
+// ========== IMPLEMENT THE LISTENER INTERFACE ==========
+public class FirstScreen extends JFrame implements MusicManager.MusicStateListener {
+// ======================================================
 
     private JLabel musicLabel;
     private MusicManager musicManager;
     private WindowSizeManager windowSizeManager;
-    // Constructs the main menu screen for the Mine Sweeper game.
+
     public FirstScreen() {
         setTitle("Mine Sweeper");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
 
-        // Initialize managers
         musicManager = MusicManager.getInstance();
         windowSizeManager = WindowSizeManager.getInstance();
         
-        // Apply saved window size BEFORE setting location
+        // ========== REGISTER AS OBSERVER ==========
+        musicManager.addMusicStateListener(this);
+        // ==========================================
+        
         windowSizeManager.applyToFrame(this);
         setLocationRelativeTo(null);
 
-        // Start background music if not playing
         if (musicManager.getCurrentMusicFile() == null) {
             musicManager.playMusic("src/resource/puzzle-game-bright-casual-video-game-music-249202.wav");
         }
 
-        // Main panel
         BackgroundPanel mainPanel = new BackgroundPanel("src/resource/background.jpg");
         mainPanel.setLayout(null);
         setContentPane(mainPanel);
 
-        // Components
         JLabel title = new JLabel("Mine Sweeper", SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 48));
         title.setForeground(new Color(246, 230, 138));
         mainPanel.add(title);
-
-       // Create menu for settings
+        // Create menu for settings
         JPopupMenu settingsMenu = new JPopupMenu();
+        settingsMenu.setBackground(new Color(60, 0, 90));
+        settingsMenu.setBorder(BorderFactory.createLineBorder(
+                new Color(246, 230, 138), 2
+        ));
+        settingsMenu.setOpaque(true);
 
-        // Option 1: Game Rules
+        Font menuFont = new Font("Verdana", Font.BOLD, 14);
+        Color bg = new Color(60, 0, 90);
+        Color bgHover = new Color(65, 0, 95); 
+        Color textColor = new Color(246, 230, 138);
+
+        // -------- Game Rules --------
         JMenuItem rulesItem = new JMenuItem("Game Rules");
+        rulesItem.setFont(menuFont);
+        rulesItem.setForeground(textColor);
+        rulesItem.setBackground(bg);
+        rulesItem.setOpaque(true);
+        rulesItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        rulesItem.setFocusPainted(false);
         rulesItem.addActionListener(e -> new GameRulesScreen());
-        settingsMenu.add(rulesItem);
 
-        // Option 2: Sound settings 
+        // -------- Separator --------
+        JSeparator separator = new JSeparator();
+        separator.setForeground(textColor);
+
+        // -------- Sound Settings --------
         JMenuItem soundItem = new JMenuItem("Sound Settings");
+        soundItem.setFont(menuFont);
+        soundItem.setForeground(textColor);
+        soundItem.setBackground(bg);
+        soundItem.setOpaque(true);
+        soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        soundItem.setFocusPainted(false);
         soundItem.addActionListener(e -> showVolumeControl());
+
+        // -------- Fix Swing hover colors --------
+        UIManager.put("MenuItem.selectionBackground", bgHover);
+        UIManager.put("MenuItem.selectionForeground", textColor);
+
+        // -------- Add --------
+        settingsMenu.add(rulesItem);
+        settingsMenu.add(separator);
         settingsMenu.add(soundItem);
-        
+
         
         JLabel settings = new JLabel("⚙");
         settings.setFont(new Font("Dialog", Font.BOLD, 40));
@@ -60,7 +93,7 @@ public class FirstScreen extends JFrame {
         settings.setCursor(new Cursor(Cursor.HAND_CURSOR));
         settings.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                settingsMenu.show(settings, e.getX(), e.getY());
+            	settingsMenu.show(settings, 0, settings.getHeight());
             }
         });
         mainPanel.add(settings);
@@ -71,7 +104,8 @@ public class FirstScreen extends JFrame {
         musicLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         musicLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                toggleMusic();
+                musicManager.toggleMusic();
+                // ← NO NEED TO CALL updateMusicIcon() - Observer will handle it!
             }
         });
         mainPanel.add(musicLabel);
@@ -87,7 +121,6 @@ public class FirstScreen extends JFrame {
         });
         mainPanel.add(exit);
 
-        // Buttons
         RoundedButton startBtn = new RoundedButton("Start New Game");
         mainPanel.add(startBtn);
         startBtn.addMouseListener(new MouseAdapter() {
@@ -108,14 +141,12 @@ public class FirstScreen extends JFrame {
 
         RoundedButton managerBtn = new RoundedButton("Question Manager");
         mainPanel.add(managerBtn);
-        final String CORRECT_PASSWORD = "1234";
         managerBtn.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 JPasswordField passwordField = new JPasswordField(10);
-
-                JLabel eyeLabel = new JLabel("👀"); 
+                JLabel eyeLabel = new JLabel("👀");
                 eyeLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                eyeLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20)); 
+                eyeLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
 
                 JPanel passPanel = new JPanel(new BorderLayout(5, 5));
                 passPanel.add(passwordField, BorderLayout.CENTER);
@@ -125,18 +156,16 @@ public class FirstScreen extends JFrame {
                 panel.add(new JLabel("Please enter Admin Password:"), BorderLayout.NORTH);
                 panel.add(passPanel, BorderLayout.CENTER);
 
-                // Toggle password visibility
                 eyeLabel.addMouseListener(new MouseAdapter() {
                     private boolean visible = false;
-
                     public void mouseClicked(MouseEvent e) {
                         visible = !visible;
                         if (visible) {
-                            passwordField.setEchoChar((char)0); 
-                            eyeLabel.setText("🙈"); 
+                            passwordField.setEchoChar((char)0);
+                            eyeLabel.setText("🙈");
                         } else {
-                            passwordField.setEchoChar('•'); 
-                            eyeLabel.setText("👀"); 
+                            passwordField.setEchoChar('•');
+                            eyeLabel.setText("👀");
                         }
                     }
                 });
@@ -163,10 +192,8 @@ public class FirstScreen extends JFrame {
             }
         });
 
-        // Initial positioning
         positionComponents(title, settings, musicLabel, exit, startBtn, historyBtn, managerBtn);
 
-        // Reposition components dynamically when window resizes
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 positionComponents(title, settings, musicLabel, exit, startBtn, historyBtn, managerBtn);
@@ -176,33 +203,32 @@ public class FirstScreen extends JFrame {
         setVisible(true);
     }
 
-    // Method to position components relative to window size
+    // ========== OBSERVER CALLBACK METHOD ==========
+    /**
+     * This method is automatically called when MusicManager state changes!
+     * No need to manually call updateMusicIcon() anymore.
+     */
+    @Override
+    public void onMusicStateChanged() {
+        updateMusicIcon();
+        System.out.println("📢 FirstScreen: Music state updated");
+    }
+    // ==============================================
+
     private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, JLabel exit,
                                     RoundedButton startBtn, RoundedButton historyBtn, RoundedButton managerBtn) {
         int w = getWidth();
         int h = getHeight();
 
-        // Top icons
         settings.setBounds(30, 30, 60, 60);
         musicLabel.setBounds(110, 30, 60, 60);
         exit.setBounds(w - 120, 40, 80, 40);
-
-        // Title centered
         title.setBounds(w / 2 - 250, 40, 500, 70);
-
-        // Buttons centered vertically
         startBtn.setBounds(w / 2 - 230, h / 2 - 120, 460, 80);
         historyBtn.setBounds(w / 2 - 230, h / 2 - 10, 460, 80);
         managerBtn.setBounds(w / 2 - 230, h / 2 + 100, 460, 80);
     }
 
-    // Toggle music
-    private void toggleMusic() {
-        musicManager.toggleMusic();
-        updateMusicIcon();
-    }
-
-    // Show volume control dialog
     private void showVolumeControl() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -220,20 +246,18 @@ public class FirstScreen extends JFrame {
             int value = volumeSlider.getValue();
             musicManager.setVolume(value / 100.0f);
             volumeLabel.setText("Volume: " + value + "%");
+            // ← NO NEED TO CALL updateMusicIcon() - Observer will handle it!
         });
 
         panel.add(volumeLabel, BorderLayout.NORTH);
         panel.add(volumeSlider, BorderLayout.CENTER);
 
-        JOptionPane.showMessageDialog(
-                this,
-                panel,
-                "Volume Control",
-                JOptionPane.PLAIN_MESSAGE
-        );
+        JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
-    // Updates the music icon and its color based on the current playback state.
+    // Updates the music icon based on the current playback state.
     private void updateMusicIcon() {
+        if (musicLabel == null) return;
+
         if (musicManager.isPlaying()) {
             musicLabel.setText("♪");
             musicLabel.setForeground(new Color(246, 230, 138));
@@ -243,7 +267,16 @@ public class FirstScreen extends JFrame {
         }
     }
 
-    // Rounded Button
+    
+    // ========== CLEANUP WHEN CLOSING ==========
+    @Override
+    public void dispose() {
+        musicManager.removeMusicStateListener(this);
+        System.out.println("✓ FirstScreen: Unregistered from music updates");
+        super.dispose();
+    }
+    // ==========================================
+
     static class RoundedButton extends JButton {
         public RoundedButton(String text) {
             super(text);

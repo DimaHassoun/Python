@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-public class GameBoards extends JFrame {
+public class GameBoards extends JFrame implements MusicManager.MusicStateListener {
 
 	private int rows, cols, leftMines, rightMines, score = 0;
 	private static int gamenum;
@@ -43,6 +43,8 @@ public class GameBoards extends JFrame {
 		// Initialize window size manager
 		windowSizeManager = WindowSizeManager.getInstance();
 
+		musicManager.addMusicStateListener(this);
+		
 		setTitle("Two Board Game");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(true);
@@ -362,18 +364,20 @@ public class GameBoards extends JFrame {
 
 	private void toggleMusic() {
 		musicManager.toggleMusic();// Toggle the music playback (play or pause)
-		updateMusicIcon();// Update the icon to reflect the current state
+	}
+	// Updates the music icon based on the current playback state.
+	private void updateMusicIcon() {
+	    if (musicLabel == null) return;
+
+	    if (musicManager.isPlaying()) {
+	        musicLabel.setText("♪");
+	        musicLabel.setForeground(new Color(246, 230, 138));
+	    } else {
+	        musicLabel.setText("🔇");
+	        musicLabel.setForeground(new Color(180, 180, 180));
+	    }
 	}
 
-	private void updateMusicIcon() {
-		if (musicManager.isPlaying()) {
-			musicLabel.setText("♪");
-			musicLabel.setForeground(new Color(246, 230, 138));
-		} else {
-			musicLabel.setText("🔇");
-			musicLabel.setForeground(new Color(180, 180, 180));
-		}
-	}
 	// Creates a game board represented as a JPanel containing a grid of buttons.
 	private JPanel createBoard(boolean isLeft) {
 		 // Create a JPanel with a GridLayout matching the number of rows and columns
@@ -986,5 +990,21 @@ public class GameBoards extends JFrame {
 	    
 	    return bonusPoints;
 	}
+	/**
+     * Observer callback - automatically called when music state changes
+     */
+    @Override
+    public void onMusicStateChanged() {
+        updateMusicIcon();
+        System.out.println("📢 GameBoards: Music state updated");
+    }
+ // ========== ADD CLEANUP ==========
+    @Override
+    public void dispose() {
+        musicManager.removeMusicStateListener(this);
+        System.out.println("✓ GameBoards: Unregistered from music updates");
+        super.dispose();
+    }
+    // =================================
 
 }

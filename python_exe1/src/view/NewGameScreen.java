@@ -9,7 +9,7 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class NewGameScreen extends JFrame {
+public class NewGameScreen extends JFrame implements MusicManager.MusicStateListener {
 
     private JLabel musicLabel;
     private MusicManager musicManager;
@@ -25,6 +25,8 @@ public class NewGameScreen extends JFrame {
      // Initialize window size manager
         windowSizeManager = WindowSizeManager.getInstance();
         
+        musicManager.addMusicStateListener(this);
+        
      // Apply saved window size                            
         windowSizeManager.applyToFrame(this);                 
         setLocationRelativeTo(null);
@@ -32,20 +34,52 @@ public class NewGameScreen extends JFrame {
         BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
         panel.setLayout(null);
         setContentPane(panel);
-
         // Create menu for settings
         JPopupMenu settingsMenu = new JPopupMenu();
+        settingsMenu.setBackground(new Color(60, 0, 90));
+        settingsMenu.setBorder(BorderFactory.createLineBorder(
+                new Color(246, 230, 138), 2
+        ));
+        settingsMenu.setOpaque(true);
 
-        // Option 1: Game Rules
+        Font menuFont = new Font("Verdana", Font.BOLD, 14);
+        Color bg = new Color(60, 0, 90);
+        Color bgHover = new Color(65, 0, 95); 
+        Color textColor = new Color(246, 230, 138);
+
+        // -------- Game Rules --------
         JMenuItem rulesItem = new JMenuItem("Game Rules");
+        rulesItem.setFont(menuFont);
+        rulesItem.setForeground(textColor);
+        rulesItem.setBackground(bg);
+        rulesItem.setOpaque(true);
+        rulesItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        rulesItem.setFocusPainted(false);
         rulesItem.addActionListener(e -> new GameRulesScreen());
-        settingsMenu.add(rulesItem);
 
-        // Option 2: Sound settings 
+        // -------- Separator --------
+        JSeparator separator = new JSeparator();
+        separator.setForeground(textColor);
+
+        // -------- Sound Settings --------
         JMenuItem soundItem = new JMenuItem("Sound Settings");
+        soundItem.setFont(menuFont);
+        soundItem.setForeground(textColor);
+        soundItem.setBackground(bg);
+        soundItem.setOpaque(true);
+        soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        soundItem.setFocusPainted(false);
         soundItem.addActionListener(e -> showVolumeControl());
+
+        // -------- Fix Swing hover colors --------
+        UIManager.put("MenuItem.selectionBackground", bgHover);
+        UIManager.put("MenuItem.selectionForeground", textColor);
+
+        // -------- Add --------
+        settingsMenu.add(rulesItem);
+        settingsMenu.add(separator);
         settingsMenu.add(soundItem);
-        
+     
         // SETTINGS ICON
         JLabel settings = new JLabel("⚙");
         settings.setFont(new Font("SansSerif", Font.BOLD, 40));
@@ -53,7 +87,7 @@ public class NewGameScreen extends JFrame {
         settings.setCursor(new Cursor(Cursor.HAND_CURSOR));
         settings.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                settingsMenu.show(settings, e.getX(), e.getY());
+            	settingsMenu.show(settings, 0, settings.getHeight());
             }
         });
         panel.add(settings);
@@ -185,6 +219,16 @@ public class NewGameScreen extends JFrame {
 
         setVisible(true);
     }
+    
+    /**
+     * Observer callback - automatically called when music state changes
+     */
+    @Override
+    public void onMusicStateChanged() {
+        updateMusicIcon();
+        System.out.println("📢 NewGameScreen: Music state updated");
+    }
+    
     /* Positions and sizes all GUI components within the container.
     * This method uses absolute positioning by setting bounds for each component.*/
     private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, JLabel back,
@@ -218,7 +262,7 @@ public class NewGameScreen extends JFrame {
     // MUSIC FUNCTIONS
     private void toggleMusic() {
         musicManager.toggleMusic();
-        updateMusicIcon();
+       
     }
     // Displays a modal dialog for controlling the application's music volume.
     private void showVolumeControl() {
@@ -248,14 +292,17 @@ public class NewGameScreen extends JFrame {
     }
     // Updates the music icon based on the current playback state.
     private void updateMusicIcon() {
+        if (musicLabel == null) return;
+
         if (musicManager.isPlaying()) {
-            musicLabel.setText("♪");// Music is playing
+            musicLabel.setText("♪");
             musicLabel.setForeground(new Color(246, 230, 138));
         } else {
-            musicLabel.setText("🔇");// Music is muted
+            musicLabel.setText("🔇");
             musicLabel.setForeground(new Color(180, 180, 180));
         }
     }
+
 
  // ================= Helper Methods =================
     // Creates a styled JRadioButton with a specified label.
@@ -301,4 +348,13 @@ public class NewGameScreen extends JFrame {
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
         }
     }
+    
+ // ==========  CLEANUP ==========
+    @Override
+    public void dispose() {
+        musicManager.removeMusicStateListener(this);
+        System.out.println("✓ NewGameScreen: Unregistered from music updates");
+        super.dispose();
+    }
+    // =================================
 }

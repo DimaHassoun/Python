@@ -15,7 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.regex.Pattern;
 
-public class QuestionManagerScreen extends JFrame {
+public class QuestionManagerScreen extends JFrame implements MusicManager.MusicStateListener {
 
     private PlaceholderTextField searchField;
     private JComboBox<String> searchMode;
@@ -33,6 +33,8 @@ public class QuestionManagerScreen extends JFrame {
 
         musicManager = MusicManager.getInstance();
         windowSizeManager = WindowSizeManager.getInstance();
+        
+        musicManager.addMusicStateListener(this);
         
         // Apply saved window size BEFORE setting location
         windowSizeManager.applyToFrame(this);
@@ -60,15 +62,52 @@ public class QuestionManagerScreen extends JFrame {
         JPanel iconsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         iconsPanel.setOpaque(false);
 
-        // Settings Menu
+        // Create menu for settings
         JPopupMenu settingsMenu = new JPopupMenu();
-        JMenuItem rulesItem = new JMenuItem("Game Rules");
-        rulesItem.addActionListener(e -> new GameRulesScreen());
-        settingsMenu.add(rulesItem);
+        settingsMenu.setBackground(new Color(60, 0, 90));
+        settingsMenu.setBorder(BorderFactory.createLineBorder(
+                new Color(246, 230, 138), 2
+        ));
+        settingsMenu.setOpaque(true);
 
+        Font menuFont = new Font("Verdana", Font.BOLD, 14);
+        Color bg = new Color(60, 0, 90);
+        Color bgHover = new Color(65, 0, 95); 
+        Color textColor = new Color(246, 230, 138);
+
+        // -------- Game Rules --------
+        JMenuItem rulesItem = new JMenuItem("Game Rules");
+        rulesItem.setFont(menuFont);
+        rulesItem.setForeground(textColor);
+        rulesItem.setBackground(bg);
+        rulesItem.setOpaque(true);
+        rulesItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        rulesItem.setFocusPainted(false);
+        rulesItem.addActionListener(e -> new GameRulesScreen());
+
+        // -------- Separator --------
+        JSeparator separator = new JSeparator();
+        separator.setForeground(textColor);
+
+        // -------- Sound Settings --------
         JMenuItem soundItem = new JMenuItem("Sound Settings");
+        soundItem.setFont(menuFont);
+        soundItem.setForeground(textColor);
+        soundItem.setBackground(bg);
+        soundItem.setOpaque(true);
+        soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        soundItem.setFocusPainted(false);
         soundItem.addActionListener(e -> showVolumeControl());
+
+        // -------- Fix Swing hover colors --------
+        UIManager.put("MenuItem.selectionBackground", bgHover);
+        UIManager.put("MenuItem.selectionForeground", textColor);
+
+        // -------- Add --------
+        settingsMenu.add(rulesItem);
+        settingsMenu.add(separator);
         settingsMenu.add(soundItem);
+
 
         JLabel settingsIcon = new JLabel("⚙");
         settingsIcon.setFont(new Font("SansSerif", Font.BOLD, 36));
@@ -76,7 +115,8 @@ public class QuestionManagerScreen extends JFrame {
         settingsIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         settingsIcon.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                settingsMenu.show(settingsIcon, e.getX(), e.getY());
+            	settingsMenu.show(settingsIcon, 0, settingsIcon.getHeight());
+
             }
         });
 
@@ -311,7 +351,6 @@ public class QuestionManagerScreen extends JFrame {
   //Toggles the music playback on or off.  
     private void toggleMusic() {
         musicManager.toggleMusic();
-        updateMusicIcon();
     }
     //Displays a modal dialog allowing the user to adjust the music volume.
     private void showVolumeControl() {
@@ -335,6 +374,8 @@ public class QuestionManagerScreen extends JFrame {
     }
     //Updates the music label icon and color based on the current music playback state.
     private void updateMusicIcon() {
+        if (musicLabel == null) return;
+
         if (musicManager.isPlaying()) {
             musicLabel.setText("♪");
             musicLabel.setForeground(new Color(246, 230, 138));
@@ -343,6 +384,7 @@ public class QuestionManagerScreen extends JFrame {
             musicLabel.setForeground(new Color(180, 180, 180));
         }
     }
+
 
  // ================= Inner Classes =================
     //A JTextField with placeholder text support.
@@ -440,4 +482,20 @@ public class QuestionManagerScreen extends JFrame {
             return panel;
         }
     }
+    /**
+     * Observer callback - automatically called when music state changes
+     */
+    @Override
+    public void onMusicStateChanged() {
+        updateMusicIcon();
+        System.out.println("📢 QuestionManagerScreen: Music state updated");
+    }
+ // ========== ADD CLEANUP ==========
+    @Override
+    public void dispose() {
+        musicManager.removeMusicStateListener(this);
+        System.out.println("✓ QuestionManagerScreen: Unregistered from music updates");
+        super.dispose();
+    }
+    // =================================
 }
