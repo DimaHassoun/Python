@@ -6,8 +6,8 @@ import javax.swing.JFrame;
 
 public class VictoryScreen extends ResultScreen {
 
-    public VictoryScreen(int finalScore, JFrame previousWindow) {
-        super(finalScore, previousWindow);
+	public VictoryScreen(int finalScore, JFrame previousWindow, String player1, String player2) {
+        super(finalScore, previousWindow, player1, player2);
     }
 
     protected String getWindowTitle() {
