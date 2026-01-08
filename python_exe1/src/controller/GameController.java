@@ -2,6 +2,8 @@ package controller;
 
 import Model.Game;
 import Model.GameHistory;
+import Model.MineCell;
+import Model.SpecialCell;
 import view.GameBoards;
 import Model.Board;
 import Model.Cell;
@@ -147,9 +149,7 @@ public class GameController {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell clickedCell = board.getCell(row, col);
-
-		if (clickedCell.isRevealed())return true;
-		else return false;
+		return clickedCell.isRevealed(); // Simpler, same result
 	}
 	
 	// Performs a cascade reveal starting from the specified cell.
@@ -161,24 +161,13 @@ public class GameController {
 
 	}
 	//Returns the type of a specific cell as a string.
-	public static String GetCellType(int gameNum, boolean isLeft,int row, int col) {
+	public static String GetCellType(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
-		switch (cell.getType()) {
-		case EMPTY:
-			return "EMPTY";
-		case NUMBER:
-			return "NUMBER";
-		case MINE:
-			return "MINE";
-		case SURPRISE:
-			return "SURPRISE";
-		case QUESTION:
-			return "QUESTION";
-		}
-		return "Error!!";
+		return cell.getType().name(); // Much simpler!
 	}
+	
 	// returns the display emoji string
 	public static String getCellDisplay(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
@@ -212,28 +201,43 @@ public class GameController {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
-		cell.setRevealed(true);
+		cell.reveal(); 
 	}
 	//Checks whether a cell has already been counted (e.g., for scoring).
 	public static boolean IsCellCounted(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell currentCell = board.getCell(row, col);
-		return currentCell.isCounted();
+		
+		// Only MineCell has the counted property
+		if (currentCell instanceof MineCell) {
+			return ((MineCell) currentCell).isCounted();
+		}
+		return false; // Non-mine cells are never "counted"
 	}
 	//Marks a cell as counted.
 	public static void setCountedAsCounted(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell currentCell = board.getCell(row, col);
-		currentCell.setCounted(true); 
+		
+		// Only MineCell has the counted property
+		if (currentCell instanceof MineCell) {
+			((MineCell) currentCell).setCounted(true);
+		}
+		// For other cell types, this is a no-op
 	}
 	//Checks whether a cell has already been used.
-	public static boolean iscellUsed(int gameNum, boolean isLeft,int row ,int col) {
+	public static boolean iscellUsed(int gameNum, boolean isLeft, int row, int col) {
 		Game game = getGame(gameNum);
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
-		return cell.isUsed();
+		
+		// Only SpecialCell (Question/Surprise) has the used property
+		if (cell instanceof SpecialCell) {
+			return ((SpecialCell) cell).isUsed();
+		}
+		return false; // Regular cells are never "used"
 	}
 	//-------------------------Flag---------------------------
 	public enum FlagResult {
@@ -425,17 +429,18 @@ public class GameController {
 		Cell cell = board.getCell(row, col);
 
 		int cost = game.getActivationCost();
-		
-			game.addSharedPoints(-cost);
-			// Mark cell as used
-			cell.setUsed(true);
+		game.addSharedPoints(-cost);
+		// Mark cell as used
+		if (cell instanceof SpecialCell) {
+			((SpecialCell) cell).setUsed(true);
+		}
 
-			 // 50/50 chance for good or bad effect
-			boolean good = Math.random() < 0.5;
-			int pointsChanged = game.applySurpriseEffect(good);
+		// 50/50 chance for good or bad effect
+		boolean good = Math.random() < 0.5;
+		int pointsChanged = game.applySurpriseEffect(good);
 
-			return (good ? "GOOD:" : "BAD:") + pointsChanged ;
-		
+		return (good ? "GOOD:" : "BAD:") + pointsChanged ;
+
 	}
 	// ========================= Question Cell Logic =========================
 	//Returns the activation cost for a question or surprise action in the game.
@@ -512,7 +517,9 @@ public class GameController {
 		// Mark cell as used
 		Board board = isLeft ? game.getBoard1() : game.getBoard2();
 		Cell cell = board.getCell(row, col);
-		cell.setUsed(true);
+		if (cell instanceof SpecialCell) {
+			((SpecialCell) cell).setUsed(true);
+		}
 		
 		int pointsChange = 0;
 		int heartsChange = 0;
@@ -679,7 +686,8 @@ public class GameController {
 	    for (int r = 0; r < board.getSize(); r++) {
 	        for (int c = 0; c < board.getSize(); c++) {
 	            Cell cell = board.getCell(r, c);
-	            if (cell.getType() == Cell.CellType.MINE && !cell.isRevealed() && !cell.isCounted()) {
+	            // Use the IsCellCounted method
+	            if (cell.getType() == Cell.CellType.MINE && !cell.isRevealed() && !IsCellCounted(gameNum, isLeft, r, c)) {
 	                hiddenMines.add(new int[]{r, c});
 	            }
 	        }
@@ -769,10 +777,10 @@ public class GameController {
 	                if (r >= 0 && r < size && c >= 0 && c < size) {
 	                    Cell cell = board.getCell(r, c);
 	                    if (!cell.isRevealed()) {
-	                        cell.setRevealed(true);
+	                    	cell.reveal(); 
 	                        revealedCells.add(new int[]{r, c});
 
-	                        if (cell.getType() == Cell.CellType.MINE && !cell.isCounted()) {
+	                        if (cell.getType() == Cell.CellType.MINE && !IsCellCounted(gameNum, isLeft, r, c)) {
 	                            decrementRemainingMinesInBoard(gameNum, isLeft);
 	                            setCountedAsCounted(gameNum, isLeft, r, c);
 	                        }
@@ -793,10 +801,10 @@ public class GameController {
 	    	    Cell cell = board.getCell(r, c);
 
 	    	    if (!cell.isRevealed()) {
-	    	        cell.setRevealed(true);
+	    	    	 cell.reveal(); 
 	    	        revealedCells.add(new int[]{r, c});
 
-	    	        if (cell.getType() == Cell.CellType.MINE && !cell.isCounted()) {
+	    	        if (cell.getType() == Cell.CellType.MINE && !IsCellCounted(gameNum, isLeft, r, c)) {
 	    	            decrementRemainingMinesInBoard(gameNum, isLeft);
 	    	            setCountedAsCounted(gameNum, isLeft, r, c);
 	    	        }
