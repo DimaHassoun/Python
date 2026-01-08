@@ -330,7 +330,7 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
                 }
             }
         };
-        tf.setFont(new Font("Verdana", Font.PLAIN, 22));
+        tf.setFont(new Font("SansSerif", Font.PLAIN, 22));
         tf.setBackground(new Color(60, 60, 60));
         tf.setForeground(Color.WHITE);
         tf.setCaretColor(Color.WHITE);

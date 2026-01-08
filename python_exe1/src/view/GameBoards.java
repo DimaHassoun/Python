@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class GameBoards extends JFrame implements MusicManager.MusicStateListener {
-
 	
 	private int rows, cols, leftMines, rightMines, score = 0;
 	private static int gamenum;
@@ -45,29 +44,21 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		this.rightMines = rightMines;
 		this.gamenum = gamenum;
 		this.player1Name = nameL;
-		this.player2Name = nameR;
-		
+		this.player2Name = nameR;	
 		// Get music manager instance
-		musicManager = MusicManager.getInstance();
-		
+		musicManager = MusicManager.getInstance();	
 		// Initialize window size manager
 		windowSizeManager = WindowSizeManager.getInstance();
-
 		musicManager.addMusicStateListener(this);
-		
 		setTitle("Two Board Game");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setResizable(true);
-		
+		setResizable(true);	
 		// Apply saved window size
 		windowSizeManager.applyToFrame(this);
-
 		// Main background
 		JPanel mainBackground = new JPanel(new BorderLayout()) {
 		    private Image bgImage;
-
-		    {
-		        // Load image correctly (no "src/")
+		    { // Load image correctly (no "src/")
 		        java.net.URL imgURL = getClass().getResource("/resource/background.jpg");
 		        if (imgURL != null) {
 		            bgImage = new ImageIcon(imgURL).getImage();
@@ -75,7 +66,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		            System.err.println("Background image not found!");
 		        }
 		    }
-
 		    @Override
 		    protected void paintComponent(Graphics g) {
 		        super.paintComponent(g);
@@ -84,9 +74,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		        }
 		    }
 		};
-
 		setContentPane(mainBackground);
-
 		// ========================= CENTER PANEL =========================
 		// Creates the center panel containing the left and right player boards.
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2, 20, 0));
@@ -106,7 +94,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		leftWrapper.add(leftPlayerPanel);
 		// Minesweeper board
 		leftBoardPanel = new RoundedPanel(15);
-		leftBoardPanel.setPreferredSize(new Dimension(500, 500));
+		leftBoardPanel.setPreferredSize(new Dimension(500, 498));
 		leftBoardPanel.setLayout(new BorderLayout());
 		JPanel leftBoardInner = createBoard(true);
 		leftBoardPanel.add(leftBoardInner, BorderLayout.CENTER);
@@ -114,6 +102,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		leftGridPanel.setOpaque(false);
 		// Remaining mines label
 		leftMinesLabel = new JLabel("Remaining Mines: " + leftMines, SwingConstants.CENTER);
+		leftMinesLabel.setBorder(BorderFactory.createEmptyBorder(-2, 0, 0, 0));
 		leftMinesLabel.setForeground(new Color(255, 215, 0));
 		leftMinesLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		// Top info layout (  board + mines)
@@ -125,12 +114,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		leftTopInfo.add(leftMinesLabel);
 		leftMinesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// Background panel with rounded corners and semi-transparent purple
-		leftBackground = new RoundedPanel(15);
-		//leftBackground.setBorderColor(new Color(255, 215, 0));
+		leftBackground = new RoundedPanel(15);	
 		leftBackground.setLayout(new BorderLayout());
 		leftBackground.add(leftTopInfo, BorderLayout.NORTH);
 		leftBackground.setBackgroundColor(new Color(0, 0, 0, 100));
-		//leftBackground.setBackgroundColor(new Color(180, 160, 220, 100));
 		
 		// ========================= RIGHT PLAYER =========================
 		// Player name panel
@@ -139,16 +126,14 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		rightPlayerPanel.setLayout(new BorderLayout());
 		rightPlayerLabel = new JLabel(nameR, SwingConstants.CENTER);
 		rightPlayerLabel.setFont(new Font("Arial", Font.BOLD, 18));
-		rightPlayerPanel.add(rightPlayerLabel, BorderLayout.CENTER);
-		
+		rightPlayerPanel.add(rightPlayerLabel, BorderLayout.CENTER);		
 		// Wrapper for centering the player panel
 		rightWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		rightWrapper.setOpaque(false);
-		rightWrapper.add(rightPlayerPanel);
-		
+		rightWrapper.add(rightPlayerPanel);		
 		// Minesweeper board
 		rightBoardPanel = new RoundedPanel(15);
-		rightBoardPanel.setPreferredSize(new Dimension(500, 500));
+		rightBoardPanel.setPreferredSize(new Dimension(500, 498));
 		rightBoardPanel.setLayout(new BorderLayout());
 		JPanel rightBoardInner = createBoard(false); // false = right player
 		rightBoardPanel.add(rightBoardInner, BorderLayout.CENTER);
@@ -156,6 +141,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		rightGridPanel.setOpaque(false);
 		// Remaining mines label
 		rightMinesLabel = new JLabel("Remaining Mines: " + rightMines, SwingConstants.CENTER);
+		rightMinesLabel.setBorder(BorderFactory.createEmptyBorder(-2, 0, 0, 0));
 		rightMinesLabel.setForeground(new Color(255, 215, 0));
 		rightMinesLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		// Top info layout (name + board + mines)
@@ -168,11 +154,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		rightMinesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// Background panel with rounded corners and border
 		rightBackground = new RoundedPanel(15);
-		//rightBackground.setBorderColor(new Color(255, 215, 0));
 		rightBackground.setLayout(new BorderLayout());
 		rightBackground.add(rightTopInfo, BorderLayout.NORTH);
 		rightBackground.setBackgroundColor(new Color(0, 0, 0, 150));
-		//rightBackground.setBackgroundColor(new Color(180, 160, 220, 100));
 		
 		// ========================= ADD TO CENTER PANEL =========================
 		centerPanel.add(leftBackground);
@@ -189,20 +173,49 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		heartsPanel.setOpaque(false);
 		loadHeartImage();// Load heart icon images
 		setSharedHearts(GameController.getSharedLivesGame(gamenum));// Load heart icon images
-		southPanel.add(heartsPanel, BorderLayout.CENTER);
+		JPanel heartsWrapper = new JPanel(new BorderLayout());
+		heartsWrapper.setOpaque(false);
+
+		JPanel spacer = new JPanel();
+		spacer.setOpaque(false);
+		spacer.setPreferredSize(new Dimension(100, 1)); 
+		heartsWrapper.add(spacer, BorderLayout.WEST);
+		heartsWrapper.add(heartsPanel, BorderLayout.CENTER);
+		southPanel.add(heartsWrapper, BorderLayout.CENTER);
 
 		// ========================= EXIT BUTTON =========================
 		JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
 		bottomRightPanel.setOpaque(false);
-		exitLabel = new JLabel("Exit");
-		exitLabel.setFont(new Font("Verdana", Font.BOLD, 30));
-		exitLabel.setForeground(new Color(246, 230, 138));
+		final Color EXIT_BG     = new Color(90, 40, 110);  
+		final Color EXIT_HOVER  = new Color(130, 70, 150); 
+		final Color EXIT_BORDER = new Color(255, 215, 0);   
+		final Color EXIT_TEXT   = new Color(246, 230, 138);
+
+		exitLabel = new JLabel("EXIT", SwingConstants.CENTER);
+		exitLabel.setFont(new Font("Verdana", Font.BOLD, 22));
+		exitLabel.setForeground(EXIT_TEXT);
+		exitLabel.setOpaque(true);
+		exitLabel.setBackground(EXIT_BG);
 		exitLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		exitLabel.setBorder(BorderFactory.createCompoundBorder(
+		        BorderFactory.createLineBorder(EXIT_BORDER, 2, true),
+		        BorderFactory.createEmptyBorder(3, 15, 3, 15)
+		));
 		exitLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				handleButtonClick("Exit", -1, -1, false);// Trigger exit logic
-			}
+		    @Override
+		    public void mouseEntered(java.awt.event.MouseEvent e) {
+		        exitLabel.setBackground(EXIT_HOVER);
+		    }
+
+		    @Override
+		    public void mouseExited(java.awt.event.MouseEvent e) {
+		        exitLabel.setBackground(EXIT_BG);
+		    }
+
+		    @Override
+		    public void mouseClicked(java.awt.event.MouseEvent e) {
+		        handleButtonClick("Exit", -1, -1, false);
+		    }
 		});
 		bottomRightPanel.add(exitLabel);
 		// Add exit panel to the south panel
@@ -242,13 +255,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Create main top panel
 		JPanel topPanel = new JPanel(new BorderLayout());
 		topPanel.setOpaque(false);
-
 		// ========== LEFT SIDE - Icons Panel (Settings & Music) ==========
 		JPanel topLeftIcons = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
 		topLeftIcons.setOpaque(false);
 		topLeftIcons.add(settingsLabel);
 		topLeftIcons.add(musicLabel);
-
 		// Labels for game information
 		gameNumberLabel = new JLabel("Game No. " + gamenum, SwingConstants.CENTER);
 		scoreLabel = new JLabel("Score: " + score, SwingConstants.CENTER);
@@ -257,21 +268,18 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		gameNumberLabel.setForeground(new Color(255, 215, 0));
 		scoreLabel.setForeground(new Color(255, 215, 0));
 		difficultyLabel.setForeground(new Color(255, 215, 0));
-
 		// Set font for all top labels
 		Font topFont = new Font("Arial", Font.BOLD, 16);
 		gameNumberLabel.setFont(topFont);
 		scoreLabel.setFont(topFont);
 		difficultyLabel.setFont(topFont);
-
 		// ========== CENTER - Game Info Panel (separated from players) ==========
 		JPanel gameCenterInfoPanel = new JPanel(new GridLayout(3, 1, 2, 2));
 		gameCenterInfoPanel.setOpaque(false);
 		gameCenterInfoPanel.add(gameNumberLabel);
 		gameCenterInfoPanel.add(scoreLabel);
 		gameCenterInfoPanel.add(difficultyLabel);
-
-		
+	
 		// ========== PLAYERS PANEL  ==========
 		JPanel playersTopPanel = new JPanel(new BorderLayout());
 		playersTopPanel.setOpaque(false);
@@ -329,7 +337,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		volumeItem.setBackground(new Color(60, 0, 90));
 		volumeItem.addActionListener(e -> showVolumeControl());
 		settingsMenu.add(volumeItem);
-
 		settingsMenu.addSeparator();
 
 		// Restart Game
@@ -347,7 +354,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		stopItem.setBackground(new Color(60, 0, 90));
 		stopItem.addActionListener(e -> stopGame());
 		settingsMenu.add(stopItem);
-
 		settingsMenu.show(settingsLabel, 0, settingsLabel.getHeight());
 	}
 
@@ -355,25 +361,20 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private void showVolumeControl() {
 		JPanel panel = new JPanel(new BorderLayout(10, 10));
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
 		JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
 		volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-
 		JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
 		volumeSlider.setMajorTickSpacing(25);
 		volumeSlider.setMinorTickSpacing(5);
 		volumeSlider.setPaintTicks(true);
 		volumeSlider.setPaintLabels(true);
-
 		volumeSlider.addChangeListener(e -> {
 			int value = volumeSlider.getValue();
 			musicManager.setVolume(value / 100.0f);
 			volumeLabel.setText("Volume: " + value + "%");
 		});
-
 		panel.add(volumeLabel, BorderLayout.NORTH);
 		panel.add(volumeSlider, BorderLayout.CENTER);
-
 		JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
 	}
 
@@ -386,14 +387,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		if (response == JOptionPane.YES_OPTION) {
 			 try {
 		            // Call the controller method which creates and returns a new GameBoards instance
-		            GameBoards newGameBoard = GameController.createNewGame(player1Name, player2Name, GameController.GameGetDifficulty(gamenum));
-		            
+		            GameBoards newGameBoard = GameController.createNewGame(player1Name, player2Name, GameController.GameGetDifficulty(gamenum));		            
 		            // Show the new game window
-		            newGameBoard.setVisible(true);
-		            
+		            newGameBoard.setVisible(true);		            
 		            // Close current game window
-		            GameBoards.this.dispose();
-		            
+		            GameBoards.this.dispose();		            
 		        } catch (IllegalArgumentException ex) {
 		            // Show error if invalid input or difficulty
 		            JOptionPane.showMessageDialog(this,
@@ -427,7 +425,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	// Updates the music icon based on the current playback state.
 	private void updateMusicIcon() {
 	    if (musicLabel == null) return;
-
 	    if (musicManager.isPlaying()) {
 	        musicLabel.setText("♪");
 	        musicLabel.setForeground(new Color(246, 230, 138));
@@ -441,7 +438,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private JPanel createBoard(boolean isLeft) {
 	    JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 2, 2));
 	    JButton[][] board = new JButton[rows][cols];
-
 	    for (int r = 0; r < rows; r++) {
 	        for (int c = 0; c < cols; c++) {
 	            JButton cell = new JButton() {
@@ -459,7 +455,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	                protected void paintBorder(Graphics g) {
 	                    Graphics2D g2 = (Graphics2D) g.create();
 	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
 	                    if (getBorder() != null) {
 	                        g2.setColor(new Color(50, 40, 60));
 	                        g2.setStroke(new BasicStroke(0));
@@ -474,8 +469,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	            cell.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
 	            cell.setOpaque(false);
 	            cell.setContentAreaFilled(false);
-	            cell.setBorderPainted(true);
-	           
+	            cell.setBorderPainted(true);	           
 	            final int row = r, col = c;
 	            cell.addMouseListener(new java.awt.event.MouseAdapter() {
 	                @Override
@@ -491,10 +485,8 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	            boardPanel.add(cell);
 	        }
 	    }
-
 	    if (isLeft) leftBoard = board;
 	    else rightBoard = board;
-
 	    return boardPanel;
 	}
 	//Handles actions triggered by clicking a cell button on either the left or right board.
@@ -522,8 +514,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			JOptionPane.showMessageDialog(this, "It's not your turn!", "Wait", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
-		boolean isLeft = source.equals("Left");
-	
+		boolean isLeft = source.equals("Left");	
 		JButton[][] buttons = source.equals("Left") ? leftBoard : rightBoard;
 		boolean shouldSwitchTurn = true;
 		String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
@@ -559,8 +550,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		updateScore(GameController.getSharedPoints(gamenum));
 		setSharedHearts(GameController.getSharedLivesGame(gamenum));
 		updateLeftMines(GameController.getRemainingMines(gamenum, true));
-		updateRightMines(GameController.getRemainingMines(gamenum, false));
-		
+		updateRightMines(GameController.getRemainingMines(gamenum, false));		
 		// Check for negative score warning
 				int currentScore = GameController.getSharedPoints(gamenum);
 				String diffG= GameController.GameGetDifficulty(gamenum);
@@ -580,10 +570,8 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 						
 						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
 						// Reveal all cells before showing defeat screen
-						revealAllCells();
-						
-						defeatScreen.setVisible(true);
-						
+						revealAllCells();						
+						defeatScreen.setVisible(true);						
 						// Save game history
 						GameHistoryController.createHistoryEntry(
 						        GameController.getGame(gamenum),
@@ -628,14 +616,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 					//Handle defeat condition - score reaches -60
 					if ( diffG== "MEDIUM" && currentScore <= -60) {
 						String player1 = GameController.getGame(gamenum).getPlayer1Name();
-						String player2 = GameController.getGame(gamenum).getPlayer2Name();
-						
+						String player2 = GameController.getGame(gamenum).getPlayer2Name();						
 						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
 						// Reveal all cells before showing defeat screen
-						revealAllCells();
-						
-						defeatScreen.setVisible(true);
-						
+						revealAllCells();						
+						defeatScreen.setVisible(true);						
 						// Save game history
 						GameHistoryController.createHistoryEntry(
 						        GameController.getGame(gamenum),
@@ -645,18 +630,15 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 						return;
 					}
 				}
-				
-				
+								
 		// Handle defeat condition
 		if (GameController.getSharedLivesGame(gamenum) <= 0) {
 			String player1 = GameController.getGame(gamenum).getPlayer1Name();
 			String player2 = GameController.getGame(gamenum).getPlayer2Name();
 			DefeatScreen defeatScreen = new DefeatScreen(GameController.getSharedPoints(gamenum) , this, player1 ,player2);
 			 // Reveal all cells before showing defeat screen
-		    revealAllCells();
-		    
-	        defeatScreen.setVisible(true);
-			
+		    revealAllCells();		    
+	        defeatScreen.setVisible(true);			
 	     // Save game history
 			 GameHistoryController.createHistoryEntry(
 				        GameController.getGame(gamenum),
@@ -668,17 +650,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Handle victory condition
 		if (GameController.IsGameVictory(gamenum)) {
 		    // Reveal all cells first
-		    revealAllCells();
-		    
+		    revealAllCells();		    
 		    // Convert remaining lives to bonus points
-		    int bonusPoints = convertRemainingLivesToPoints();
-		    
+		    int bonusPoints = convertRemainingLivesToPoints();		    
 		    // Update score display
-		    updateScore(GameController.getSharedPoints(gamenum));
-		    
+		    updateScore(GameController.getSharedPoints(gamenum));		    
 		    // Show victory screen with updated score
-		    int finalScore = GameController.getSharedPoints(gamenum);
-		    
+		    int finalScore = GameController.getSharedPoints(gamenum);		    
 		    // Optional: Show bonus message if there were remaining lives
 		    if (bonusPoints > 0) {
 		        JOptionPane.showMessageDialog(this,
@@ -687,13 +665,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		            " remaining lives!",
 		            "Victory Bonus",
 		            JOptionPane.INFORMATION_MESSAGE);
-		    }
-		    
+		    }		    
 		    String player1 = GameController.getGame(gamenum).getPlayer1Name();
 			String player2 = GameController.getGame(gamenum).getPlayer2Name();
 		    VictoryScreen victoryScreen = new VictoryScreen(finalScore, this ,player1 ,player2);
-		    victoryScreen.setVisible(true);
-		    
+		    victoryScreen.setVisible(true);		    
 		    // Save history game
 		    GameHistoryController.createHistoryEntry(
 		        GameController.getGame(gamenum),
@@ -909,15 +885,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	}
 	//--------------------------------------Reveal-----------------------------------------------
 	private void handleRevealAction(int row, int col, Boolean isLeft, JButton[][] buttons) {
-
 		GameController.RevealResult result = GameController.handleReveal(gamenum, isLeft, row, col);
-
 	    if (result == GameController.RevealResult.ALREADY_REVEALED) {
 	        return; // do nothing
 	    }
-
 	    int size = GameController.getBoardSize(gamenum, isLeft);
-
 	    // Update all revealed cells visually
 	    for (int r = 0; r < size; r++) {
 	        for (int c = 0; c < size; c++) {
@@ -962,11 +934,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private void loadHeartImage() {
 	    // Load the new PNG heart with transparency
 	    heartIcon = new ImageIcon(getClass().getResource("/resource/NewHeartImage.png"));
-
 	    // Scale the image to 30x30 smoothly
 	    Image img = heartIcon.getImage();
 	    Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-
 	    // Set the scaled icon
 	    heartIcon = new ImageIcon(scaledImg);
 	}
@@ -974,17 +944,14 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	 * Sets the icon (emoji) and background color based on cell type.*/
 	private void showCell(JButton button, int r, int c, Boolean isLeft) {
 		if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) return;
-
 		String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, r, c);
 		String cellType = GameController.GetCellType(gamenum, isLeft, r, c);
-		button.setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, button.getWidth(), button.getHeight())));
-		
+		button.setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, button.getWidth(), button.getHeight())));		
 		if (cellType.equals("EMPTY")) button.setBackground(Color.WHITE);
 		if (cellType.equals("NUMBER")) button.setBackground(new Color(180, 255, 180));
 		if (cellType.equals("MINE")) button.setBackground(new Color(255, 180, 80));
 		if (cellType.equals("SURPRISE")) button.setBackground(Color.yellow);
-		if (cellType.equals("QUESTION")) button.setBackground(new Color(255, 180, 255));
-		
+		if (cellType.equals("QUESTION")) button.setBackground(new Color(255, 180, 255));		
 		button.setOpaque(false);
 	    button.setContentAreaFilled(false);
 	    button.setBorderPainted(true);  // Keep border for rounded effect
@@ -1073,8 +1040,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	
 	// Update and make sure boards color acorrding the turn
 		private void updateBoardColors(JButton[][] board, boolean isActive, boolean isLeft) {
-		    Color cellColor;
-		    
+		    Color cellColor;		    
 		    if (isActive) {
 		    	// Active board color – purple for left, brown for right
 		        cellColor = isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR;
@@ -1107,13 +1073,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	            Graphics2D g2 = (Graphics2D) g.create();
 	            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 	                                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
 	            g2.setFont(new Font("Arial", Font.BOLD, 26));
 	            FontMetrics fm = g2.getFontMetrics();
-
 	            int x = 5;
 	            int y = fm.getAscent() + 5;
-
 	            // Outline
 	            g2.setColor(Color.BLACK);
 	            for (int dx = -2; dx <= 2; dx++) {
@@ -1121,11 +1084,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	                    g2.drawString(message, x + dx, y + dy);
 	                }
 	            }
-
 	            // Main color
 	            g2.setColor(color);
 	            g2.drawString(message, x, y);
-
 	            g2.dispose();
 	        }
 
@@ -1137,46 +1098,36 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	            return new Dimension(w, h);
 	        }
 	    };
-
 	    msg.setOpaque(false);
-
 	    JWindow popup = new JWindow();
 	    popup.setBackground(new Color(0, 0, 0, 0));
 	    popup.add(msg);
 	    popup.pack();
-
 	    // IMPROVED POSITIONING - Keep within screen bounds
 	    Point btnOnScreen = button.getLocationOnScreen();
 	    int x = btnOnScreen.x + button.getWidth()/2 - popup.getWidth()/2;
 	    int y = btnOnScreen.y - popup.getHeight() - 5;
-	    
 	    // Get screen dimensions
-	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    
+	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();	    
 	    // Adjust X if too far left or right
 	    if (x < 0) {
 	        x = 10; // Left edge padding
 	    } else if (x + popup.getWidth() > screenSize.width) {
 	        x = screenSize.width - popup.getWidth() - 10; // Right edge padding
-	    }
-	    
+	    }	    
 	    // Adjust Y if too high (near top of screen)
 	    if (y < 0) {
 	        // Show below button instead
 	        y = btnOnScreen.y + button.getHeight() + 5;
-	    }
-	    
+	    }	    
 	    // If still off bottom of screen, clamp it
 	    if (y + popup.getHeight() > screenSize.height) {
 	        y = screenSize.height - popup.getHeight() - 10;
-	    }
-	    
+	    }	    
 	    popup.setLocation(x, y);
 	    popup.setVisible(true);
-
 	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
 	}
-	
 	// =============  Reveal all cells at game end =============
 	private void revealAllCells() {
 	    // Reveal left board
@@ -1187,8 +1138,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	            }
 	            showCell(leftBoard[r][c], r, c, true);
 	        }
-	    }
-	    
+	    }	    
 	    // Reveal right board
 	    for (int r = 0; r < rows; r++) {
 	        for (int c = 0; c < cols; c++) {
@@ -1199,7 +1149,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	        }
 	    }
 	}
-	
 	// ============= Convert remaining lives to points at game end =============
 	private int convertRemainingLivesToPoints() {
 	    int remainingLives = GameController.getSharedLivesGame(gamenum);
