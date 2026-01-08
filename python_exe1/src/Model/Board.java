@@ -26,16 +26,13 @@ public class Board {
         // Initialize all cells as empty
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                board[i][j] = new Cell(i, j, Cell.CellType.EMPTY);
+            	board[i][j] = CellFactory.createEmptyCell(i, j);
             }
         }
-
         // Place mines randomly
         placeMines();
-
         // Calculate numbers
         calculateNumbers();
-
         // Place question & surprise cells
         placeSpecialCells();
     }
@@ -46,8 +43,8 @@ public class Board {
         while (placed < mines) {
             int row = rand.nextInt(size);
             int col = rand.nextInt(size);
-            if (board[row][col].getType() != Cell.CellType.MINE) {
-                board[row][col].setType(Cell.CellType.MINE);
+            if (!(board[row][col] instanceof MineCell)) { // Check type!
+                board[row][col] = CellFactory.createMineCell(row, col); //get an object of Mine
                 placed++;
             }
         }
@@ -56,33 +53,33 @@ public class Board {
     private void calculateNumbers() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-            	 // Skip cells that contain a mine
-                if (board[i][j].getType() == Cell.CellType.MINE)
+                if (board[i][j] instanceof MineCell) {
                     continue;
-
-                int mineCount = 0;
-             // Check all surrounding cells
-                for (int di = -1; di <= 1; di++) {
-                    for (int dj = -1; dj <= 1; dj++) {
-                        int ni = i + di;
-                        int nj = j + dj;
-                        // Ensure indices are within bounds
-                        if (ni >= 0 && ni < size && nj >= 0 && nj < size) {
-                            if (board[ni][nj].getType() == Cell.CellType.MINE) {
-                                mineCount++;
-                            }
-                        }
-                    }
                 }
-                // Update cell type based on mine count
+
+                int mineCount = countAdjacentMines(i, j);
+                
                 if (mineCount > 0) {
-                    board[i][j].setType(Cell.CellType.NUMBER);
-                    board[i][j].setSurroundingMines(mineCount);
-                } else {
-                    board[i][j].setType(Cell.CellType.EMPTY);
+                    board[i][j] = CellFactory.createNumberCell(i, j, mineCount); //get an object of Cell Containing Number
+                }
+                // else: remains empty
+            }
+        }
+    }
+    private int countAdjacentMines(int row, int col) {
+        int count = 0;
+        for (int di = -1; di <= 1; di++) {
+            for (int dj = -1; dj <= 1; dj++) {
+                int ni = row + di;
+                int nj = col + dj;
+                if (ni >= 0 && ni < size && nj >= 0 && nj < size) {
+                    if (board[ni][nj] instanceof MineCell) {
+                        count++;
+                    }
                 }
             }
         }
+        return count;
     }
     // Randomly places special cells on the game board.
     private void placeSpecialCells() {
@@ -92,7 +89,7 @@ public class Board {
         // Collect all empty cells
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (board[i][j].getType() == Cell.CellType.EMPTY) {
+                if (board[i][j] instanceof EmptyCell) {
                     emptyPositions.add(new int[]{i, j});
                 }
             }
@@ -102,14 +99,14 @@ public class Board {
         for (int q = 0; q < questions && !emptyPositions.isEmpty(); q++) {
             int idx = rand.nextInt(emptyPositions.size());
             int[] pos = emptyPositions.remove(idx);
-            board[pos[0]][pos[1]].setType(Cell.CellType.QUESTION);
+            board[pos[0]][pos[1]] = CellFactory.createQuestionCell(pos[0], pos[1]);//get an object of Question Cell
         }
 
      // Randomly place SURPRISE cells
         for (int s = 0; s < surprises && !emptyPositions.isEmpty(); s++) {
             int idx = rand.nextInt(emptyPositions.size());
             int[] pos = emptyPositions.remove(idx);
-            board[pos[0]][pos[1]].setType(Cell.CellType.SURPRISE);
+            board[pos[0]][pos[1]] = CellFactory.createSurpriseCell(pos[0], pos[1]); //get an object of Surprise Cell
         }
     }
     // Returns the cell located at the specified row and column.
@@ -121,8 +118,9 @@ public class Board {
     }
     // Reveals the cell at the specified position.
     public void revealCell(int row, int col) {
-        if (getCell(row, col) != null) {
-            getCell(row, col).setRevealed(true);
+        Cell cell = getCell(row, col);
+        if (cell != null) {
+            cell.reveal(); // Polymorphic call!
         }
     }
     // Recursively reveals cells starting from the specified position.
@@ -132,16 +130,13 @@ public class Board {
         Cell cell = board[row][col];
         if (cell.isRevealed() || cell.isFlagged()) return;
 
-        cell.setRevealed(true);
+        cell.reveal(); // Polymorphic!
 
-        // Only cascade for cells that behave like empty: EMPTY, SURPRISE, QUESTION
-        if (cell.getType() == Cell.CellType.EMPTY ||
-            cell.getType() == Cell.CellType.SURPRISE ||
-            cell.getType() == Cell.CellType.QUESTION) {
-
+        // Use polymorphic method instead of type checking!
+        if (cell.shouldCascade()) {
             for (int di = -1; di <= 1; di++) {
                 for (int dj = -1; dj <= 1; dj++) {
-                    if (di == 0 && dj == 0) continue; 
+                    if (di == 0 && dj == 0) continue;
                     cascadeReveal(row + di, col + dj);
                 }
             }
@@ -153,7 +148,7 @@ public class Board {
         int count = 0;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (board[i][j].getType() == Cell.CellType.MINE && board[i][j].isRevealed()) {
+                if (board[i][j] instanceof MineCell && board[i][j].isRevealed()) {
                     count++;
                 }
             }
@@ -167,8 +162,7 @@ public class Board {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Cell cell = board[i][j];
-                // If it's not a mine and not revealed, board is not complete
-                if ((cell.getType() != Cell.CellType.MINE) && !cell.isRevealed()) {
+                if (!(cell instanceof MineCell) && !cell.isRevealed()) {
                     return false;
                 }
             }
