@@ -1,12 +1,14 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 import controller.GameController;
 import controller.GameHistoryController;
 
 
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -27,11 +29,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private MusicManager musicManager;
 	private WindowSizeManager windowSizeManager;
 	private JPanel leftWrapper,rightWrapper;
-	
+	private  boolean warningscore = false;
 	// boards color:
-	private static final Color PLAYER1_ACTIVE_COLOR = new Color(180, 160, 220);  // סגול בהיר כמו בתמונה
-	private static final Color PLAYER2_ACTIVE_COLOR = new Color(140, 80, 100);   // red
-	private static final Color DISABLED_BOARD_COLOR = new Color(105, 105, 105);  // Gray
+	private static final Color PLAYER1_ACTIVE_COLOR = new Color(180, 160, 220);  
+	private static final Color PLAYER2_ACTIVE_COLOR = new Color(140, 80, 100);   
+	private static final Color DISABLED_BOARD_COLOR = new Color(105, 105, 105);  
 		
 	public int GetGameNum() {
 		return gamenum;
@@ -109,11 +111,12 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		JPanel leftBoardInner = createBoard(true);
 		leftBoardPanel.add(leftBoardInner, BorderLayout.CENTER);
 		leftGridPanel = leftBoardInner;
+		leftGridPanel.setOpaque(false);
 		// Remaining mines label
 		leftMinesLabel = new JLabel("Remaining Mines: " + leftMines, SwingConstants.CENTER);
 		leftMinesLabel.setForeground(new Color(255, 215, 0));
 		leftMinesLabel.setFont(new Font("Arial", Font.BOLD, 16));
-		// Top info layout (name + board + mines)
+		// Top info layout (  board + mines)
 		JPanel leftTopInfo = new JPanel();
 		leftTopInfo.setLayout(new BoxLayout(leftTopInfo, BoxLayout.Y_AXIS));
 		leftTopInfo.setOpaque(false);
@@ -123,10 +126,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		leftMinesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// Background panel with rounded corners and semi-transparent purple
 		leftBackground = new RoundedPanel(15);
-		leftBackground.setBorderColor(new Color(255, 215, 0));
+		//leftBackground.setBorderColor(new Color(255, 215, 0));
 		leftBackground.setLayout(new BorderLayout());
 		leftBackground.add(leftTopInfo, BorderLayout.NORTH);
-		leftBackground.setBackgroundColor(new Color(180, 160, 220, 100));
+		leftBackground.setBackgroundColor(new Color(0, 0, 0, 100));
+		//leftBackground.setBackgroundColor(new Color(180, 160, 220, 100));
 		
 		// ========================= RIGHT PLAYER =========================
 		// Player name panel
@@ -164,10 +168,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		rightMinesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// Background panel with rounded corners and border
 		rightBackground = new RoundedPanel(15);
-		rightBackground.setBorderColor(new Color(255, 215, 0));
+		//rightBackground.setBorderColor(new Color(255, 215, 0));
 		rightBackground.setLayout(new BorderLayout());
 		rightBackground.add(rightTopInfo, BorderLayout.NORTH);
 		rightBackground.setBackgroundColor(new Color(0, 0, 0, 150));
+		//rightBackground.setBackgroundColor(new Color(180, 160, 220, 100));
 		
 		// ========================= ADD TO CENTER PANEL =========================
 		centerPanel.add(leftBackground);
@@ -205,11 +210,14 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Add the south panel to the main frame or parent container
 		add(southPanel, BorderLayout.SOUTH);
 
-		// ========================= TOP PANEL =========================
+		// ========================= TOP PANEL - SEPARATED STRUCTURE =========================
 		settingsLabel = new JLabel("⚙");
 		settingsLabel.setFont(new Font("Dialog", Font.BOLD, 35));
 		settingsLabel.setForeground(new Color(246, 230, 138));
 		settingsLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));// Change cursor to hand when hovering
+		settingsLabel.setPreferredSize(new Dimension(40, 40));
+		settingsLabel.setMinimumSize(new Dimension(40, 40));
+		settingsLabel.setMaximumSize(new Dimension(40, 40));
 		settingsLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -221,6 +229,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		musicLabel.setFont(new Font("Dialog", Font.BOLD, 35));
 		musicLabel.setForeground(musicManager.isPlaying() ? new Color(246, 230, 138) : new Color(180, 180, 180));
 		musicLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		musicLabel.setPreferredSize(new Dimension(40, 40)); // קובע גודל קבוע
+		musicLabel.setMinimumSize(new Dimension(40, 40));
+		musicLabel.setMaximumSize(new Dimension(40, 40));
 		musicLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -228,14 +239,16 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			}
 		});
 
+		// Create main top panel
 		JPanel topPanel = new JPanel(new BorderLayout());
 		topPanel.setOpaque(false);
 
-		// Left-aligned panel for icons (settings and music)
+		// ========== LEFT SIDE - Icons Panel (Settings & Music) ==========
 		JPanel topLeftIcons = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
 		topLeftIcons.setOpaque(false);
 		topLeftIcons.add(settingsLabel);
 		topLeftIcons.add(musicLabel);
+
 		// Labels for game information
 		gameNumberLabel = new JLabel("Game No. " + gamenum, SwingConstants.CENTER);
 		scoreLabel = new JLabel("Score: " + score, SwingConstants.CENTER);
@@ -250,35 +263,49 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		gameNumberLabel.setFont(topFont);
 		scoreLabel.setFont(topFont);
 		difficultyLabel.setFont(topFont);
-		// Center panel to stack the three labels vertically
-		JPanel topCenterPanel = new JPanel(new GridLayout(3, 1, 2, 2));
-		topCenterPanel.setOpaque(false);
-		topCenterPanel.add(gameNumberLabel);
-		topCenterPanel.add(scoreLabel);
-		topCenterPanel.add(difficultyLabel);
 
-		JPanel centerAndPlayersWrapper = new JPanel();
-		centerAndPlayersWrapper.setLayout(new BorderLayout());
-		centerAndPlayersWrapper.setOpaque(false);
+		// ========== CENTER - Game Info Panel (separated from players) ==========
+		JPanel gameCenterInfoPanel = new JPanel(new GridLayout(3, 1, 2, 2));
+		gameCenterInfoPanel.setOpaque(false);
+		gameCenterInfoPanel.add(gameNumberLabel);
+		gameCenterInfoPanel.add(scoreLabel);
+		gameCenterInfoPanel.add(difficultyLabel);
 
-		// מוסיפים את ה-topCenterPanel (מספר המשחק + ניקוד) למעלה
-		centerAndPlayersWrapper.add(topCenterPanel, BorderLayout.NORTH);
+		
+		// ========== PLAYERS PANEL  ==========
+		JPanel playersTopPanel = new JPanel(new BorderLayout());
+		playersTopPanel.setOpaque(false);
 
-		// מוסיפים את השחקנים מתחת
-		JPanel playersWrapper = new JPanel(new BorderLayout());
-		playersWrapper.setOpaque(false);
+		// Left player panel with wrapper
+		JPanel leftPlayerWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		leftPlayerWrapper.setOpaque(false);
+		leftPlayerWrapper.add(leftPlayerPanel);
+		leftPlayerWrapper.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
 
-		// מוסיפים את השחקנים בצדדים הרחוקים
-		playersWrapper.add(leftWrapper, BorderLayout.WEST);
-		playersWrapper.add(rightWrapper, BorderLayout.EAST);
-		leftWrapper.setBorder(BorderFactory.createEmptyBorder(0, 100, 0, 0));    
-		rightWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 180));  
+		// Right player panel with wrapper
+		JPanel rightPlayerWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		rightPlayerWrapper.setOpaque(false);
+		rightPlayerWrapper.add(rightPlayerPanel);
+		rightPlayerWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 180));
 
+		// Add both player wrappers to players panel
+		playersTopPanel.add(leftPlayerWrapper, BorderLayout.WEST);
+		playersTopPanel.add(rightPlayerWrapper, BorderLayout.EAST);
 
-		centerAndPlayersWrapper.add(playersWrapper, BorderLayout.CENTER);
-
+		// ========== WRAPPER FOR CENTER INFO + PLAYERS ==========
+		JPanel centerWrapper = new JPanel(new BorderLayout());
+		centerWrapper.setOpaque(false);
+		centerWrapper.add(gameCenterInfoPanel, BorderLayout.NORTH);
+		centerWrapper.add(playersTopPanel, BorderLayout.CENTER);
+		
+		gameCenterInfoPanel.setBorder(
+			    BorderFactory.createEmptyBorder(0, 0, 0, 120)
+			);
+        
+		// ========== ASSEMBLE TOP PANEL ==========
 		topPanel.add(topLeftIcons, BorderLayout.WEST);
-		topPanel.add(centerAndPlayersWrapper, BorderLayout.CENTER);
+		topPanel.add(centerWrapper, BorderLayout.CENTER);
+
 		add(topPanel, BorderLayout.NORTH);
 		
 		// Highlight the current player
@@ -412,7 +439,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 	// Creates a game board represented as a JPanel containing a grid of buttons.
 	private JPanel createBoard(boolean isLeft) {
-	    JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 1, 1));
+	    JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 2, 2));
 	    JButton[][] board = new JButton[rows][cols];
 
 	    for (int r = 0; r < rows; r++) {
@@ -422,11 +449,8 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	                protected void paintComponent(Graphics g) {
 	                    Graphics2D g2 = (Graphics2D) g.create();
 	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-	                    // צבע רקע מעוגל
 	                    g2.setColor(getBackground());
 	                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-
 	                    super.paintComponent(g2);
 	                    g2.dispose();
 	                }
@@ -438,19 +462,20 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 	                    if (getBorder() != null) {
 	                        g2.setColor(new Color(50, 40, 60));
-	                        g2.setStroke(new BasicStroke(1));
-	                        g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+	                        g2.setStroke(new BasicStroke(0));
+	                        g2.drawRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
 	                    }
 	                    g2.dispose();
 	                }
 	            };
+	            
 
 	            cell.setPreferredSize(new Dimension(30, 30));
 	            cell.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
 	            cell.setOpaque(false);
 	            cell.setContentAreaFilled(false);
-	            cell.setBorderPainted(false);
-
+	            cell.setBorderPainted(true);
+	           
 	            final int row = r, col = c;
 	            cell.addMouseListener(new java.awt.event.MouseAdapter() {
 	                @Override
@@ -535,6 +560,93 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		setSharedHearts(GameController.getSharedLivesGame(gamenum));
 		updateLeftMines(GameController.getRemainingMines(gamenum, true));
 		updateRightMines(GameController.getRemainingMines(gamenum, false));
+		
+		// Check for negative score warning
+				int currentScore = GameController.getSharedPoints(gamenum);
+				String diffG= GameController.GameGetDifficulty(gamenum);
+				if (currentScore < 0){
+					if ( diffG== "EASY" && currentScore > -30 && warningscore == false) {
+						JOptionPane.showMessageDialog(this, 
+							" Warning! Your score is negative: " + currentScore + 
+							"\nIf you reach -30 points, the game will end!", 
+							"Negative Score Warning", 
+							JOptionPane.WARNING_MESSAGE);
+						warningscore = true;
+					}
+					//Handle defeat condition - score reaches -30
+					if ( diffG== "EASY" && currentScore <= -30 ) {
+						String player1 = GameController.getGame(gamenum).getPlayer1Name();
+						String player2 = GameController.getGame(gamenum).getPlayer2Name();
+						
+						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+						// Reveal all cells before showing defeat screen
+						revealAllCells();
+						
+						defeatScreen.setVisible(true);
+						
+						// Save game history
+						GameHistoryController.createHistoryEntry(
+						        GameController.getGame(gamenum),
+						        "Defeat"
+						    );
+						GameController.GameFinish(gamenum);
+						return;
+					}
+					if ( diffG== "MEDIUM" && currentScore > -40 && warningscore == false) {
+						JOptionPane.showMessageDialog(this, 
+							" Warning! Your score is negative: " + currentScore + 
+							"\nIf you reach -40 points, the game will end!", 
+							"Negative Score Warning", 
+							JOptionPane.WARNING_MESSAGE);
+						warningscore = true;
+					}
+					//Handle defeat condition - score reaches -40
+					if ( diffG== "MEDIUM" && currentScore <= -40 ) {
+						String player1 = GameController.getGame(gamenum).getPlayer1Name();
+						String player2 = GameController.getGame(gamenum).getPlayer2Name();
+						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+						// Reveal all cells before showing defeat screen
+						revealAllCells();
+						defeatScreen.setVisible(true);
+						
+						// Save game history
+						GameHistoryController.createHistoryEntry(
+						        GameController.getGame(gamenum),
+						        "Defeat"
+						    );
+						GameController.GameFinish(gamenum);
+						return;
+					}
+					if ( diffG== "HARD" && currentScore > -60 && warningscore == false) {
+						JOptionPane.showMessageDialog(this, 
+							" Warning! Your score is negative: " + currentScore + 
+							"\nIf you reach -60 points, the game will end!", 
+							"Negative Score Warning", 
+							JOptionPane.WARNING_MESSAGE);
+						warningscore = true;
+					}
+					//Handle defeat condition - score reaches -60
+					if ( diffG== "MEDIUM" && currentScore <= -60) {
+						String player1 = GameController.getGame(gamenum).getPlayer1Name();
+						String player2 = GameController.getGame(gamenum).getPlayer2Name();
+						
+						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+						// Reveal all cells before showing defeat screen
+						revealAllCells();
+						
+						defeatScreen.setVisible(true);
+						
+						// Save game history
+						GameHistoryController.createHistoryEntry(
+						        GameController.getGame(gamenum),
+						        "Defeat"
+						    );
+						GameController.GameFinish(gamenum);
+						return;
+					}
+				}
+				
+				
 		// Handle defeat condition
 		if (GameController.getSharedLivesGame(gamenum) <= 0) {
 			String player1 = GameController.getGame(gamenum).getPlayer1Name();
@@ -867,22 +979,24 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		String cellType = GameController.GetCellType(gamenum, isLeft, r, c);
 		button.setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, button.getWidth(), button.getHeight())));
 		
-		if (cellType.equals("EMPTY")) button.setBackground(new Color(200, 200, 255));
+		if (cellType.equals("EMPTY")) button.setBackground(Color.WHITE);
 		if (cellType.equals("NUMBER")) button.setBackground(new Color(180, 255, 180));
 		if (cellType.equals("MINE")) button.setBackground(new Color(255, 180, 80));
 		if (cellType.equals("SURPRISE")) button.setBackground(Color.yellow);
 		if (cellType.equals("QUESTION")) button.setBackground(new Color(255, 180, 255));
 		
-		button.setOpaque(true);
-		button.setBorderPainted(false);
-		button.setEnabled(false);
+		button.setOpaque(false);
+	    button.setContentAreaFilled(false);
+	    button.setBorderPainted(true);  // Keep border for rounded effect
+	    button.setEnabled(false);
+	    
 	}
 	// Converts a string emoji to a BufferedImage of specified width and height.
 	private BufferedImage renderEmojiToImage(String emoji, int width, int height) {
 	    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 	    Graphics2D g = img.createGraphics();
 	    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-	    g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, height - 4));
+	 	g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, height - 4));
 	    FontMetrics fm = g.getFontMetrics();
 	    int x = (width - fm.stringWidth(emoji)) / 2;
 	    int y = ((height - fm.getHeight()) / 2) + fm.getAscent() + 5;  // moved down by 5 pixels
@@ -907,6 +1021,16 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 				        )
 				    );
 			enableBoard(leftBoard, true);
+			leftBackground.setBorder(
+				    BorderFactory.createCompoundBorder(
+				            BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
+				            BorderFactory.createCompoundBorder(
+				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
+				                null        
+				            )
+				        )
+				    );
+			rightBackground.setBorder(null);
 	        updateBoardColors(leftBoard, true, true);
 	        //  rightPlayer UnActive
 	        rightPlayerPanel.setBackgroundColor(Color.lightGray);
@@ -928,6 +1052,16 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 				        )
 				    );
 			enableBoard(rightBoard, true);
+			rightBackground.setBorder(
+				    BorderFactory.createCompoundBorder(
+				            BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
+				            BorderFactory.createCompoundBorder(
+				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
+				                null        
+				            )
+				        )
+				    );
+			leftBackground.setBorder(null);
 	        updateBoardColors(rightBoard, true, false);
 	    	// leftPlayer UnActive
 	        leftPlayerPanel.setBackgroundColor(Color.lightGray);
@@ -942,18 +1076,17 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		    Color cellColor;
 		    
 		    if (isActive) {
-		        // צבע פעיל - סגול לשמאל, חום לימין
+		    	// Active board color – purple for left, brown for right
 		        cellColor = isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR;
 		    } else {
-		        // צבע לא פעיל - אפור
+		    	// Inactive board color – gray
 		        cellColor = DISABLED_BOARD_COLOR;
 		    }
-		    
+		 // Only apply color to cells that are not yet revealed
 		    for (int r = 0; r < board.length; r++) {
 		        for (int c = 0; c < board[0].length; c++) {
-		            // רק משבצות שעדיין לא נפתחו
-		            if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) {
-		                board[r][c].setBackground(cellColor);
+		            if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) {  
+		            	board[r][c].setBackground(cellColor);
 		            }
 		        }
 		    }
