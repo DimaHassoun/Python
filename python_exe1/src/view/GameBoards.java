@@ -29,8 +29,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private WindowSizeManager windowSizeManager;
 	private JPanel leftWrapper,rightWrapper;
 	private  boolean warningscore = false;
-	private boolean hintUsed = false;  // Track if hint was already used
-	private JButton hintButton;  // Reference to hint button for updates
+  
+	private boolean player1HintUsed = false; // Track if hint was already used
+	private boolean player2HintUsed = false; // Track if hint was already used
+	private JButton hintButton;// Reference to hint button for updates
+
 	private boolean isBadSurprise; //to delay Massage of negative Show 
 	
 	// boards color:
@@ -98,7 +101,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		leftWrapper.add(leftPlayerPanel);
 		// Minesweeper board
 		leftBoardPanel = new RoundedPanel(15);
-		leftBoardPanel.setPreferredSize(new Dimension(500, 498));
+	
 		leftBoardPanel.setLayout(new BorderLayout());
 		JPanel leftBoardInner = createBoard(true);
 		leftBoardPanel.add(leftBoardInner, BorderLayout.CENTER);
@@ -120,7 +123,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Background panel with rounded corners and semi-transparent purple
 		leftBackground = new RoundedPanel(15);	
 		leftBackground.setLayout(new BorderLayout());
-		leftBackground.add(leftTopInfo, BorderLayout.NORTH);
+		leftBackground.add(leftTopInfo, BorderLayout.CENTER);
 		leftBackground.setBackgroundColor(new Color(0, 0, 0, 100));
 
 		// ========================= RIGHT PLAYER =========================
@@ -137,7 +140,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		rightWrapper.add(rightPlayerPanel);		
 		// Minesweeper board
 		rightBoardPanel = new RoundedPanel(15);
-		rightBoardPanel.setPreferredSize(new Dimension(500, 498));
+	
 		rightBoardPanel.setLayout(new BorderLayout());
 		JPanel rightBoardInner = createBoard(false); // false = right player
 		rightBoardPanel.add(rightBoardInner, BorderLayout.CENTER);
@@ -159,14 +162,14 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Background panel with rounded corners and border
 		rightBackground = new RoundedPanel(15);
 		rightBackground.setLayout(new BorderLayout());
-		rightBackground.add(rightTopInfo, BorderLayout.NORTH);
+		rightBackground.add(rightTopInfo, BorderLayout.CENTER);
 		rightBackground.setBackgroundColor(new Color(0, 0, 0, 150));
 
 		// ========================= ADD TO CENTER PANEL =========================
 		centerPanel.add(leftBackground);
 		centerPanel.add(rightBackground);
 		// Add center panel to the main frame or parent container
-		add(centerPanel, BorderLayout.CENTER);
+		//add(centerPanel, BorderLayout.CENTER);
 
 		// ========================= SOUTH PANEL =========================
 		JPanel southPanel = new JPanel(new BorderLayout());
@@ -190,78 +193,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// ========================= EXIT BUTTON =========================
 		JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
 		bottomRightPanel.setOpaque(false);
-		//Create HINT button with rounded design
-		hintButton = new JButton("💡 Hint") {
-			private boolean isHovered = false;
-
-			{
-				addMouseListener(new java.awt.event.MouseAdapter() {
-					@Override
-					public void mouseEntered(java.awt.event.MouseEvent e) {
-						if (!hintUsed) {
-							isHovered = true;
-							repaint();
-						}
-					}
-
-					@Override
-					public void mouseExited(java.awt.event.MouseEvent e) {
-						isHovered = false;
-						repaint();
-					}
-
-					@Override
-					public void mouseClicked(java.awt.event.MouseEvent e) {
-						if (!hintUsed) {
-							useHint();
-						}
-					}
-				});
-			}
-			@Override
-			protected void paintComponent(Graphics g) {
-				Graphics2D g2 = (Graphics2D) g.create();
-				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-				// Background color - changes based on state
-				Color bgColor;
-				if (hintUsed) {
-					bgColor = new Color(80, 80, 80, 100); 
-				} else if (isHovered) {
-					bgColor = new Color(100, 20, 140, 200); 
-				} else {
-					bgColor = new Color(80, 0, 120, 170); 
-				}
-
-				g2.setColor(bgColor);
-				g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
-
-				// Border
-				Color borderColor = hintUsed ? 
-						new Color(100, 100, 100, 60) : 
-							(isHovered ? 
-									new Color(255, 255, 255, 80) : 
-										new Color(255, 255, 255, 40));
-
-				g2.setColor(borderColor);
-				g2.setStroke(new BasicStroke(2));
-				g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
-
-				g2.dispose();
-				super.paintComponent(g);
-			}
-		};
-		// Style the hint button
-		hintButton.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
-		hintButton.setForeground(new Color(246, 230, 138));
-		hintButton.setFocusPainted(false);
-		hintButton.setContentAreaFilled(false);
-		hintButton.setBorderPainted(false);
-		hintButton.setOpaque(false);
-		hintButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		hintButton.setPreferredSize(new Dimension(120, 40));
-		bottomRightPanel.add(hintButton);
-
 		// Create custom EXIT button with rounded design
 		JButton exitButton = new JButton("EXIT") {
 			private boolean isHovered = false;
@@ -279,10 +210,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 						isHovered = false;
 						repaint();
 					}
-
 					@Override
 					public void mouseClicked(java.awt.event.MouseEvent e) {
-						handleButtonClick("Exit", -1, -1, false);
+					    handleButtonClick("Exit", -1, -1, false);
 					}
 				});
 			}
@@ -329,6 +259,94 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Add the south panel to the main frame or parent container
 		add(southPanel, BorderLayout.SOUTH);
 
+		//======================Create HINT button with rounded design==================
+		hintButton = new JButton("💡 Hint") {
+		    private boolean isHovered = false;
+
+		    {
+		        addMouseListener(new java.awt.event.MouseAdapter() {
+		            @Override
+		            public void mouseEntered(java.awt.event.MouseEvent e) {
+		                int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
+		                boolean currentPlayerUsed = (currentPlayer == 1) ? player1HintUsed : player2HintUsed;
+		                boolean bothUsed = player1HintUsed && player2HintUsed;
+		                
+		                if (!bothUsed && !currentPlayerUsed) {
+		                    isHovered = true;
+		                    repaint();
+		                }
+		            }
+
+		            @Override
+		            public void mouseExited(java.awt.event.MouseEvent e) {
+		                isHovered = false;
+		                repaint();
+		            }
+
+		            @Override
+		            public void mouseClicked(java.awt.event.MouseEvent e) {
+		                useHint(); // קורא למתודה שמטפלת בכל הלוגיקה
+		            }
+		        });
+		    }
+		    
+		    @Override
+		    protected void paintComponent(Graphics g) {
+		        Graphics2D g2 = (Graphics2D) g.create();
+		        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		        int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
+		        boolean currentPlayerUsed = (currentPlayer == 1) ? player1HintUsed : player2HintUsed;
+		        boolean bothUsed = player1HintUsed && player2HintUsed;
+
+		        // Background color - changes based on state
+		        Color bgColor;
+		        if (bothUsed) {
+		            bgColor = new Color(80, 80, 80, 100); // Gray when both used
+		        } else if (currentPlayerUsed) {
+		            bgColor = new Color(120, 100, 80, 150); // Darker when current player used
+		        } else if (isHovered) {
+		            bgColor = new Color(100, 20, 140, 200); // Bright purple on hover
+		        } else {
+		            bgColor = new Color(80, 0, 120, 170); // Normal purple
+		        }
+
+		        g2.setColor(bgColor);
+		        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
+
+		        // Border
+		        Color borderColor;
+		        if (bothUsed) {
+		            borderColor = new Color(100, 100, 100, 60);
+		        } else if (currentPlayerUsed) {
+		            borderColor = new Color(150, 130, 100, 60);
+		        } else if (isHovered) {
+		            borderColor = new Color(255, 255, 255, 80);
+		        } else {
+		            borderColor = new Color(255, 255, 255, 40);
+		        }
+
+		        g2.setColor(borderColor);
+		        g2.setStroke(new BasicStroke(2));
+		        g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
+
+		        g2.dispose();
+		        super.paintComponent(g);
+		    }
+		};
+		
+		// Style the hint button
+		hintButton.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
+		hintButton.setForeground(new Color(246, 230, 138));
+		hintButton.setFocusPainted(false);
+		hintButton.setContentAreaFilled(false);
+		hintButton.setBorderPainted(false);
+		hintButton.setOpaque(false);
+		hintButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		hintButton.setPreferredSize(new Dimension(120, 40));
+		//bottomRightPanel.add(hintButton);
+
+	
 		// ========================= TOP PANEL - SEPARATED STRUCTURE =========================
 		settingsLabel = new JLabel("⚙");
 		settingsLabel.setFont(new Font("Dialog", Font.BOLD, 35));
@@ -366,19 +384,28 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		topLeftIcons.setOpaque(false);
 		topLeftIcons.add(settingsLabel);
 		topLeftIcons.add(musicLabel);
+	
 		// Labels for game information
 		gameNumberLabel = new JLabel("Game No. " + gamenum, SwingConstants.CENTER);
 		scoreLabel = new JLabel("Score: " + score, SwingConstants.CENTER);
 		difficultyLabel = new JLabel("Difficulty Level: " + GameController.GameGetDifficulty(gamenum), SwingConstants.CENTER);
+		
 		// Set text color to gold
 		gameNumberLabel.setForeground(new Color(255, 215, 0));
 		scoreLabel.setForeground(new Color(255, 215, 0));
 		difficultyLabel.setForeground(new Color(255, 215, 0));
+		
 		// Set font for all top labels
 		Font topFont = new Font("Arial", Font.BOLD, 16);
 		gameNumberLabel.setFont(topFont);
 		scoreLabel.setFont(topFont);
 		difficultyLabel.setFont(topFont);
+		
+		// ========== RIGHT SIDE - Hint Button ==========
+		JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
+		topRightPanel.setOpaque(false);
+		topRightPanel.add(hintButton);
+
 		// ========== CENTER - Game Info Panel (separated from players) ==========
 		JPanel gameCenterInfoPanel = new JPanel(new GridLayout(3, 1, 2, 2));
 		gameCenterInfoPanel.setOpaque(false);
@@ -386,40 +413,29 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		gameCenterInfoPanel.add(gameNumberLabel);
 		gameCenterInfoPanel.add(scoreLabel);
 
-
-		// ========== PLAYERS PANEL  ==========
-		JPanel playersTopPanel = new JPanel(new BorderLayout());
-		playersTopPanel.setOpaque(false);
-
-		// Left player panel with wrapper
-		JPanel leftPlayerWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		leftPlayerWrapper.setOpaque(false);
-		leftPlayerWrapper.add(leftPlayerPanel);
-		leftPlayerWrapper.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
-
-		// Right player panel with wrapper
-		JPanel rightPlayerWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		rightPlayerWrapper.setOpaque(false);
-		rightPlayerWrapper.add(rightPlayerPanel);
-		rightPlayerWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 180));
-
-		// Add both player wrappers to players panel
-		playersTopPanel.add(leftPlayerWrapper, BorderLayout.WEST);
-		playersTopPanel.add(rightPlayerWrapper, BorderLayout.EAST);
-
-		// ========== WRAPPER FOR CENTER INFO + PLAYERS ==========
-		JPanel centerWrapper = new JPanel(new BorderLayout());
-		centerWrapper.setOpaque(false);
-		centerWrapper.add(gameCenterInfoPanel, BorderLayout.NORTH);
-		centerWrapper.add(playersTopPanel, BorderLayout.CENTER);
-
-		gameCenterInfoPanel.setBorder(
-				BorderFactory.createEmptyBorder(0, 0, 0, 120)
-				);
-
 		// ========== ASSEMBLE TOP PANEL ==========
 		topPanel.add(topLeftIcons, BorderLayout.WEST);
-		topPanel.add(centerWrapper, BorderLayout.CENTER);
+		topPanel.add(gameCenterInfoPanel, BorderLayout.CENTER);
+		topPanel.add(topRightPanel, BorderLayout.EAST);
+		
+		JPanel playersNamesPanel = new JPanel(new GridLayout(1, 2, 20, 0));
+		playersNamesPanel.setOpaque(false);
+		playersNamesPanel.setMaximumSize(
+		    new Dimension(Integer.MAX_VALUE, 50)
+		);
+
+		playersNamesPanel.add(leftWrapper);
+		playersNamesPanel.add(rightWrapper);
+		JPanel gamePanel = new JPanel();
+		gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
+		gamePanel.setOpaque(false);
+
+		gamePanel.add(playersNamesPanel);
+		gamePanel.add(Box.createVerticalStrut(5));
+		gamePanel.add(centerPanel); // הלוחות עצמם
+
+		add(gamePanel, BorderLayout.CENTER);
+
 
 		add(topPanel, BorderLayout.NORTH);
 
@@ -433,64 +449,112 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 	//================== show count mines on row / col============
 	private void useHint() {
-		if (hintUsed) {
-			JOptionPane.showMessageDialog(
-					this,
-					"You have already used your hint for this game!",
-					"Hint Already Used",
-					JOptionPane.WARNING_MESSAGE
-					);
-			return;
-		}
+	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
+	    boolean isPlayer1 = (currentPlayer == 1);
+	    
+	    // Check if both players already used their hints
+	    if (player1HintUsed && player2HintUsed) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                "Both players have already used their hints!",
+	                "All Hints Used",
+	                JOptionPane.INFORMATION_MESSAGE
+	        );
+	        return;
+	    }
+	    
+	    // Check if the current player already used their hint
+	    boolean currentPlayerUsed = isPlayer1 ? player1HintUsed : player2HintUsed;
+	    
+	    if (currentPlayerUsed) {
+	        String playerName = isPlayer1 ? player1Name : player2Name;
+	        JOptionPane.showMessageDialog(
+	                this,
+	                playerName + " has already used their hint for this game!",
+	                "Hint Already Used",
+	                JOptionPane.WARNING_MESSAGE
+	        );
+	        return;
+	    }
 
-		// Mark hint as used
-		hintUsed = true;
+	    // Mark hint as used for current player
+	    if (isPlayer1) {
+	        player1HintUsed = true;
+	        System.out.println("DEBUG: Player 1 (" + player1Name + ") used hint");
+	    } else {
+	        player2HintUsed = true;
+	        System.out.println("DEBUG: Player 2 (" + player2Name + ") used hint");
+	    }
 
-		// Update button appearance
-		hintButton.setText("USED");
-		hintButton.setEnabled(false);
-		hintButton.repaint();
+	    // Update button appearance if both players have now used their hints
+	    if (player1HintUsed && player2HintUsed) {
+	        hintButton.setText("USED");
+	        hintButton.setEnabled(false);
+	        System.out.println("DEBUG: Both players used hints - button disabled");
+	    }
+	    
+	    // Force button repaint
+	    hintButton.repaint();
 
-		// Get current player and their board
-		int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
-		boolean isLeft = (currentPlayer == 1);
-
-		// Show the hint
-		showPartialVision(isLeft, gamenum);
+	    // Show the hint
+	    boolean isLeft = isPlayer1;
+	    showPartialVision(isLeft, gamenum);
 	}
-
-
 
 	private void showPartialVision(boolean isLeft, int gameNum) {
-		int size = GameController.getBoardSize(gamenum, isLeft);
-		boolean showRow = Math.random() < 0.5;
+	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
+	    String playerName = (currentPlayer == 1) ? player1Name : player2Name;
+	    
+	    int size = GameController.getBoardSize(gamenum, isLeft);
+	    boolean showRow = Math.random() < 0.5;
 
-		String message;
-		if (showRow) {
-			int row = (int)(Math.random() * size);
-			int mines = GameController.countMinesInRow(gamenum, isLeft, row);
-			while (mines==0) {
-				row = (int)(Math.random() * size);
-				mines = GameController.countMinesInRow(gamenum, isLeft, row);
-			}
-			message = "Row " + (row + 1) + " contains " + mines + " mines";
-		} else {
-			int col = (int)(Math.random() * size);
-			int mines = GameController.countMinesInColumn(gamenum, isLeft, col);
-			while (mines==0) {
-				col = (int)(Math.random() * size);
-				mines = GameController.countMinesInColumn(gamenum, isLeft,col);
-			}
-			message = "Column " + (col + 1) + " contains " + mines + " mines";
-		}
+	    String message;
+	    if (showRow) {
+	        int row = (int)(Math.random() * size);
+	        int mines = GameController.countMinesInRow(gamenum, isLeft, row);
+	        
+	        // Try up to 10 times to find a row with mines
+	        int attempts = 0;
+	        while (mines == 0 && attempts < 10) {
+	            row = (int)(Math.random() * size);
+	            mines = GameController.countMinesInRow(gamenum, isLeft, row);
+	            attempts++;
+	        }
+	        
+	        if (mines > 0) {
+	            message = playerName + "'s hint:\nRow " + (row + 1) + " contains " + mines + " mine" + (mines > 1 ? "s" : "");
+	        } else {
+	            message = playerName + "'s hint:\nNo rows with mines found. Good luck!";
+	        }
+	    } else {
+	        int col = (int)(Math.random() * size);
+	        int mines = GameController.countMinesInColumn(gamenum, isLeft, col);
+	        
+	        // Try up to 10 times to find a column with mines
+	        int attempts = 0;
+	        while (mines == 0 && attempts < 10) {
+	            col = (int)(Math.random() * size);
+	            mines = GameController.countMinesInColumn(gamenum, isLeft, col);
+	            attempts++;
+	        }
+	        
+	        if (mines > 0) {
+	            message = playerName + "'s hint:\nColumn " + (col + 1) + " contains " + mines + " mine" + (mines > 1 ? "s" : "");
+	        } else {
+	            message = playerName + "'s hint:\nNo columns with mines found. Good luck!";
+	        }
+	    }
 
-		JOptionPane.showMessageDialog(
-				this,
-				message,
-				"Partial Vision",
-				JOptionPane.INFORMATION_MESSAGE
-				);
+	    JOptionPane.showMessageDialog(
+	            this,
+	            message,
+	            "Hint for " + playerName,
+	            JOptionPane.INFORMATION_MESSAGE
+	    );
+	    
+	    System.out.println("DEBUG: Showed hint to " + playerName);
 	}
+
 
 
 
@@ -1170,8 +1234,20 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		return img;
 	}
 
+	private Border createActiveBackgroundBorder() {
+	    Border glow = BorderFactory.createCompoundBorder(
+	        BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),
+	        BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true)
+	    );
+
+	    Border padding = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+	    return BorderFactory.createCompoundBorder(glow, padding);
+	}
+
 	// Highlights the current player panel and enables/disables the respective board.
 	public void highlightCurrentPlayer(int player) {
+		Border activeBgBorder = createActiveBackgroundBorder();
+
 		if (player == 1) {
 			// leftPlayer  Active
 			leftPlayerPanel.setBackgroundColor(new Color(212, 175, 55));
@@ -1185,16 +1261,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 							)
 					);
 			enableBoard(leftBoard, true);
-			leftBackground.setBorder(
-					BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
-							BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
-									null        
-									)
-							)
-					);
+			leftBackground.setBorder(activeBgBorder);
 			rightBackground.setBorder(null);
+
 			updateBoardColors(leftBoard, true, true);
 			//  rightPlayer UnActive
 			rightPlayerPanel.setBackgroundColor(Color.lightGray);
@@ -1204,7 +1273,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 		} else {
 			//  rightPlayer Active
-
 			rightPlayerPanel.setBackgroundColor(new Color(212, 175, 55));
 			rightPlayerPanel.setBorder(
 					BorderFactory.createCompoundBorder(
@@ -1216,16 +1284,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 							)
 					);
 			enableBoard(rightBoard, true);
-			rightBackground.setBorder(
-					BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
-							BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
-									null        
-									)
-							)
-					);
+			rightBackground.setBorder(activeBgBorder);
 			leftBackground.setBorder(null);
+
 			updateBoardColors(rightBoard, true, false);
 			// leftPlayer UnActive
 			leftPlayerPanel.setBackgroundColor(Color.lightGray);
@@ -1233,6 +1294,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			enableBoard(leftBoard, false);
 			updateBoardColors(leftBoard, false, true); 
 		}
+		if (hintButton != null) {
+	        hintButton.repaint();
+	        System.out.println("DEBUG: Hint button repainted for player " + player);
+	    }
 	}
 
 	// Update and make sure boards color acorrding the turn
@@ -1449,5 +1514,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		super.dispose();
 	}
 	// =================================
+	public String getHintStatus() {
+	    return "Player1 hint used: " + player1HintUsed + 
+	           ", Player2 hint used: " + player2HintUsed +
+	           ", Current player: " + GameController.GameGetCurrentPlayer(gamenum);
+	}
 
 }
