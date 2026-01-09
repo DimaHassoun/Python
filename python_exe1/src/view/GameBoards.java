@@ -509,6 +509,8 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	    boolean showRow = Math.random() < 0.5;
 
 	    String message;
+	    int selectedIndex = -1;
+	    
 	    if (showRow) {
 	        int row = (int)(Math.random() * size);
 	        int mines = GameController.countMinesInRow(gamenum, isLeft, row);
@@ -521,9 +523,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	       	    isRowFullyRevealed= GameController.isRowFullyRevealed(gameNum, isLeft, row);
 	            attempts++;
 	        }
-	        
+	        selectedIndex = row;
 	        if (mines > 0) {
 	            message = playerName + "'s hint:\nRow " + (row + 1) + " contains " + mines + " mine" + (mines > 1 ? "s" : "");
+	            highlightRowOrColumn(isLeft, row, -1, true);
 	        } else {
 	            message = playerName + "'s hint:\nNo rows with mines found. Good luck!";
 	        }
@@ -539,9 +542,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	            isColumnFullyRevealed= GameController.isColumnFullyRevealed(gameNum, isLeft, col);
 	            attempts++;
 	        }
-	        
+	        selectedIndex = col;
 	        if (mines > 0) {
 	            message = playerName + "'s hint:\nColumn " + (col + 1) + " contains " + mines + " mine" + (mines > 1 ? "s" : "");
+	            highlightRowOrColumn(isLeft, -1, col, false);
 	        } else {
 	            message = playerName + "'s hint:\nNo columns with mines found. Good luck!";
 	        }
@@ -553,12 +557,76 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	    	    "Hint for " + playerName, // dialog title
 	    	    "OK"                   // button text
 	    	);
+	    if (selectedIndex != -1) {
+	        removeHighlight(isLeft);
+	    }
 	    System.out.println("DEBUG: Showed hint to " + playerName);
 	}
 
 
+	//Highlights an entire row or column
+	private void highlightRowOrColumn(boolean isLeft, int row, int col, boolean isRow) {
+	    JButton[][] board = isLeft ? leftBoard : rightBoard;
+	    Color highlightColor = new Color(255, 255, 0, 150); // צהוב שקוף
+	    
+	    if (isRow && row >= 0) {
+	    	// Highlight the entire row
+	        for (int c = 0; c < board[row].length; c++) {
+	            if (!GameController.IsCellRevealed(gamenum, isLeft, row, c)) {
+	                JButton btn = board[row][c];
+	                // Save the original background color
+	                btn.putClientProperty("originalColor", btn.getBackground());
+	                // Apply highlight effect
+	                btn.setBackground(highlightColor);
+	                btn.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2, true));
+	            }
+	        }
+	    } else if (!isRow && col >= 0) {
+	        // Highlight the entire column
+	        for (int r = 0; r < board.length; r++) {
+	            if (!GameController.IsCellRevealed(gamenum, isLeft, r, col)) {
+	                JButton btn = board[r][col];
+	                // Save the original background color
+	                btn.putClientProperty("originalColor", btn.getBackground());
+	                // Apply highlight effect
+	                btn.setBackground(highlightColor);
+	                btn.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2, true));
+	            }
+	        }
+	    }
+	}
 
+	//Removes the highlight effect and restores the original appearance of all unrevealed cells on the selected board.
+	private void removeHighlight(boolean isLeft) {
+    JButton[][] board = isLeft ? leftBoard : rightBoard;
+    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
+    boolean isBoardActive = (isLeft && currentPlayer == 1) || (!isLeft && currentPlayer == 2);
+    
+    for (int r = 0; r < board.length; r++) {
+        for (int c = 0; c < board[r].length; c++) {
+            if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) {
+                JButton btn = board[r][c];
+                // Restore the original background color
+                Color originalColor = (Color) btn.getClientProperty("originalColor");
+                if (originalColor != null) {
+                    btn.setBackground(originalColor);
+                    btn.putClientProperty("originalColor", null);
+                } else {
+                	// If no saved color exists, restore based on board state
+                    if (isBoardActive) {
+                        btn.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
+                    } else {
+                        btn.setBackground(DISABLED_BOARD_COLOR);
+                    }
+                }
+             // Remove the yellow highlight border
+                btn.setBorder(null);
+            }
+        }
+    }
+}
 
+	//==========================================================================
 	// Show settings menu with advanced options
 	private void showSettingsMenu() {
 		JPopupMenu settingsMenu = new JPopupMenu();
