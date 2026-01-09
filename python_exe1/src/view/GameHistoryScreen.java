@@ -16,6 +16,17 @@ import java.io.File;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
+/**
+ * GameHistoryScreen represents the UI screen that displays
+ * the history of played games.
+ *
+ * Features:
+ * - Search and filter game history by date or player names
+ * - Music control and volume settings
+ * - Responsive layout with dynamic resizing
+ * - Table-based visualization of past games
+ **/
+
 public class GameHistoryScreen extends JFrame implements MusicManager.MusicStateListener {
 
     private PlaceholderTextField searchField;
@@ -39,6 +50,17 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
     private Rectangle searchFieldBounds = new Rectangle((BASE_WIDTH - 700)/3 +15, 140, 650, 50);
     private Rectangle searchModeBounds = new Rectangle((BASE_WIDTH - 700)/3 + 685, 140, 180, 50);
     private Rectangle scrollBounds = new Rectangle(BASE_WIDTH / 2 - 450, 220, 900, 350);
+    
+    /**
+     * Constructs the Game History screen.
+     *
+     * Initializes:
+     * - Window size and background
+     * - Music manager and observers
+     * - Settings menu and music controls
+     * - Search bar, filter mode, and history table
+     * - Dynamic resizing behavior
+     */
 
     private BackgroundPanel panel;
     
@@ -439,3 +461,4 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
     }
     // =================================
 }
+
