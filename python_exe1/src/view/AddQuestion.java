@@ -230,10 +230,12 @@ public class AddQuestion extends JFrame {
         if (!QuestionManagerLogic.validateQuestionData(idText, question, option1, option2, 
                                                        option3, option4, difficultySelected, 
                                                        answerSelected)) {
-            JOptionPane.showMessageDialog(this, 
-                                         QuestionManagerLogic.getLastErrorMessage(), 
-                                         "Input Error", 
-                                         JOptionPane.WARNING_MESSAGE);
+        	MessagePlanet.showNonBlockingMessage(
+        			"Input Error: "+QuestionManagerLogic.getLastErrorMessage() 
+							,Color.red, 
+		            4000 // 4 seconds
+		            ,0 // delay
+		            );
             return;
         }
         
@@ -243,10 +245,12 @@ public class AddQuestion extends JFrame {
         //  Check for duplicate ID BEFORE attempting to add
         String csvPath = QuestionManagerLogic.GetCSVPath(); // Adjust package path as needed
         if (QuestionManagerLogic.isIdExistsInCSV(csvPath, id)) {
-            JOptionPane.showMessageDialog(this, 
-                                         "Error: The ID " + id + " already exists in the system! Please choose another ID.", 
-                                         "Duplicate ID Error", 
-                                         JOptionPane.ERROR_MESSAGE);
+        	MessagePlanet.showNonBlockingMessage(
+        			"Duplicate ID Error: "+" The ID " + id + " already exists in the system! Please choose another ID." 
+        			,Color.red, 
+        			4000 // 4 seconds
+        			,0 // delay
+        			);
             return;
         }
         
@@ -262,15 +266,22 @@ public class AddQuestion extends JFrame {
             QuestionManagerLogic.addToCSV(
                     id, question, difficulty, option1, option2, option3, option4, correct
             );
-            JOptionPane.showMessageDialog(this, "Question added successfully!");
+            MessagePlanet.showNonBlockingMessage(
+            		"Question added successfully!" 
+        			,Color.green, 
+        			4000 // 4 seconds
+        			,0 // delay
+        			);
             clearFields();
             new QuestionManagerScreen().setVisible(true);
             this.dispose();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, 
-                                        "Failed to save question: " + e.getMessage(), 
-                                        "Error", 
-                                        JOptionPane.ERROR_MESSAGE);
+        	MessagePlanet.showNonBlockingMessage(
+        			"Failed to save question: " + e.getMessage() 
+        			,Color.RED, 
+        			5000 // 5 seconds
+        			,0 // delay
+        			);
         }
     }
     

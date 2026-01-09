@@ -12,16 +12,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-/**
- * GameBoards represents the main game window for the two-player Minesweeper-style game.
- * 
- * This class is responsible for:
- * - Rendering both player boards (left and right)
- * - Handling all user interactions (cell clicks, flags, hints, settings, exit)
- * - Synchronizing the UI with the game logic via GameController
- * - Managing score, shared lives, turns, hints, and end-game screens
- * - Responding to music state changes via MusicManager observer pattern*/
-
 public class GameBoards extends JFrame implements MusicManager.MusicStateListener {
 
 	private int rows, cols, leftMines, rightMines, score = 0;
@@ -54,12 +44,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	public int GetGameNum() {
 		return gamenum;
 	}
-	
-	/**
-	 * Constructs the main game window.
-	 * Initializes UI, boards, players, music, and game state.
-	 */
-	
 	public GameBoards(int rows, int cols, int leftMines, int rightMines, String nameL, String nameR, int gamenum) {
 		this.rows = rows;
 		this.cols = cols;
@@ -464,22 +448,18 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	}
 
 	//================== show count mines on row / col============
-	/**
-	 * Handles hint button click.
-	 * Each player can use the hint once per game.
-	 */
 	private void useHint() {
 	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
 	    boolean isPlayer1 = (currentPlayer == 1);
 	    
 	    // Check if both players already used their hints
 	    if (player1HintUsed && player2HintUsed) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                "Both players have already used their hints!",
-	                "All Hints Used",
-	                JOptionPane.INFORMATION_MESSAGE
-	        );
+	    	MessagePlanet.showNonBlockingMessage(
+	    		    "Both players have already used their hints!",    // message
+	    		    new Color(255, 165, 0),                              
+	    		    1500, // duration in milliseconds (e.g., 3 seconds)
+	    		    0  // no delay before showing
+	    		);
 	        return;
 	    }
 	    
@@ -488,12 +468,12 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	    
 	    if (currentPlayerUsed) {
 	        String playerName = isPlayer1 ? player1Name : player2Name;
-	        JOptionPane.showMessageDialog(
-	                this,
-	                playerName + " has already used their hint for this game!",
-	                "Hint Already Used",
-	                JOptionPane.WARNING_MESSAGE
-	        );
+	        MessagePlanet.showNonBlockingMessage(
+	        		playerName + " has already used their hint for this game!",    // message
+	    		    Color.red,                              
+	    		    1800, // duration in milliseconds (e.g., 3 seconds)
+	    		    0  // no delay before showing
+	    		);
 	        return;
 	    }
 
@@ -520,11 +500,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	    boolean isLeft = isPlayer1;
 	    showPartialVision(isLeft, gamenum);
 	}
-	/**
-	 * Displays a partial hint (row or column mine count).
-	 * @param isLeft true if left board
-	 * @param gameNum game identifier
-	 */
+
 	private void showPartialVision(boolean isLeft, int gameNum) {
 	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
 	    String playerName = (currentPlayer == 1) ? player1Name : player2Name;
@@ -570,14 +546,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	            message = playerName + "'s hint:\nNo columns with mines found. Good luck!";
 	        }
 	    }
-
-	    JOptionPane.showMessageDialog(
-	            this,
-	            message,
-	            "Hint for " + playerName,
-	            JOptionPane.INFORMATION_MESSAGE
-	    );
-	    
+	    MessagePlanet.showBlockingMessageDialog(
+	    	    this,                  // parent component
+	    	    message,               // your message string
+	    	    Color.green, 
+	    	    "Hint for " + playerName, // dialog title
+	    	    "OK"                   // button text
+	    	);
 	    System.out.println("DEBUG: Showed hint to " + playerName);
 	}
 
@@ -595,7 +570,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		volumeItem.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
 		volumeItem.setForeground(new Color(246, 230, 138));
 		volumeItem.setBackground(new Color(60, 0, 90));
-		volumeItem.addActionListener(e -> showVolumeControl());
+		volumeItem.addActionListener(e -> 
+        MessagePlanet.showVolumeControlDialog(
+                this,                     // parent component for dialog centering
+                musicManager,             //  music manager instance
+                new Color(255, 180, 255)  //  border color
+            )
+        );
 		settingsMenu.add(volumeItem);
 		settingsMenu.addSeparator();
 
@@ -607,44 +588,29 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		restartItem.addActionListener(e -> restartGame());
 		settingsMenu.add(restartItem);
 
-		// Stop Game
+		/*// Stop Game
 		JMenuItem stopItem = new JMenuItem("⏹ Stop Game");
 		stopItem.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
 		stopItem.setForeground(new Color(246, 230, 138));
 		stopItem.setBackground(new Color(60, 0, 90));
 		stopItem.addActionListener(e -> stopGame());
-		settingsMenu.add(stopItem);
+		settingsMenu.add(stopItem);*/
 		settingsMenu.show(settingsLabel, 0, settingsLabel.getHeight());
-	}
-
-	// Show volume control dialog
-	private void showVolumeControl() {
-		JPanel panel = new JPanel(new BorderLayout(10, 10));
-		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
-		volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-		JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
-		volumeSlider.setMajorTickSpacing(25);
-		volumeSlider.setMinorTickSpacing(5);
-		volumeSlider.setPaintTicks(true);
-		volumeSlider.setPaintLabels(true);
-		volumeSlider.addChangeListener(e -> {
-			int value = volumeSlider.getValue();
-			musicManager.setVolume(value / 100.0f);
-			volumeLabel.setText("Volume: " + value + "%");
-		});
-		panel.add(volumeLabel, BorderLayout.NORTH);
-		panel.add(volumeSlider, BorderLayout.CENTER);
-		JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
 	}
 
 	private void restartGame() {
 		// Show a confirmation dialog to the user
-		int response = JOptionPane.showConfirmDialog(this,
-				"Are you sure you want to restart the game? All progress will be lost.",
-				"Restart Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		boolean confirmed = MessagePlanet.showConfirmDialog(
+	            this,
+	            "Are you sure you want to restart the game?\nAll progress will be lost.",
+	            new Color(255, 165, 0),
+	            "Restart Game","Ok","No"
+	    );
+		// If the user clicks "No"
+		if (!confirmed) {
+		        return;
+		    }
 		// If the user clicks "Yes"
-		if (response == JOptionPane.YES_OPTION) {
 			try {
 				// Call the controller method which creates and returns a new GameBoards instance
 				GameBoards newGameBoard = GameController.createNewGame(player1Name, player2Name, GameController.GameGetDifficulty(gamenum));		            
@@ -654,15 +620,17 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 				GameBoards.this.dispose();		            
 			} catch (IllegalArgumentException ex) {
 				// Show error if invalid input or difficulty
-				JOptionPane.showMessageDialog(this,
-						ex.getMessage(),
-						"Error",
-						JOptionPane.ERROR_MESSAGE);
+				 MessagePlanet.showBlockingMessageDialog(
+			                this,
+			                ex.getMessage(),
+			                Color.RED,
+			                "Error","Ok"
+			        );
 			}
-		}
+		
 	}
 
-	private void stopGame() {
+	/*private void stopGame() {
 		// Show a confirmation dialog asking the user if they want to stop the game
 		int response = JOptionPane.showOptionDialog(GameBoards.this,
 				"The game is paused.",
@@ -677,7 +645,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		if (response == 0) {
 			GameController.togglePause(gamenum); // Resume
 		}
-	}
+	}*/
 
 	private void toggleMusic() {
 		musicManager.toggleMusic();// Toggle the music playback (play or pause)
@@ -753,25 +721,29 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private void handleButtonClick(String source, int row, int col, boolean isFlag) {
 		// Handle the "Exit" action: prompt user to confirm exit and return to the new game screen
 		if (source.equals("Exit")) {
-			int response = JOptionPane.showConfirmDialog(
-					this,
-					"Are you sure you want to exit? The game progress will NOT be saved.",
-					"Confirm Exit",
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE
-					);
-			if (response == JOptionPane.YES_OPTION) {
-				new NewGameScreen().setVisible(true);
-				GameBoards.this.dispose();
-			}
-			return;
+		    boolean confirmed = MessagePlanet.showConfirmDialog(
+		        this,
+		        "Are you sure you want to exit? The game progress will NOT be saved.",
+		        new Color(255, 165, 0),
+		        "Confirm Exit","Yes","No"
+		    );
+		    if (confirmed) {
+		        new NewGameScreen().setVisible(true);
+		        GameBoards.this.dispose();
+		    }
+		    return;
 		}
 		// If the game is already over, ignore further clicks
 		if (GameController.GameIsGameOver(gamenum)) return;
 		// Check if the current player is allowed to click on this board
 		int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
 		if ((currentPlayer == 1 && source.equals("Right")) || (currentPlayer == 2 && source.equals("Left"))) {
-			JOptionPane.showMessageDialog(this, "It's not your turn!", "Wait", JOptionPane.WARNING_MESSAGE);
+			MessagePlanet.showNonBlockingMessage(
+				    "It's not your turn! \nWait",        // message
+				    Color.ORANGE,                 // border color to indicate warning (you can choose)
+				    1500,                        // duration in milliseconds (e.g., 2 seconds)
+				    0                            // no delay before showing
+				);
 			return;
 		}
 		boolean isLeft = source.equals("Left");	
@@ -941,12 +913,15 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			int finalScore = GameController.getSharedPoints(gamenum);		    
 			// Optional: Show bonus message if there were remaining lives
 			if (bonusPoints > 0) {
-				JOptionPane.showMessageDialog(this,
-						"Bonus! +" + bonusPoints + " points for " + 
-								(bonusPoints / GameController.GetGameSurpriseQuestionCoust(gamenum)) + 
-								" remaining lives!",
-								"Victory Bonus",
-								JOptionPane.INFORMATION_MESSAGE);
+				MessagePlanet.showBlockingMessageDialog(
+				        this,
+				        "Bonus! +" + bonusPoints + " points for " +
+				        (bonusPoints / GameController.GetGameSurpriseQuestionCoust(gamenum)) +
+				        " remaining lives!",
+				        Color.green, 
+				        "Victory Bonus",
+				        "OK"
+				    );
 			}		    
 			String player1 = GameController.getGame(gamenum).getPlayer1Name();
 			String player2 = GameController.getGame(gamenum).getPlayer2Name();
@@ -1018,29 +993,26 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			int getIfPlayerHasEnoughPoints = GameController.CheckActivateCost(gamenum);
 			if(getIfPlayerHasEnoughPoints < 0)
 			{
-				JOptionPane.showOptionDialog(
-						null,
-						"You can't open the surprise!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the surprise.",
-						"Not Enough points",
-						JOptionPane.DEFAULT_OPTION,
-						JOptionPane.WARNING_MESSAGE,
-						null,
-						new Object[]{"OK"},
-						"OK"
-						);
+				MessagePlanet.showBlockingMessageDialog(
+				        this,
+				        "You can't open the surprise!!\nYou need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the surprise.",
+				        Color.ORANGE,   // warning color border
+				        "Not Enough points",
+				        "OK"
+				    );
 				return false;
 			}
 			String getSurpriseCostActivate = GameController.getSurpriseCostActivate(gamenum, isLeft, row, col);
-			int choice = JOptionPane.showConfirmDialog(
-					this,
-					getSurpriseCostActivate + " \nDo you want to continue?",
-					"Surprise Cost",
-					JOptionPane.OK_CANCEL_OPTION
-					);
+			boolean confirmed = MessagePlanet.showConfirmDialog(
+				    this,
+				    getSurpriseCostActivate + " \nDo you want to continue?",
+				    new Color(204, 204, 0), //  color border
+				    "Surprise Cost","Ok","Cancel"
+				);
 
-			if (choice != JOptionPane.OK_OPTION) {
-				return false;// Player declined to activate the surprise
-			}
+				if (!confirmed) {
+				    return false; // Player declined to activate the surprise
+				}
 			else {  //if player Agreed and enough cash → do active
 				String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
 				String[] parts = result.split(":");
@@ -1091,28 +1063,25 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		int getIfPlayerHasEnoughPoints = GameController.CheckActivateCost(gamenum);
 		if(getIfPlayerHasEnoughPoints < 0)
 		{
-			JOptionPane.showOptionDialog(
-					null,
-					"You can't open the question!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the question.",
-					"Not Enough points",
-					JOptionPane.DEFAULT_OPTION,
-					JOptionPane.WARNING_MESSAGE,
-					null,
-					new Object[]{"OK"},
-					"OK"
-					);
+			MessagePlanet.showBlockingMessageDialog(
+			        this,
+			        "You can't open the question!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the question.",
+			        Color.ORANGE,   // warning color border
+			        "Not Enough points",
+			        "OK"
+			    );
+			
 			GameController.setCanSwitch(false);//don't switch
 			return;
 		}
 		// Ask cost (UI)
 		int cost = GameController.GetGameSurpriseQuestionCoust(gameNumm);
-		int choice = JOptionPane.showConfirmDialog(
-				this,
-				"This question costs " + cost + " points to attempt.\nDo you want to proceed?",
-				"Question Cost",
-				JOptionPane.OK_CANCEL_OPTION
-				);
-		boolean confirmed = (choice == JOptionPane.OK_OPTION);
+		boolean confirmed = MessagePlanet.showConfirmDialog(
+			    this,
+			    "This question costs " + cost + " points to attempt.\nDo you want to proceed?",
+			    new Color(200, 140, 200),
+			    "Question Cost","Ok","Cancel"
+			);
 		// Game logic
 		GameController.QuestionResult result = GameController.handleQuestion(gameNumm, isLeft, row, col, confirmed );
 
@@ -1319,7 +1288,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		}
 		if (hintButton != null) {
 	        hintButton.repaint();
-	        System.out.println("DEBUG: Hint button repainted for player " + player);
+	       // System.out.println("DEBUG: Hint button repainted for player " + player);
 	    }
 	}
 
@@ -1455,7 +1424,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		System.out.println("📢 GameBoards: Music state updated");
 	}
 	// Enhanced non-blocking popup that stacks vertically
-	//Displays a non-blocking centered popup message.
 	private void showNonBlockingMessage(String message, Color color, int duration, int delayBeforeShow) {
 		JWindow popup = new JWindow();
 		popup.setBackground(new Color(0, 0, 0, 0));
@@ -1531,16 +1499,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		}).start();
 	}
 	// ========== ADD CLEANUP ==========
-	/**
-	 * Cleans up listeners and resources before closing the window.
-	 */
 	@Override
 	public void dispose() {
 		musicManager.removeMusicStateListener(this);
 		System.out.println("✓ GameBoards: Unregistered from music updates");
 		super.dispose();
 	}
-	// ========================Returns debug info about hint usage=======
+	// =================================
 	public String getHintStatus() {
 	    return "Player1 hint used: " + player1HintUsed + 
 	           ", Player2 hint used: " + player2HintUsed +

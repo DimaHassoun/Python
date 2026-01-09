@@ -73,7 +73,13 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
         soundItem.setOpaque(true);
         soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         soundItem.setFocusPainted(false);
-        soundItem.addActionListener(e -> showVolumeControl());
+        soundItem.addActionListener(e -> 
+        MessagePlanet.showVolumeControlDialog(
+                this,                     // parent component for dialog centering
+                musicManager,             //  music manager instance
+                new Color(255, 180, 255)  //  border color
+            )
+        );
 
         // -------- Fix Swing hover colors --------
         UIManager.put("MenuItem.selectionBackground", bgHover);
@@ -198,7 +204,7 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
                 NewGameScreen.this.dispose();
                 
             } catch (IllegalArgumentException ex) {
-            	 NonBlockingMessage.showNonBlockingMessage(
+            	 MessagePlanet.showNonBlockingMessage(
             		        "⚠️Cannot start the game\n"+ex.getMessage(),
             		        new Color(200, 50, 50),  
             		        3000,                  
@@ -263,32 +269,6 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
     private void toggleMusic() {
         musicManager.toggleMusic();
        
-    }
-    // Displays a modal dialog for controlling the application's music volume.
-    private void showVolumeControl() {
-    	  // Create panel with BorderLayout and spacing
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-     // Label showing current volume percentage
-        JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
-        volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-     // Slider for adjusting volume
-        JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
-        volumeSlider.setMajorTickSpacing(25);
-        volumeSlider.setMinorTickSpacing(5);
-        volumeSlider.setPaintTicks(true);
-        volumeSlider.setPaintLabels(true);
-        // Update volume in real-time when slider changes
-        volumeSlider.addChangeListener(e -> {
-            int value = volumeSlider.getValue();
-            musicManager.setVolume(value / 100.0f);
-            volumeLabel.setText("Volume: " + value + "%");
-        });
-     // Add components to panel
-        panel.add(volumeLabel, BorderLayout.NORTH);
-        panel.add(volumeSlider, BorderLayout.CENTER);
-     // Show panel in a modal dialog
-        JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
     // Updates the music icon based on the current playback state.
     private void updateMusicIcon() {

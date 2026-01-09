@@ -16,17 +16,6 @@ import java.io.File;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
-/**
- * GameHistoryScreen represents the UI screen that displays
- * the history of played games.
- *
- * Features:
- * - Search and filter game history by date or player names
- * - Music control and volume settings
- * - Responsive layout with dynamic resizing
- * - Table-based visualization of past games
- **/
-
 public class GameHistoryScreen extends JFrame implements MusicManager.MusicStateListener {
 
     private PlaceholderTextField searchField;
@@ -50,17 +39,6 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
     private Rectangle searchFieldBounds = new Rectangle((BASE_WIDTH - 700)/3 +15, 140, 650, 50);
     private Rectangle searchModeBounds = new Rectangle((BASE_WIDTH - 700)/3 + 685, 140, 180, 50);
     private Rectangle scrollBounds = new Rectangle(BASE_WIDTH / 2 - 450, 220, 900, 350);
-    
-    /**
-     * Constructs the Game History screen.
-     *
-     * Initializes:
-     * - Window size and background
-     * - Music manager and observers
-     * - Settings menu and music controls
-     * - Search bar, filter mode, and history table
-     * - Dynamic resizing behavior
-     */
 
     private BackgroundPanel panel;
     
@@ -119,7 +97,13 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
         soundItem.setOpaque(true);
         soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         soundItem.setFocusPainted(false);
-        soundItem.addActionListener(e -> showVolumeControl());
+        soundItem.addActionListener(e -> 
+        MessagePlanet.showVolumeControlDialog(
+                this,                     // parent component for dialog centering
+                musicManager,             //  music manager instance
+                new Color(255, 180, 255)  //  border color
+            )
+        );
 
         // -------- Fix Swing hover colors --------
         UIManager.put("MenuItem.selectionBackground", bgHover);
@@ -378,32 +362,6 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
     // Music functions
     private void toggleMusic() {
         musicManager.toggleMusic();
-    }
-   
-
-    private void showVolumeControl() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        // Create a label showing the current volume as a percentage, centered and bold
-        JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
-        volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-        // Create a slider for volume control (0-100) initialized to current volume
-        JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
-        volumeSlider.setMajorTickSpacing(25);
-        volumeSlider.setMinorTickSpacing(5);
-        volumeSlider.setPaintTicks(true);
-        volumeSlider.setPaintLabels(true);
-     // Update volume in real-time as slider moves
-        volumeSlider.addChangeListener(e -> {
-            int value = volumeSlider.getValue();
-            musicManager.setVolume(value / 100.0f);// Convert percent to 0.0-1.0 range
-            volumeLabel.setText("Volume: " + value + "%");// Update label text
-        });
-        // Add components to the panel
-        panel.add(volumeLabel, BorderLayout.NORTH);
-        panel.add(volumeSlider, BorderLayout.CENTER);
-        // Display the panel in a modal dialog
-        JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
     }
     // Updates the music icon based on the current playback state.
     private void updateMusicIcon() {

@@ -50,7 +50,7 @@ public class QuestionView extends JDialog {
 		addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent e) {
-		        showSimpleTimedMessage("You can't close the window this way!");
+		        showSimpleTimedMessage("You can't close the window this way!",Color.RED);
 		    }
 		});
 
@@ -67,7 +67,7 @@ public class QuestionView extends JDialog {
 
 		if (msg != null) { 
 		    // Loading failed — show error and stop creating the dialog
-		    JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
+			showSimpleTimedMessage("Error: " +msg, Color.red);  // example color
 		} else {
 		    // Successful load: populate fields from QuestionManagerLogic
 		    Quation_ID = QuestionManagerLogic.getQuestion_ID(); // ID
@@ -180,7 +180,7 @@ public class QuestionView extends JDialog {
 	private void handleButtonClick(String source) {
 		if (!questionLoaded) {
 			// if dialog somehow opened without a question, close it.
-			JOptionPane.showMessageDialog(this, "No question loaded.", "Error", JOptionPane.ERROR_MESSAGE);
+			showSimpleTimedMessage("Error: No question loaded.", Color.RED);  
 			GameController.FaildeToLoadQuestion(gameNum);
 			dispose();
 			return;
@@ -190,7 +190,7 @@ public class QuestionView extends JDialog {
 			// handle OK click
 			String selected = getSelectedAnswer();
 			if (selected == null) {
-				JOptionPane.showMessageDialog(this, "No answer selected!");
+				showSimpleTimedMessage("No answer selected!", new Color(255, 165, 0)); 
 				return;
 			}
 			boolean isCorrect = Correct_Answer.equals(selected);
@@ -201,21 +201,19 @@ public class QuestionView extends JDialog {
 
 			
 			if (isCorrect) {
-				JOptionPane.showMessageDialog(
-					    this,
-					    "Selected answer: " + selected + "\nYou are RIGHT!\nAction: " + message,
-					    "Success",
-					    JOptionPane.INFORMATION_MESSAGE,
-					    successIcon
-					);
+				MessagePlanet.showBlockingMessageDialog(
+				        this,
+				        "Selected answer: " + selected + "\nYou are RIGHT!\nAction: " + message,
+				        Color.GREEN,          // green border for success
+				        "Success","Ok"
+				    );
 			} else {
-				JOptionPane.showMessageDialog(
-					    this,
-					    "Selected answer: " + selected + "\nYou are WRONG!\nAction: " + message,
-					    "Wrong Answer",
-					    JOptionPane.WARNING_MESSAGE,
-					    failIcon
-					);
+				MessagePlanet.showBlockingMessageDialog(
+				        this,
+				        "Selected answer: " + selected + "\nYou are WRONG!\nAction: " + message,
+				        Color.RED,         // orange border for failure
+				        "Wrong Answer","Ok"
+				    );
 			}
 			dispose();
 		}
@@ -336,18 +334,40 @@ public class QuestionView extends JDialog {
 		if (answerDRadio.isSelected()) return "D";
 		return null;
 	}
-	private void showSimpleTimedMessage(String message) {
-	    JWindow popup = new JWindow(this); // 'this' is your dialog
-	    JLabel label = new JLabel(message, SwingConstants.CENTER);
-	    label.setOpaque(true);
-	    label.setBackground(new Color(255, 255, 210)); // light yellow background
-	    label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-	    label.setFont(new Font("Arial", Font.PLAIN, 14));
-	    label.setPreferredSize(new Dimension(250, 40));
-	    popup.add(label);
+	private void showSimpleTimedMessage(String message, Color borderColor) {
+	    JWindow popup = new JWindow(this);
+	    popup.setBackground(new Color(0, 0, 0, 0)); // Fully transparent window background
+
+	    JPanel panel = new JPanel() {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            Graphics2D g2 = (Graphics2D) g.create();
+	            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	            // Fully opaque black rounded rectangle
+	            g2.setColor(new Color(0, 0, 0, 255)); // solid black background
+	            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+	            // Colored border
+	            g2.setColor(borderColor);
+	            g2.setStroke(new BasicStroke(3));
+	            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+	            g2.dispose();
+	        }
+	    };
+	    panel.setOpaque(false);
+
+	    JLabel label = new JLabel("<html><div style='text-align: center; color: white;'>" +
+	            message.replace("\n", "<br>") + "</div></html>");
+	    label.setFont(new Font("Arial", Font.BOLD, 16));
+	    label.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+	    label.setOpaque(false);
+
+	    panel.setLayout(new BorderLayout());
+	    panel.add(label);
+	    panel.setOpaque(false);
+
+	    popup.add(panel);
 	    popup.pack();
 
-	    // Position popup at center of this dialog
 	    Point loc = getLocationOnScreen();
 	    int x = loc.x + (getWidth() - popup.getWidth()) / 2;
 	    int y = loc.y + (getHeight() - popup.getHeight()) / 2;
@@ -355,8 +375,6 @@ public class QuestionView extends JDialog {
 
 	    popup.setVisible(true);
 
-	    // Dispose popup after 1.5 seconds
-	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
+	    new javax.swing.Timer(1200, e -> popup.dispose()).start();
 	}
-
 }

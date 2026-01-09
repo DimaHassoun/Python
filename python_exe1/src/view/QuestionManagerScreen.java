@@ -97,7 +97,13 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
         soundItem.setOpaque(true);
         soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         soundItem.setFocusPainted(false);
-        soundItem.addActionListener(e -> showVolumeControl());
+        soundItem.addActionListener(e -> 
+        MessagePlanet.showVolumeControlDialog(
+                this,                     // parent component for dialog centering
+                musicManager,             //  music manager instance
+                new Color(255, 180, 255)  //  border color
+            )
+        );
 
         // -------- Fix Swing hover colors --------
         UIManager.put("MenuItem.selectionBackground", bgHover);
@@ -311,7 +317,12 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
 
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading CSV: " + e.getMessage());
+            MessagePlanet.showNonBlockingMessage(
+            		"Error loading CSV: " + e.getMessage()
+					,Color.red, 
+					4000 // 4 seconds
+					,0 // delay
+					);
         }
 
         // Button Actions
@@ -325,7 +336,12 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
             public void mouseClicked(MouseEvent e) {
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow == -1) {
-                    JOptionPane.showMessageDialog(QuestionManagerScreen.this, "Please select a question to edit.", "No selection", JOptionPane.WARNING_MESSAGE);
+                	MessagePlanet.showNonBlockingMessage(
+                			"Please select a question to edit." 
+    						,new Color(255, 165, 0), 
+    						4000 // 4 seconds
+    						,0 // delay
+    						);
                     return;
                 }
 
@@ -352,26 +368,7 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
     private void toggleMusic() {
         musicManager.toggleMusic();
     }
-    //Displays a modal dialog allowing the user to adjust the music volume.
-    private void showVolumeControl() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
-        volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
-        JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
-        volumeSlider.setMajorTickSpacing(25);
-        volumeSlider.setMinorTickSpacing(5);
-        volumeSlider.setPaintTicks(true);
-        volumeSlider.setPaintLabels(true);
-        volumeSlider.addChangeListener(e -> {
-            int value = volumeSlider.getValue();
-            musicManager.setVolume(value / 100.0f);
-            volumeLabel.setText("Volume: " + value + "%");
-        });
-        panel.add(volumeLabel, BorderLayout.NORTH);
-        panel.add(volumeSlider, BorderLayout.CENTER);
-        JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
-    }
+ 
     //Updates the music label icon and color based on the current music playback state.
     private void updateMusicIcon() {
         if (musicLabel == null) return;

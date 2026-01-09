@@ -186,10 +186,12 @@ public class EditQuestion extends JFrame {
             if (!QuestionManagerLogic.validateQuestionData(idText, questionText, option1, option2, 
                     option3, option4, difficultySelected, 
                     answerSelected)) {
-              JOptionPane.showMessageDialog(this, 
-                                             QuestionManagerLogic.getLastErrorMessage(), 
-                                             "Input Error", 
-                                             JOptionPane.WARNING_MESSAGE);
+            	MessagePlanet.showNonBlockingMessage(
+            			"Input Error: "+QuestionManagerLogic.getLastErrorMessage() 
+    							,Color.red, 
+    		            4000 // 4 seconds
+    		            ,0 // delay
+    		            );
                 return;
             }
             
@@ -197,10 +199,12 @@ public class EditQuestion extends JFrame {
             int oldId = Integer.parseInt(model.getValueAt(rowIndex, 0).toString()); 
             int newId = Integer.parseInt(idText);
             if (!QuestionManagerLogic.validateIdForEdit(csvPath, newId, oldId)) {
-                JOptionPane.showMessageDialog(this, 
-                                             QuestionManagerLogic.getLastErrorMessage(), 
-                                             "Validation Error", 
-                                             JOptionPane.ERROR_MESSAGE);
+            	MessagePlanet.showNonBlockingMessage(
+            			 "Validation Error: "+QuestionManagerLogic.getLastErrorMessage() 
+    							,Color.red, 
+    		            4000 // 4 seconds
+    		            ,0 // delay
+    		            );
                 return;
             }
             
@@ -229,14 +233,21 @@ public class EditQuestion extends JFrame {
             // Save to CSV via controller
             try {
                 QuestionManagerLogic.saveTableToCSV(model, csvPath);
-                JOptionPane.showMessageDialog(this, "Question updated successfully!");
+                MessagePlanet.showNonBlockingMessage(
+                		"Question updated successfully!" 
+            			,Color.green, 
+            			4000 // 4 seconds
+            			,0 // delay
+            			);
                 this.dispose();
                 new QuestionManagerScreen().setVisible(true);
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, 
-                                             "Error saving CSV: " + ex.getMessage(), 
-                                             "Save Error", 
-                                             JOptionPane.ERROR_MESSAGE);
+            	MessagePlanet.showNonBlockingMessage(
+            			 "Error saving CSV: " + ex.getMessage() 
+            			,Color.RED, 
+            			5000 // 5 seconds
+            			,0 // delay
+            			);
             }
         });
 
