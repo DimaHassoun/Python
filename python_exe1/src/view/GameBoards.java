@@ -29,6 +29,8 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private WindowSizeManager windowSizeManager;
 	private JPanel leftWrapper,rightWrapper;
 	private  boolean warningscore = false;
+	private boolean hintUsed = false;  // Track if hint was already used
+	private JButton hintButton;  // Reference to hint button for updates
 	// boards color:
 	private static final Color PLAYER1_ACTIVE_COLOR = new Color(180, 160, 220);  
 	private static final Color PLAYER2_ACTIVE_COLOR = new Color(140, 80, 100);   
@@ -186,7 +188,78 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// ========================= EXIT BUTTON =========================
 		JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
 		bottomRightPanel.setOpaque(false);
-
+        //Create HINT button with rounded design
+		hintButton = new JButton("💡 Hint") {
+		    private boolean isHovered = false;
+		    
+		    {
+		        addMouseListener(new java.awt.event.MouseAdapter() {
+		            @Override
+		            public void mouseEntered(java.awt.event.MouseEvent e) {
+		                if (!hintUsed) {
+		                    isHovered = true;
+		                    repaint();
+		                }
+		            }
+		            
+		            @Override
+		            public void mouseExited(java.awt.event.MouseEvent e) {
+		                isHovered = false;
+		                repaint();
+		            }
+		            
+		            @Override
+		            public void mouseClicked(java.awt.event.MouseEvent e) {
+		                if (!hintUsed) {
+		                    useHint();
+		                }
+		            }
+		        });
+		    }
+		    @Override
+		    protected void paintComponent(Graphics g) {
+		        Graphics2D g2 = (Graphics2D) g.create();
+		        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		        
+		        // Background color - changes based on state
+		        Color bgColor;
+		        if (hintUsed) {
+		            bgColor = new Color(80, 80, 80, 100); 
+		        } else if (isHovered) {
+		            bgColor = new Color(100, 20, 140, 200); 
+		        } else {
+		            bgColor = new Color(80, 0, 120, 170); 
+		        }
+		        
+		        g2.setColor(bgColor);
+		        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
+		        
+		        // Border
+		        Color borderColor = hintUsed ? 
+		            new Color(100, 100, 100, 60) : 
+		            (isHovered ? 
+		                new Color(255, 255, 255, 80) : 
+		                new Color(255, 255, 255, 40));
+		        
+		        g2.setColor(borderColor);
+		        g2.setStroke(new BasicStroke(2));
+		        g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
+		        
+		        g2.dispose();
+		        super.paintComponent(g);
+		    }
+		};
+		// Style the hint button
+			hintButton.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
+			hintButton.setForeground(new Color(246, 230, 138));
+			hintButton.setFocusPainted(false);
+			hintButton.setContentAreaFilled(false);
+			hintButton.setBorderPainted(false);
+			hintButton.setOpaque(false);
+			hintButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			hintButton.setPreferredSize(new Dimension(120, 40));
+			bottomRightPanel.add(hintButton);
+				
 		// Create custom EXIT button with rounded design
 		JButton exitButton = new JButton("EXIT") {
 		    private boolean isHovered = false;
@@ -273,7 +346,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		musicLabel.setFont(new Font("Dialog", Font.BOLD, 35));
 		musicLabel.setForeground(musicManager.isPlaying() ? new Color(246, 230, 138) : new Color(180, 180, 180));
 		musicLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		musicLabel.setPreferredSize(new Dimension(40, 40)); // קובע גודל קבוע
+		musicLabel.setPreferredSize(new Dimension(40, 40)); 
 		musicLabel.setMinimumSize(new Dimension(40, 40));
 		musicLabel.setMaximumSize(new Dimension(40, 40));
 		musicLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -345,7 +418,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// ========== ASSEMBLE TOP PANEL ==========
 		topPanel.add(topLeftIcons, BorderLayout.WEST);
 		topPanel.add(centerWrapper, BorderLayout.CENTER);
-
+		
 		add(topPanel, BorderLayout.NORTH);
 		
 		// Highlight the current player
@@ -356,6 +429,69 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		setLocationRelativeTo(null);
 	}
 
+	//================== show count mines on row / col============
+	private void useHint() {
+	    if (hintUsed) {
+	        JOptionPane.showMessageDialog(
+	            this,
+	            "You have already used your hint for this game!",
+	            "Hint Already Used",
+	            JOptionPane.WARNING_MESSAGE
+	        );
+	        return;
+	    }
+	    
+	    // Mark hint as used
+	    hintUsed = true;
+	    
+	    // Update button appearance
+	    hintButton.setText("USED");
+	    hintButton.setEnabled(false);
+	    hintButton.repaint();
+	    
+	    // Get current player and their board
+	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
+	    boolean isLeft = (currentPlayer == 1);
+	    
+	    // Show the hint
+	    showPartialVision(isLeft, gamenum);
+	}
+	
+	
+	
+	private void showPartialVision(boolean isLeft, int gameNum) {
+			int size = GameController.getBoardSize(gamenum, isLeft);
+			boolean showRow = Math.random() < 0.5;
+
+		    String message;
+		    if (showRow) {
+		    	int row = (int)(Math.random() * size);
+		        int mines = GameController.countMinesInRow(gamenum, isLeft, row);
+		        while (mines==0) {
+		        	 row = (int)(Math.random() * size);
+			         mines = GameController.countMinesInRow(gamenum, isLeft, row);
+		        }
+		        message = "Row " + (row + 1) + " contains " + mines + " mines";
+		    } else {
+		    	int col = (int)(Math.random() * size);
+		        int mines = GameController.countMinesInColumn(gamenum, isLeft, col);
+		        while (mines==0) {
+		        	col = (int)(Math.random() * size);
+			         mines = GameController.countMinesInColumn(gamenum, isLeft,col);
+		        }
+		        message = "Column " + (col + 1) + " contains " + mines + " mines";
+		    }
+
+		    JOptionPane.showMessageDialog(
+		        this,
+		        message,
+		        "Partial Vision",
+		        JOptionPane.INFORMATION_MESSAGE
+		    );
+		}
+	
+
+	
 	// Show settings menu with advanced options
 	private void showSettingsMenu() {
 		JPopupMenu settingsMenu = new JPopupMenu();
