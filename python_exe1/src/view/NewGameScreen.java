@@ -366,3 +366,4 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
     }
     // =================================
 }
+
