@@ -175,7 +175,8 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
 
         // Search bar
         searchField = new PlaceholderTextField("🔍 Search by game date: dd-mm-yyyy", 20);
-        searchField.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
+        searchField.setFont(new Font("Dialog", Font.PLAIN, 20));
+        searchField.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         panel.add(searchField);
 
         // Table
@@ -184,14 +185,15 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
-       table = new JTable(model);
+        table = new JTable(model);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         table.setRowHeight(40);
         table.setForeground(Color.BLACK);
         table.setBackground(new Color(230, 210, 240));
         table.setFillsViewportHeight(true);
         table.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-        
+
+
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 16));
         header.setBackground(new Color(180, 160, 200));
@@ -231,7 +233,8 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
                         break;
                     default:
                     	 // Filter rows based on the text, ignoring case, in column 1 (default column)
-                        sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 1));
+                        sorter.setRowFilter(RowFilter.regexFilter(".*" + Pattern.quote(text) + ".*", 1));
+
                 }
                 // Refresh the table display
                 table.repaint();
@@ -436,6 +439,3 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
     }
     // =================================
 }
-
-
-
