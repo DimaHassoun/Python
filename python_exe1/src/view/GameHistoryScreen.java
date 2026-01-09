@@ -193,7 +193,7 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
         table.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Verdana", Font.BOLD, 16));
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
         header.setBackground(new Color(180, 160, 200));
         header.setForeground(Color.BLACK);
         header.setReorderingAllowed(false);
@@ -436,5 +436,6 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
     }
     // =================================
 }
+
 
 
