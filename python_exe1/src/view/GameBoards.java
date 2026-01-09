@@ -12,6 +12,16 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+/**
+ * GameBoards represents the main game window for the two-player Minesweeper-style game.
+ * 
+ * This class is responsible for:
+ * - Rendering both player boards (left and right)
+ * - Handling all user interactions (cell clicks, flags, hints, settings, exit)
+ * - Synchronizing the UI with the game logic via GameController
+ * - Managing score, shared lives, turns, hints, and end-game screens
+ * - Responding to music state changes via MusicManager observer pattern*/
+
 public class GameBoards extends JFrame implements MusicManager.MusicStateListener {
 
 	private int rows, cols, leftMines, rightMines, score = 0;
@@ -44,6 +54,12 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	public int GetGameNum() {
 		return gamenum;
 	}
+	
+	/**
+	 * Constructs the main game window.
+	 * Initializes UI, boards, players, music, and game state.
+	 */
+	
 	public GameBoards(int rows, int cols, int leftMines, int rightMines, String nameL, String nameR, int gamenum) {
 		this.rows = rows;
 		this.cols = cols;
@@ -259,7 +275,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Add the south panel to the main frame or parent container
 		add(southPanel, BorderLayout.SOUTH);
 
-		//======================Create HINT button with rounded design==================
+		//======================Create HINT button ==================
 		hintButton = new JButton("💡 Hint") {
 		    private boolean isHovered = false;
 
@@ -285,7 +301,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 		            @Override
 		            public void mouseClicked(java.awt.event.MouseEvent e) {
-		                useHint(); // קורא למתודה שמטפלת בכל הלוגיקה
+		                useHint();
 		            }
 		        });
 		    }
@@ -448,6 +464,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	}
 
 	//================== show count mines on row / col============
+	/**
+	 * Handles hint button click.
+	 * Each player can use the hint once per game.
+	 */
 	private void useHint() {
 	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
 	    boolean isPlayer1 = (currentPlayer == 1);
@@ -500,7 +520,11 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	    boolean isLeft = isPlayer1;
 	    showPartialVision(isLeft, gamenum);
 	}
-
+	/**
+	 * Displays a partial hint (row or column mine count).
+	 * @param isLeft true if left board
+	 * @param gameNum game identifier
+	 */
 	private void showPartialVision(boolean isLeft, int gameNum) {
 	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
 	    String playerName = (currentPlayer == 1) ? player1Name : player2Name;
@@ -512,12 +536,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	    if (showRow) {
 	        int row = (int)(Math.random() * size);
 	        int mines = GameController.countMinesInRow(gamenum, isLeft, row);
-	        
-	        // Try up to 10 times to find a row with mines
+	        boolean  isRowFullyRevealed= GameController.isRowFullyRevealed(gameNum, isLeft, row);
 	        int attempts = 0;
-	        while (mines == 0 && attempts < 10) {
-	            row = (int)(Math.random() * size);
-	            mines = GameController.countMinesInRow(gamenum, isLeft, row);
+	        while((isRowFullyRevealed || mines == 0 )&& attempts < size) {
+	        // Try  to find a row with mines and unRevealed 
+	   	        row = (int)(Math.random() * size);
+	       	    mines = GameController.countMinesInRow(gamenum, isLeft, row);
+	       	    isRowFullyRevealed= GameController.isRowFullyRevealed(gameNum, isLeft, row);
 	            attempts++;
 	        }
 	        
@@ -529,12 +554,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	    } else {
 	        int col = (int)(Math.random() * size);
 	        int mines = GameController.countMinesInColumn(gamenum, isLeft, col);
-	        
-	        // Try up to 10 times to find a column with mines
+	        boolean  isColumnFullyRevealed= GameController.isColumnFullyRevealed(gameNum, isLeft, col);
 	        int attempts = 0;
-	        while (mines == 0 && attempts < 10) {
+	        // Try  to find a column with mines
+	        while ((isColumnFullyRevealed || mines == 0 )&& attempts < size) {
 	            col = (int)(Math.random() * size);
 	            mines = GameController.countMinesInColumn(gamenum, isLeft, col);
+	            isColumnFullyRevealed= GameController.isColumnFullyRevealed(gameNum, isLeft, col);
 	            attempts++;
 	        }
 	        
@@ -799,7 +825,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 								"\n Warning! Your score is negative: " + currentScore + 
 								"\nIf you reach -30 points, the game will end!" 
 								,new Color(255, 165, 0), // Orange
-			            null, // No specific button
 			            4000 // 4 seconds
 			            ,delayMassage /** 
 			             * Show message after a 500ms delay if triggered after a bad surprise,
@@ -831,7 +856,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 								"\n Warning! Your score is negative: " + currentScore + 
 								"\nIf you reach -40 points, the game will end!" 
 								,new Color(255, 165, 0), // Orange
-			            null, // No specific button
 			            4000 // 4 seconds
 			            ,delayMassage /** 
 			             * Show message after a 500ms delay if triggered after a bad surprise,
@@ -863,7 +887,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 								"\n Warning! Your score is negative: " + currentScore + 
 								"\nIf you reach -60 points, the game will end!" 
 								,new Color(255, 165, 0), // Orange
-								null, // No specific button
 								4000 // 4 seconds
 								,delayMassage /** 
 			             * Show message after a 500ms delay if triggered after a bad surprise,
@@ -1432,7 +1455,8 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		System.out.println("📢 GameBoards: Music state updated");
 	}
 	// Enhanced non-blocking popup that stacks vertically
-	private void showNonBlockingMessage(String message, Color color, JButton button, int duration, int delayBeforeShow) {
+	//Displays a non-blocking centered popup message.
+	private void showNonBlockingMessage(String message, Color color, int duration, int delayBeforeShow) {
 		JWindow popup = new JWindow();
 		popup.setBackground(new Color(0, 0, 0, 0));
 
@@ -1507,13 +1531,16 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		}).start();
 	}
 	// ========== ADD CLEANUP ==========
+	/**
+	 * Cleans up listeners and resources before closing the window.
+	 */
 	@Override
 	public void dispose() {
 		musicManager.removeMusicStateListener(this);
 		System.out.println("✓ GameBoards: Unregistered from music updates");
 		super.dispose();
 	}
-	// =================================
+	// ========================Returns debug info about hint usage=======
 	public String getHintStatus() {
 	    return "Player1 hint used: " + player1HintUsed + 
 	           ", Player2 hint used: " + player2HintUsed +
