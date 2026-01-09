@@ -198,12 +198,12 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
                 NewGameScreen.this.dispose();
                 
             } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(
-                    NewGameScreen.this,
-                    ex.getMessage(),
-                    "Input Error", 
-                    JOptionPane.ERROR_MESSAGE
-                );
+            	 NonBlockingMessage.showNonBlockingMessage(
+            		        "⚠️Cannot start the game\n"+ex.getMessage(),
+            		        new Color(200, 50, 50),  
+            		        3000,                  
+            		        0                     
+            		    );
             }
         });  
            
