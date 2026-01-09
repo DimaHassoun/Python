@@ -4,47 +4,53 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLDecoder;
 
 public class Consts {
 
     /**
      * Returns the path to Questions.csv
-     * - First checks next to the JAR file
-     * - If not found, copies from JAR resources to external location
+     * - IDE (Eclipse): read directly from resources
+     * - JAR: extract CSV next to the JAR if missing
      */
     public static String getCSVPath() {
         try {
-            // Get the directory where the JAR is located
-            String jarPath = Consts.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            String decodedPath = java.net.URLDecoder.decode(jarPath, "UTF-8");
+            String jarPath = Consts.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath();
 
-            File baseDir;
-            if (decodedPath.endsWith(".jar")) {
-                // Running from JAR - use JAR's directory
-                baseDir = new File(decodedPath).getParentFile();
-            } else {
-                // Running from IDE - use project root
-                File classesDir = new File(decodedPath);
-                baseDir = classesDir.getParentFile().getParentFile();
+            String decodedPath = URLDecoder.decode(jarPath, "UTF-8");
+
+            boolean runningFromJar = decodedPath.endsWith(".jar");
+
+            // ================= IDE MODE =================
+            if (!runningFromJar) {
+                URL resource = Consts.class.getResource("/resource/Questions.csv");
+                if (resource == null) {
+                    System.out.println("Questions.csv not found in resources");
+                    return null;
+                }
+                return resource.getPath();
             }
+
+            // ================= JAR MODE =================
+            File jarFile = new File(decodedPath);
+            File baseDir = jarFile.getParentFile();
 
             if (baseDir == null) {
                 System.out.println("Base directory not found.");
                 return null;
             }
 
-            // Look for CSV next to JAR (or in project root for IDE)
             File csvFile = new File(baseDir, "Questions.csv");
 
-            // If CSV doesn't exist externally, copy it from JAR resources
             if (!csvFile.exists()) {
-                System.out.println("CSV not found at (externally): " + csvFile.getAbsolutePath());
-                System.out.println("Attempting to extract from JAR...");
-                
-                if (extractCSVFromJAR(csvFile)) {
-                    System.out.println("CSV extracted successfully to: " + csvFile.getAbsolutePath());
-                } else {
-                    System.out.println("Failed to extract CSV from JAR");
+                System.out.println("CSV not found externally. Extracting from JAR...");
+                if (!extractCSVFromJAR(csvFile)) {
+                    System.out.println("Failed to extract CSV from JAR.");
                     return null;
                 }
             }
@@ -58,19 +64,18 @@ public class Consts {
     }
 
     /**
-     * Extracts Questions.csv from JAR resources to external file
+     * Extracts Questions.csv from JAR resources to an external file
      */
     private static boolean extractCSVFromJAR(File targetFile) {
         try (InputStream in = Consts.class.getResourceAsStream("/resource/Questions.csv")) {
+
             if (in == null) {
-                System.out.println("Questions.csv not found in JAR resources");
+                System.out.println("Questions.csv not found inside JAR resources.");
                 return false;
             }
 
-            // Create parent directory if needed
             targetFile.getParentFile().mkdirs();
 
-            // Copy from JAR to external file
             try (FileOutputStream out = new FileOutputStream(targetFile)) {
                 byte[] buffer = new byte[8192];
                 int bytesRead;
@@ -78,8 +83,9 @@ public class Consts {
                     out.write(buffer, 0, bytesRead);
                 }
             }
-            
+
             return true;
+
         } catch (IOException e) {
             e.printStackTrace();
             return false;
