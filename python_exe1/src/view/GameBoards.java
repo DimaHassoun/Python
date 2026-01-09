@@ -186,38 +186,69 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// ========================= EXIT BUTTON =========================
 		JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
 		bottomRightPanel.setOpaque(false);
-		final Color EXIT_BG     = new Color(90, 40, 110);  
-		final Color EXIT_HOVER  = new Color(130, 70, 150); 
-		final Color EXIT_BORDER = new Color(255, 215, 0);   
-		final Color EXIT_TEXT   = new Color(246, 230, 138);
 
-		exitLabel = new JLabel("EXIT", SwingConstants.CENTER);
-		exitLabel.setFont(new Font("Verdana", Font.BOLD, 22));
-		exitLabel.setForeground(EXIT_TEXT);
-		exitLabel.setOpaque(true);
-		exitLabel.setBackground(EXIT_BG);
-		exitLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		exitLabel.setBorder(BorderFactory.createCompoundBorder(
-		        BorderFactory.createLineBorder(EXIT_BORDER, 2, true),
-		        BorderFactory.createEmptyBorder(3, 15, 3, 15)
-		));
-		exitLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-		    @Override
-		    public void mouseEntered(java.awt.event.MouseEvent e) {
-		        exitLabel.setBackground(EXIT_HOVER);
+		// Create custom EXIT button with rounded design
+		JButton exitButton = new JButton("EXIT") {
+		    private boolean isHovered = false;
+		    
+		    {
+		        addMouseListener(new java.awt.event.MouseAdapter() {
+		            @Override
+		            public void mouseEntered(java.awt.event.MouseEvent e) {
+		                isHovered = true;
+		                repaint();
+		            }
+		            
+		            @Override
+		            public void mouseExited(java.awt.event.MouseEvent e) {
+		                isHovered = false;
+		                repaint();
+		            }
+		            
+		            @Override
+		            public void mouseClicked(java.awt.event.MouseEvent e) {
+		                handleButtonClick("Exit", -1, -1, false);
+		            }
+		        });
 		    }
+		    
+		    @Override
+		    protected void paintComponent(Graphics g) {
+		        Graphics2D g2 = (Graphics2D) g.create();
+		        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		        
+		        // Background color - changes on hover
+		        Color bgColor = isHovered ? 
+		            new Color(100, 20, 140, 200) : 
+		            new Color(80, 0, 120, 170);
+		        
+		        g2.setColor(bgColor);
+		        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
+		        
+		        // Border - more visible on hover
+		        Color borderColor = isHovered ? 
+		            new Color(255, 255, 255, 80) : 
+		            new Color(255, 255, 255, 40);
+		        
+		        g2.setColor(borderColor);
+		        g2.setStroke(new BasicStroke(2));
+		        g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
+		        
+		        g2.dispose();
+		        super.paintComponent(g);
+		    }
+		};
 
-		    @Override
-		    public void mouseExited(java.awt.event.MouseEvent e) {
-		        exitLabel.setBackground(EXIT_BG);
-		    }
-
-		    @Override
-		    public void mouseClicked(java.awt.event.MouseEvent e) {
-		        handleButtonClick("Exit", -1, -1, false);
-		    }
-		});
-		bottomRightPanel.add(exitLabel);
+		// Style the button
+		exitButton.setFont(new Font("Verdana", Font.BOLD, 20));
+		exitButton.setForeground(new Color(246, 230, 138));
+		exitButton.setFocusPainted(false);
+		exitButton.setContentAreaFilled(false);
+		exitButton.setBorderPainted(false);
+		exitButton.setOpaque(false);
+		exitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		exitButton.setPreferredSize(new Dimension(90, 40));
+		bottomRightPanel.add(exitButton);
 		// Add exit panel to the south panel
 		southPanel.add(bottomRightPanel, BorderLayout.EAST);
 		// Add the south panel to the main frame or parent container
@@ -276,9 +307,10 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// ========== CENTER - Game Info Panel (separated from players) ==========
 		JPanel gameCenterInfoPanel = new JPanel(new GridLayout(3, 1, 2, 2));
 		gameCenterInfoPanel.setOpaque(false);
+		gameCenterInfoPanel.add(difficultyLabel);
 		gameCenterInfoPanel.add(gameNumberLabel);
 		gameCenterInfoPanel.add(scoreLabel);
-		gameCenterInfoPanel.add(difficultyLabel);
+		
 	
 		// ========== PLAYERS PANEL  ==========
 		JPanel playersTopPanel = new JPanel(new BorderLayout());
