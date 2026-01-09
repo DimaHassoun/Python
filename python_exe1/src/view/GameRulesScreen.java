@@ -3,7 +3,31 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * GameRulesScreen displays the official game rules to the player.
+ *
+ * This screen presents a styled, scrollable HTML-based explanation of:
+ * - Game objective
+ * - How to play
+ * - Board structure and difficulty levels
+ * - Cell types and their effects
+ * - Turn system
+ * - End game conditions
+ */
+
 public class GameRulesScreen extends JFrame {
+	
+	/**
+	 * Constructs the Game Rules screen.
+	 *
+	 * Responsibilities:
+	 * - Initializes the window properties (title, size, position)
+	 * - Builds the main layout using BorderLayout
+	 * - Creates and styles the title label
+	 * - Generates rich HTML content describing the game rules
+	 * - Displays the rules inside a scrollable JEditorPane
+	 * - Adds a Back button that closes the screen
+	 */
 
     public GameRulesScreen() {
 
