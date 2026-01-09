@@ -6,97 +6,58 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * FirstScreen is the main menu screen of the Mine Sweeper game.
- * It handles UI components, music control, window resizing, and navigation
- * to other screens such as New Game, Game History, and Question Manager.
- * It also implements the MusicStateListener interface to respond to music state changes.
+ * FirstScreen represents the main menu of the Mine Sweeper game.
+ * It handles navigation (new game, history, question manager), music control,
+ * settings, and admin authentication.
  */
 public class FirstScreen extends JFrame implements MusicManager.MusicStateListener {
 
-    private JLabel musicLabel; // Label showing music status (playing/muted)
+    private JLabel musicLabel; // Displays music icon (♪ or 🔇)
     private MusicManager musicManager; // Singleton manager for background music
-    private WindowSizeManager windowSizeManager; // Singleton manager for window resizing
+    private WindowSizeManager windowSizeManager; // Singleton for handling window size
 
-    /**
-     * Constructor initializes the main menu screen and all its components.
-     */
     public FirstScreen() {
-        setTitle("Mine Sweeper");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(true);
+        setTitle("Mine Sweeper"); // Set window title
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Exit app on close
+        setResizable(true); // Allow window resizing
 
-        // Initialize singleton managers
-        musicManager = MusicManager.getInstance();
-        windowSizeManager = WindowSizeManager.getInstance();
+        musicManager = MusicManager.getInstance(); // Get music manager singleton
+        windowSizeManager = WindowSizeManager.getInstance(); // Get window size manager
+        musicManager.addMusicStateListener(this); // Listen for music state changes
 
-        // Register this screen as a listener to music state changes
-        musicManager.addMusicStateListener(this);
+        windowSizeManager.applyToFrame(this); // Apply saved window size and position
+        setLocationRelativeTo(null); // Center window on screen
 
-        // Apply window size preferences
-        windowSizeManager.applyToFrame(this);
-        setLocationRelativeTo(null);
-
-        // Play default background music if none is currently playing
+        // Play music if no music is currently playing
         if (musicManager.getCurrentMusicFile() == null) {
             musicManager.playMusic("/resource/puzzle-game-bright-casual-video-game-music-249202.wav");
         }
 
-        // Setup main panel with background image
+        // ===== BACKGROUND PANEL =====
         BackgroundPanel mainPanel = new BackgroundPanel("/resource/BackgroundFirstScreen.png");
-        mainPanel.setLayout(null);
+        mainPanel.setLayout(null); // Use absolute positioning
         setContentPane(mainPanel);
 
-        // ===== TITLE LABEL =====
+        // ===== GAME TITLE =====
         JLabel title = new JLabel("Mine Sweeper", SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 48));
         title.setForeground(new Color(246, 230, 138));
         mainPanel.add(title);
 
         // ===== SETTINGS MENU =====
-        JPopupMenu settingsMenu = new JPopupMenu();
+        JPopupMenu settingsMenu = new JPopupMenu(); // Popup menu for settings
         settingsMenu.setBackground(new Color(60, 0, 90));
-        settingsMenu.setBorder(BorderFactory.createLineBorder(new Color(246, 230, 138), 2));
-        settingsMenu.setOpaque(true);
 
-        Font menuFont = new Font("Verdana", Font.BOLD, 14);
-        Color bg = new Color(60, 0, 90);
-        Color bgHover = new Color(65, 0, 95);
-        Color textColor = new Color(246, 230, 138);
+        JMenuItem rulesItem = new JMenuItem("Game Rules"); // Show game rules
+        rulesItem.addActionListener(e -> new GameRulesScreen());
 
-        // -------- Game Rules Menu Item --------
-        JMenuItem rulesItem = new JMenuItem("Game Rules");
-        rulesItem.setFont(menuFont);
-        rulesItem.setForeground(textColor);
-        rulesItem.setBackground(bg);
-        rulesItem.setOpaque(true);
-        rulesItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        rulesItem.setFocusPainted(false);
-        rulesItem.addActionListener(e -> new GameRulesScreen()); // Opens game rules screen
+        JMenuItem soundItem = new JMenuItem("Sound Settings"); // Volume control
+        soundItem.addActionListener(e -> showVolumeControl());
 
-        // -------- Separator --------
-        JSeparator separator = new JSeparator();
-        separator.setForeground(textColor);
-
-        // -------- Sound Settings Menu Item --------
-        JMenuItem soundItem = new JMenuItem("Sound Settings");
-        soundItem.setFont(menuFont);
-        soundItem.setForeground(textColor);
-        soundItem.setBackground(bg);
-        soundItem.setOpaque(true);
-        soundItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        soundItem.setFocusPainted(false);
-        soundItem.addActionListener(e -> showVolumeControl()); // Opens volume slider
-
-        // Fix Swing hover colors
-        UIManager.put("MenuItem.selectionBackground", bgHover);
-        UIManager.put("MenuItem.selectionForeground", textColor);
-
-        // Add items to settings menu
         settingsMenu.add(rulesItem);
-        settingsMenu.add(separator);
         settingsMenu.add(soundItem);
 
-        // ===== SETTINGS ICON =====
+        // Gear icon to open settings menu
         JLabel settings = new JLabel("⚙");
         settings.setFont(new Font("Dialog", Font.BOLD, 40));
         settings.setForeground(new Color(246, 230, 138));
@@ -108,294 +69,305 @@ public class FirstScreen extends JFrame implements MusicManager.MusicStateListen
         });
         mainPanel.add(settings);
 
-        // ===== MUSIC TOGGLE ICON =====
-        musicLabel = new JLabel(musicManager.isPlaying() ? "♪" : "🔇");
+        // ===== MUSIC ICON =====
+        musicLabel = new JLabel(); // Label to show music state
         musicLabel.setFont(new Font("Dialog", Font.BOLD, 40));
-        musicLabel.setForeground(musicManager.isPlaying() ? new Color(246, 230, 138) : new Color(180, 180, 180));
         musicLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         musicLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                musicManager.toggleMusic(); // Toggle play/pause
-                // Observer will update the icon automatically
+                musicManager.toggleMusic(); // Toggle music play/pause
             }
         });
         mainPanel.add(musicLabel);
+        updateMusicIcon(); // Set initial music icon
 
-        // ===== EXIT BUTTON =====
-        RoundedButton exit = new RoundedButton("Exit");
-        exit.setFont(new Font("Verdana", Font.BOLD, 20));
-        exit.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                System.exit(0); // Exit application
+        // ===== MAIN BUTTONS =====
+        RoundedButton startBtn = new RoundedButton("Start New Game");
+        startBtn.addActionListener(e -> {
+            new NewGameScreen(); // Open new game window
+            dispose(); // Close main menu
+        });
+
+        RoundedButton historyBtn = new RoundedButton("Game History");
+        historyBtn.addActionListener(e -> {
+            new GameHistoryScreen(); // Show past game history
+            dispose();
+        });
+
+        RoundedButton managerBtn = new RoundedButton("Question Manager");
+        managerBtn.addActionListener(e -> {
+            if (showAdminDialog()) { // Show admin password dialog
+                new QuestionManagerScreen(); // Only open if authenticated
+                dispose();
             }
         });
+
+        RoundedButton exit = new RoundedButton("Exit");
+        exit.addActionListener(e -> System.exit(0)); // Exit program
+
+        mainPanel.add(startBtn);
+        mainPanel.add(historyBtn);
+        mainPanel.add(managerBtn);
         mainPanel.add(exit);
 
-        // ===== START NEW GAME BUTTON =====
-        RoundedButton startBtn = new RoundedButton("Start New Game");
-        mainPanel.add(startBtn);
-        startBtn.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                new NewGameScreen(); // Open new game screen
-                FirstScreen.this.dispose(); // Close main menu
-            }
-        });
-
-        // ===== GAME HISTORY BUTTON =====
-        RoundedButton historyBtn = new RoundedButton("Game History");
-        mainPanel.add(historyBtn);
-        historyBtn.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                new GameHistoryScreen(); // Open history screen
-                FirstScreen.this.dispose();
-            }
-        });
-
-        // ===== QUESTION MANAGER BUTTON (ADMIN ONLY) =====
-        RoundedButton managerBtn = new RoundedButton("Question Manager");
-        mainPanel.add(managerBtn);
-        managerBtn.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                boolean authenticated = false;
-
-                // Loop until correct password is entered or Cancel is pressed
-                while (!authenticated) {
-                    JPasswordField passwordField = new JPasswordField(10);
-                    JLabel eyeLabel = new JLabel("👀");
-                    eyeLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                    eyeLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
-
-                    JPanel passPanel = new JPanel(new BorderLayout(5, 5));
-                    passPanel.add(passwordField, BorderLayout.CENTER);
-                    passPanel.add(eyeLabel, BorderLayout.EAST);
-
-                    JPanel panel = new JPanel(new BorderLayout(5, 5));
-                    panel.add(new JLabel("Please enter Admin Password:"), BorderLayout.NORTH);
-                    panel.add(passPanel, BorderLayout.CENTER);
-
-                    // Toggle password visibility
-                    eyeLabel.addMouseListener(new MouseAdapter() {
-                        private boolean visible = false;
-                        public void mouseClicked(MouseEvent e) {
-                            visible = !visible;
-                            if (visible) {
-                                passwordField.setEchoChar((char) 0);
-                                eyeLabel.setText("🙈");
-                            } else {
-                                passwordField.setEchoChar('•');
-                                eyeLabel.setText("👀");
-                            }
-                        }
-                    });
-
-                    // Show password input dialog
-                    int result = JOptionPane.showConfirmDialog(
-                            FirstScreen.this, panel, "Admin Authentication Required",
-                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE
-                    );
-
-                    if (result != JOptionPane.OK_OPTION) {
-                        break; // Cancel pressed → exit loop
-                    }
-
-                    char[] passwordChars = passwordField.getPassword();
-                    String inputPassword = new String(passwordChars);
-                    java.util.Arrays.fill(passwordChars, '0'); // Clear password for security
-
-                    if (inputPassword.isEmpty()) {
-                        JOptionPane.showMessageDialog(
-                                FirstScreen.this, "Password cannot be empty, Please try again.",
-                                "Input Error", JOptionPane.WARNING_MESSAGE
-                        );
-                    } else if (!inputPassword.equals("1234")) {
-                        JOptionPane.showMessageDialog(
-                                FirstScreen.this, "The password entered is incorrect, Please try again.",
-                                "Authentication Error", JOptionPane.ERROR_MESSAGE
-                        );
-                    } else {
-                        authenticated = true;
-                        new QuestionManagerScreen(); // Open admin screen
-                        FirstScreen.this.dispose();
-                    }
-                }
-            }
-        });
-
-        // Position all components initially
+        // Position all components based on window size
         positionComponents(title, settings, musicLabel, exit, startBtn, historyBtn, managerBtn);
 
-        // Reposition components on window resize
+        // Update component positions dynamically when window is resized
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 positionComponents(title, settings, musicLabel, exit, startBtn, historyBtn, managerBtn);
             }
         });
 
-        setVisible(true);
+        setVisible(true); // Show main menu
     }
 
-    // ================= OBSERVER CALLBACK =================
-    /**
-     * Callback method from MusicManager when music state changes.
-     * Updates the music icon accordingly.
-     */
-    @Override
-    public void onMusicStateChanged() {
-        updateMusicIcon();
-        System.out.println("📢 FirstScreen: Music state updated");
+    // ================= ADMIN PASSWORD DIALOG =================
+    private boolean showAdminDialog() {
+        AdminDialog dialog = new AdminDialog(this); // Open modal dialog
+        dialog.setVisible(true);
+        return dialog.isAuthenticated(); // Return true if password correct
     }
 
-    // ================= POSITION COMPONENTS =================
-    /**
-     * Dynamically positions all components based on current window size.
-     *
-     * @param title      The title JLabel
-     * @param settings   The settings JLabel
-     * @param musicLabel The music toggle JLabel
-     * @param exit       Exit button
-     * @param startBtn   Start New Game button
-     * @param historyBtn Game History button
-     * @param managerBtn Question Manager button
-     */
-    private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, RoundedButton exit,
-                                    RoundedButton startBtn, RoundedButton historyBtn, RoundedButton managerBtn) {
-        int w = getWidth();
-        int h = getHeight();
+    // Nested class for password authentication
+    private static class AdminDialog extends JDialog {
+        private JLabel errorLabel;
+        private boolean authenticated = false;
+        private final JPasswordField passwordField = new JPasswordField(12);
 
-        settings.setBounds(30, 30, 60, 60);
-        musicLabel.setBounds(110, 30, 60, 60);
-        exit.setBounds(w - 140, 30, 100, 50);
-        title.setBounds(w / 2 - 250, 40, 500, 70);
-        startBtn.setBounds(w / 2 - 230, h / 2 - 120, 460, 80);
-        historyBtn.setBounds(w / 2 - 230, h / 2 - 10, 460, 80);
-        managerBtn.setBounds(w / 2 - 230, h / 2 + 100, 460, 80);
+        AdminDialog(JFrame parent) {
+            super(parent, "Admin Login", true);
+            setUndecorated(true); // Remove default window frame
+            setSize(360, 180);
+            setLocationRelativeTo(parent);
+
+            Color bg = new Color(60, 0, 90);
+            Color text = new Color(246, 230, 138);
+
+            JPanel root = new JPanel(new BorderLayout());
+            root.setBackground(bg);
+            root.setBorder(BorderFactory.createLineBorder(text, 3));
+            setContentPane(root);
+
+            JLabel title = new JLabel("Admin Authentication", SwingConstants.CENTER);
+            title.setFont(new Font("Verdana", Font.BOLD, 18));
+            title.setForeground(text);
+            title.setBorder(BorderFactory.createEmptyBorder(15, 10, 10, 10));
+            root.add(title, BorderLayout.NORTH);
+
+            // Label to show errors
+            errorLabel = new JLabel(" ", SwingConstants.CENTER);
+            errorLabel.setFont(new Font("Verdana", Font.BOLD, 13));
+            errorLabel.setForeground(new Color(255, 120, 120));
+            errorLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+            passwordField.setFont(new Font("Verdana", Font.BOLD, 16));
+            passwordField.setBackground(new Color(90, 20, 120));
+            passwordField.setForeground(text);
+            passwordField.setCaretColor(text);
+            passwordField.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+
+            // Eye icon to toggle password visibility
+            JLabel eye = new JLabel("👀");
+            eye.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 22));
+            eye.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            eye.setForeground(text);
+
+            JPanel center = new JPanel(new BorderLayout());
+            center.setBackground(bg);
+            center.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            center.add(passwordField, BorderLayout.CENTER);
+            center.add(eye, BorderLayout.EAST);
+            root.add(center, BorderLayout.CENTER);
+
+            // Toggle password visibility
+            eye.addMouseListener(new MouseAdapter() {
+                boolean visible = false;
+                public void mouseClicked(MouseEvent e) {
+                    visible = !visible;
+                    passwordField.setEchoChar(visible ? (char) 0 : '•');
+                    eye.setText(visible ? "🙈" : "👀");
+                }
+            });
+
+            JPanel buttons = new JPanel();
+            buttons.setBackground(bg);
+
+            JButton ok = createButton("OK", text);
+            JButton cancel = createButton("Cancel", text);
+
+            ok.addActionListener(e -> authenticate()); // Check password
+            cancel.addActionListener(e -> dispose()); // Close dialog
+
+            buttons.add(ok);
+            buttons.add(cancel);
+
+            JPanel south = new JPanel(new BorderLayout());
+            south.setBackground(bg);
+            south.add(errorLabel, BorderLayout.NORTH);
+            south.add(buttons, BorderLayout.SOUTH);
+
+            root.add(south, BorderLayout.SOUTH);
+
+            getRootPane().setDefaultButton(ok); // Press Enter = OK
+        }
+
+        private JButton createButton(String text, Color color) {
+            JButton btn = new JButton(text);
+            btn.setFocusPainted(false);
+            btn.setBackground(new Color(90, 20, 120));
+            btn.setForeground(color);
+            btn.setBorder(BorderFactory.createEmptyBorder(6, 16, 6, 16));
+            return btn;
+        }
+
+        // Validate admin password
+        private void authenticate() {
+            String input = new String(passwordField.getPassword());
+
+            if (input.isEmpty()) {
+                showError("Password cannot be empty");
+                return;
+            }
+
+            if (!input.equals("1234")) { // Hardcoded password
+                showError("Incorrect password");
+                return;
+            }
+
+            authenticated = true;
+            dispose(); // Close dialog
+        }
+
+        private void showError(String message) {
+            errorLabel.setText(message); // Display error
+            shake(); // Shake dialog for visual feedback
+        }
+
+        private void shake() {
+            Point p = getLocation();
+            for (int i = 0; i < 10; i++) {
+                setLocation(p.x + (i % 2 == 0 ? 10 : -10), p.y);
+                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+            }
+            setLocation(p); // Restore original position
+        }
+
+        boolean isAuthenticated() {
+            return authenticated;
+        }
+    }
+
+    // ================= STYLED MESSAGE DIALOG =================
+    private void showStyledMessage(String msg, int type) {
+        Color bg = new Color(60, 0, 90);
+        Color text = new Color(246, 230, 138);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(bg);
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+
+        JLabel label = new JLabel(msg, SwingConstants.CENTER);
+        label.setFont(new Font("Verdana", Font.BOLD, 14));
+        label.setForeground(text);
+
+        panel.add(label, BorderLayout.CENTER);
+
+        // Show message using JOptionPane
+        JOptionPane.showMessageDialog(
+                this,
+                panel,
+                "Message",
+                type
+        );
     }
 
     // ================= VOLUME CONTROL =================
-    /**
-     * Shows a volume control dialog with a slider.
-     * Updates the MusicManager volume and label dynamically.
-     */
     private void showVolumeControl() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel volumeLabel = new JLabel("Volume: " + musicManager.getVolumePercent() + "%", SwingConstants.CENTER);
-        volumeLabel.setFont(new Font("Verdana", Font.BOLD, 14));
+        JLabel volumeLabel = new JLabel(
+                "Volume: " + musicManager.getVolumePercent() + "%",
+                SwingConstants.CENTER
+        );
 
-        JSlider volumeSlider = new JSlider(0, 100, musicManager.getVolumePercent());
-        volumeSlider.setMajorTickSpacing(25);
-        volumeSlider.setMinorTickSpacing(5);
-        volumeSlider.setPaintTicks(true);
-        volumeSlider.setPaintLabels(true);
-
-        // Update music volume on slider change
-        volumeSlider.addChangeListener(e -> {
-            int value = volumeSlider.getValue();
-            musicManager.setVolume(value / 100.0f);
+        JSlider slider = new JSlider(0, 100, musicManager.getVolumePercent());
+        slider.addChangeListener(e -> {
+            int value = slider.getValue();
+            musicManager.setVolume(value / 100f); // Set music volume
             volumeLabel.setText("Volume: " + value + "%");
-            // Observer will automatically update the music icon
         });
 
         panel.add(volumeLabel, BorderLayout.NORTH);
-        panel.add(volumeSlider, BorderLayout.CENTER);
+        panel.add(slider, BorderLayout.CENTER);
 
-        JOptionPane.showMessageDialog(this, panel, "Volume Control", JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(this, panel, "Volume Control",
+                JOptionPane.PLAIN_MESSAGE);
     }
 
-    // ================= UPDATE MUSIC ICON =================
-    /**
-     * Updates the music toggle icon based on current playback state.
-     */
-    private void updateMusicIcon() {
-        if (musicLabel == null) return;
+    // ================= MUSIC ICON HANDLING =================
+    @Override
+    public void onMusicStateChanged() {
+        updateMusicIcon(); // Update icon when music starts/stops
+    }
 
+    private void updateMusicIcon() {
         if (musicManager.isPlaying()) {
-            musicLabel.setText("♪");
+            musicLabel.setText("♪"); // Music playing
             musicLabel.setForeground(new Color(246, 230, 138));
         } else {
-            musicLabel.setText("🔇");
-            musicLabel.setForeground(new Color(180, 180, 180));
+            musicLabel.setText("🔇"); // Music muted
+            musicLabel.setForeground(Color.GRAY);
         }
     }
 
-    // ================= CLEANUP ON CLOSE =================
-    /**
-     * Removes this screen from MusicManager listeners before disposing.
-     */
     @Override
     public void dispose() {
-        musicManager.removeMusicStateListener(this);
-        System.out.println("✓ FirstScreen: Unregistered from music updates");
+        musicManager.removeMusicStateListener(this); // Stop listening when window closes
         super.dispose();
     }
 
-    // ================= INNER CLASS: ROUNDED BUTTON =================
-    /**
-     * Custom JButton with rounded corners and hover effect.
-     */
-    static class RoundedButton extends JButton {
-        private boolean isHovered = false;
+    // ================= POSITION COMPONENTS =================
+    private void positionComponents(JLabel title, JLabel settings, JLabel music,
+                                    JButton exit, JButton start, JButton history, JButton manager) {
+        int w = getWidth();
+        int h = getHeight();
 
+        settings.setBounds(30, 30, 60, 60); // Gear icon
+        music.setBounds(110, 30, 60, 60); // Music icon
+        exit.setBounds(w - 140, 30, 100, 50); // Exit button
+
+        title.setBounds(w / 2 - 250, 40, 500, 70); // Center title
+        start.setBounds(w / 2 - 230, h / 2 - 120, 460, 80); // Start button
+        history.setBounds(w / 2 - 230, h / 2 - 10, 460, 80); // History button
+        manager.setBounds(w / 2 - 230, h / 2 + 100, 460, 80); // Question manager
+    }
+
+    // ================= ROUNDED BUTTON CLASS =================
+    static class RoundedButton extends JButton {
         public RoundedButton(String text) {
             super(text);
             setFont(new Font("Verdana", Font.BOLD, 26));
             setForeground(new Color(246, 230, 138));
-            setFocusPainted(false);
             setContentAreaFilled(false);
             setBorderPainted(false);
-            setOpaque(false);
-            setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-            // Hover effect
-            addMouseListener(new MouseAdapter() {
-                public void mouseEntered(MouseEvent e) {
-                    isHovered = true;
-                    repaint();
-                }
-                public void mouseExited(MouseEvent e) {
-                    isHovered = false;
-                    repaint();
-                }
-            });
         }
 
-        @Override
+        // Custom paint for rounded button with semi-transparent purple
         protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // Background color changes on hover
-            Color bgColor = isHovered ?
-                    new Color(100, 20, 140, 200) :
-                    new Color(80, 0, 120, 170);
-
-            g2.setColor(bgColor);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(80, 0, 120, 180));
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
-
-            // Border color changes on hover
-            Color borderColor = isHovered ?
-                    new Color(255, 255, 255, 80) :
-                    new Color(255, 255, 255, 40);
-
-            g2.setColor(borderColor);
-            g2.setStroke(new BasicStroke(2));
-            g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
-            g2.dispose();
-
             super.paintComponent(g);
-        }
-
-        @Override
-        public boolean isContentAreaFilled() {
-            return false;
         }
     }
 
-    /**
-     * Main entry point of the application.
-     */
+    // ================= MAIN METHOD =================
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FirstScreen());
+        SwingUtilities.invokeLater(FirstScreen::new); // Start GUI on Event Dispatch Thread
     }
 }
