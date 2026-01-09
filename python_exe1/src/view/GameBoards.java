@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class GameBoards extends JFrame implements MusicManager.MusicStateListener {
-	
+
 	private int rows, cols, leftMines, rightMines, score = 0;
 	private static int gamenum;
 	private JButton[][] leftBoard, rightBoard;
@@ -31,11 +31,13 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private  boolean warningscore = false;
 	private boolean hintUsed = false;  // Track if hint was already used
 	private JButton hintButton;  // Reference to hint button for updates
+	private boolean isBadSurprise; //to delay Massage of negative Show 
+	
 	// boards color:
 	private static final Color PLAYER1_ACTIVE_COLOR = new Color(180, 160, 220);  
 	private static final Color PLAYER2_ACTIVE_COLOR = new Color(140, 80, 100);   
 	private static final Color DISABLED_BOARD_COLOR = new Color(105, 105, 105);  
-		
+
 	public int GetGameNum() {
 		return gamenum;
 	}
@@ -59,22 +61,22 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		windowSizeManager.applyToFrame(this);
 		// Main background
 		JPanel mainBackground = new JPanel(new BorderLayout()) {
-		    private Image bgImage;
-		    { // Load image correctly
-		        java.net.URL imgURL = getClass().getResource("/resource/background.jpg");
-		        if (imgURL != null) {
-		            bgImage = new ImageIcon(imgURL).getImage();
-		        } else {
-		            System.err.println("Background image not found!");
-		        }
-		    }
-		    @Override
-		    protected void paintComponent(Graphics g) {
-		        super.paintComponent(g);
-		        if (bgImage != null) {
-		            g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
-		        }
-		    }
+			private Image bgImage;
+			{ // Load image correctly
+				java.net.URL imgURL = getClass().getResource("/resource/background.jpg");
+				if (imgURL != null) {
+					bgImage = new ImageIcon(imgURL).getImage();
+				} else {
+					System.err.println("Background image not found!");
+				}
+			}
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (bgImage != null) {
+					g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+				}
+			}
 		};
 		setContentPane(mainBackground);
 		// ========================= CENTER PANEL =========================
@@ -120,7 +122,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		leftBackground.setLayout(new BorderLayout());
 		leftBackground.add(leftTopInfo, BorderLayout.NORTH);
 		leftBackground.setBackgroundColor(new Color(0, 0, 0, 100));
-		
+
 		// ========================= RIGHT PLAYER =========================
 		// Player name panel
 		rightPlayerPanel = new RoundedPanel(0, Color.white);
@@ -159,7 +161,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		rightBackground.setLayout(new BorderLayout());
 		rightBackground.add(rightTopInfo, BorderLayout.NORTH);
 		rightBackground.setBackgroundColor(new Color(0, 0, 0, 150));
-		
+
 		// ========================= ADD TO CENTER PANEL =========================
 		centerPanel.add(leftBackground);
 		centerPanel.add(rightBackground);
@@ -188,128 +190,128 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// ========================= EXIT BUTTON =========================
 		JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
 		bottomRightPanel.setOpaque(false);
-        //Create HINT button with rounded design
+		//Create HINT button with rounded design
 		hintButton = new JButton("💡 Hint") {
-		    private boolean isHovered = false;
-		    
-		    {
-		        addMouseListener(new java.awt.event.MouseAdapter() {
-		            @Override
-		            public void mouseEntered(java.awt.event.MouseEvent e) {
-		                if (!hintUsed) {
-		                    isHovered = true;
-		                    repaint();
-		                }
-		            }
-		            
-		            @Override
-		            public void mouseExited(java.awt.event.MouseEvent e) {
-		                isHovered = false;
-		                repaint();
-		            }
-		            
-		            @Override
-		            public void mouseClicked(java.awt.event.MouseEvent e) {
-		                if (!hintUsed) {
-		                    useHint();
-		                }
-		            }
-		        });
-		    }
-		    @Override
-		    protected void paintComponent(Graphics g) {
-		        Graphics2D g2 = (Graphics2D) g.create();
-		        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		        
-		        // Background color - changes based on state
-		        Color bgColor;
-		        if (hintUsed) {
-		            bgColor = new Color(80, 80, 80, 100); 
-		        } else if (isHovered) {
-		            bgColor = new Color(100, 20, 140, 200); 
-		        } else {
-		            bgColor = new Color(80, 0, 120, 170); 
-		        }
-		        
-		        g2.setColor(bgColor);
-		        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
-		        
-		        // Border
-		        Color borderColor = hintUsed ? 
-		            new Color(100, 100, 100, 60) : 
-		            (isHovered ? 
-		                new Color(255, 255, 255, 80) : 
-		                new Color(255, 255, 255, 40));
-		        
-		        g2.setColor(borderColor);
-		        g2.setStroke(new BasicStroke(2));
-		        g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
-		        
-		        g2.dispose();
-		        super.paintComponent(g);
-		    }
+			private boolean isHovered = false;
+
+			{
+				addMouseListener(new java.awt.event.MouseAdapter() {
+					@Override
+					public void mouseEntered(java.awt.event.MouseEvent e) {
+						if (!hintUsed) {
+							isHovered = true;
+							repaint();
+						}
+					}
+
+					@Override
+					public void mouseExited(java.awt.event.MouseEvent e) {
+						isHovered = false;
+						repaint();
+					}
+
+					@Override
+					public void mouseClicked(java.awt.event.MouseEvent e) {
+						if (!hintUsed) {
+							useHint();
+						}
+					}
+				});
+			}
+			@Override
+			protected void paintComponent(Graphics g) {
+				Graphics2D g2 = (Graphics2D) g.create();
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+				// Background color - changes based on state
+				Color bgColor;
+				if (hintUsed) {
+					bgColor = new Color(80, 80, 80, 100); 
+				} else if (isHovered) {
+					bgColor = new Color(100, 20, 140, 200); 
+				} else {
+					bgColor = new Color(80, 0, 120, 170); 
+				}
+
+				g2.setColor(bgColor);
+				g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
+
+				// Border
+				Color borderColor = hintUsed ? 
+						new Color(100, 100, 100, 60) : 
+							(isHovered ? 
+									new Color(255, 255, 255, 80) : 
+										new Color(255, 255, 255, 40));
+
+				g2.setColor(borderColor);
+				g2.setStroke(new BasicStroke(2));
+				g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
+
+				g2.dispose();
+				super.paintComponent(g);
+			}
 		};
 		// Style the hint button
-			hintButton.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
-			hintButton.setForeground(new Color(246, 230, 138));
-			hintButton.setFocusPainted(false);
-			hintButton.setContentAreaFilled(false);
-			hintButton.setBorderPainted(false);
-			hintButton.setOpaque(false);
-			hintButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			hintButton.setPreferredSize(new Dimension(120, 40));
-			bottomRightPanel.add(hintButton);
-				
+		hintButton.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
+		hintButton.setForeground(new Color(246, 230, 138));
+		hintButton.setFocusPainted(false);
+		hintButton.setContentAreaFilled(false);
+		hintButton.setBorderPainted(false);
+		hintButton.setOpaque(false);
+		hintButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		hintButton.setPreferredSize(new Dimension(120, 40));
+		bottomRightPanel.add(hintButton);
+
 		// Create custom EXIT button with rounded design
 		JButton exitButton = new JButton("EXIT") {
-		    private boolean isHovered = false;
-		    
-		    {
-		        addMouseListener(new java.awt.event.MouseAdapter() {
-		            @Override
-		            public void mouseEntered(java.awt.event.MouseEvent e) {
-		                isHovered = true;
-		                repaint();
-		            }
-		            
-		            @Override
-		            public void mouseExited(java.awt.event.MouseEvent e) {
-		                isHovered = false;
-		                repaint();
-		            }
-		            
-		            @Override
-		            public void mouseClicked(java.awt.event.MouseEvent e) {
-		                handleButtonClick("Exit", -1, -1, false);
-		            }
-		        });
-		    }
-		    
-		    @Override
-		    protected void paintComponent(Graphics g) {
-		        Graphics2D g2 = (Graphics2D) g.create();
-		        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		        
-		        // Background color - changes on hover
-		        Color bgColor = isHovered ? 
-		            new Color(100, 20, 140, 200) : 
-		            new Color(80, 0, 120, 170);
-		        
-		        g2.setColor(bgColor);
-		        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
-		        
-		        // Border - more visible on hover
-		        Color borderColor = isHovered ? 
-		            new Color(255, 255, 255, 80) : 
-		            new Color(255, 255, 255, 40);
-		        
-		        g2.setColor(borderColor);
-		        g2.setStroke(new BasicStroke(2));
-		        g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
-		        
-		        g2.dispose();
-		        super.paintComponent(g);
-		    }
+			private boolean isHovered = false;
+
+			{
+				addMouseListener(new java.awt.event.MouseAdapter() {
+					@Override
+					public void mouseEntered(java.awt.event.MouseEvent e) {
+						isHovered = true;
+						repaint();
+					}
+
+					@Override
+					public void mouseExited(java.awt.event.MouseEvent e) {
+						isHovered = false;
+						repaint();
+					}
+
+					@Override
+					public void mouseClicked(java.awt.event.MouseEvent e) {
+						handleButtonClick("Exit", -1, -1, false);
+					}
+				});
+			}
+
+			@Override
+			protected void paintComponent(Graphics g) {
+				Graphics2D g2 = (Graphics2D) g.create();
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+				// Background color - changes on hover
+				Color bgColor = isHovered ? 
+						new Color(100, 20, 140, 200) : 
+							new Color(80, 0, 120, 170);
+
+				g2.setColor(bgColor);
+				g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
+
+				// Border - more visible on hover
+				Color borderColor = isHovered ? 
+						new Color(255, 255, 255, 80) : 
+							new Color(255, 255, 255, 40);
+
+				g2.setColor(borderColor);
+				g2.setStroke(new BasicStroke(2));
+				g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
+
+				g2.dispose();
+				super.paintComponent(g);
+			}
 		};
 
 		// Style the button
@@ -383,8 +385,8 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		gameCenterInfoPanel.add(difficultyLabel);
 		gameCenterInfoPanel.add(gameNumberLabel);
 		gameCenterInfoPanel.add(scoreLabel);
-		
-	
+
+
 		// ========== PLAYERS PANEL  ==========
 		JPanel playersTopPanel = new JPanel(new BorderLayout());
 		playersTopPanel.setOpaque(false);
@@ -410,20 +412,20 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		centerWrapper.setOpaque(false);
 		centerWrapper.add(gameCenterInfoPanel, BorderLayout.NORTH);
 		centerWrapper.add(playersTopPanel, BorderLayout.CENTER);
-		
+
 		gameCenterInfoPanel.setBorder(
-			    BorderFactory.createEmptyBorder(0, 0, 0, 120)
-			);
-        
+				BorderFactory.createEmptyBorder(0, 0, 0, 120)
+				);
+
 		// ========== ASSEMBLE TOP PANEL ==========
 		topPanel.add(topLeftIcons, BorderLayout.WEST);
 		topPanel.add(centerWrapper, BorderLayout.CENTER);
-		
+
 		add(topPanel, BorderLayout.NORTH);
-		
+
 		// Highlight the current player
 		highlightCurrentPlayer(GameController.GameGetCurrentPlayer(gamenum));
-		
+
 		// Apply window size again to ensure it's set after all components are added
 		windowSizeManager.applyToFrame(this);
 		setLocationRelativeTo(null);
@@ -431,67 +433,67 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 	//================== show count mines on row / col============
 	private void useHint() {
-	    if (hintUsed) {
-	        JOptionPane.showMessageDialog(
-	            this,
-	            "You have already used your hint for this game!",
-	            "Hint Already Used",
-	            JOptionPane.WARNING_MESSAGE
-	        );
-	        return;
-	    }
-	    
-	    // Mark hint as used
-	    hintUsed = true;
-	    
-	    // Update button appearance
-	    hintButton.setText("USED");
-	    hintButton.setEnabled(false);
-	    hintButton.repaint();
-	    
-	    // Get current player and their board
-	    int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
-	    boolean isLeft = (currentPlayer == 1);
-	    
-	    // Show the hint
-	    showPartialVision(isLeft, gamenum);
-	}
-	
-	
-	
-	private void showPartialVision(boolean isLeft, int gameNum) {
-			int size = GameController.getBoardSize(gamenum, isLeft);
-			boolean showRow = Math.random() < 0.5;
-
-		    String message;
-		    if (showRow) {
-		    	int row = (int)(Math.random() * size);
-		        int mines = GameController.countMinesInRow(gamenum, isLeft, row);
-		        while (mines==0) {
-		        	 row = (int)(Math.random() * size);
-			         mines = GameController.countMinesInRow(gamenum, isLeft, row);
-		        }
-		        message = "Row " + (row + 1) + " contains " + mines + " mines";
-		    } else {
-		    	int col = (int)(Math.random() * size);
-		        int mines = GameController.countMinesInColumn(gamenum, isLeft, col);
-		        while (mines==0) {
-		        	col = (int)(Math.random() * size);
-			         mines = GameController.countMinesInColumn(gamenum, isLeft,col);
-		        }
-		        message = "Column " + (col + 1) + " contains " + mines + " mines";
-		    }
-
-		    JOptionPane.showMessageDialog(
-		        this,
-		        message,
-		        "Partial Vision",
-		        JOptionPane.INFORMATION_MESSAGE
-		    );
+		if (hintUsed) {
+			JOptionPane.showMessageDialog(
+					this,
+					"You have already used your hint for this game!",
+					"Hint Already Used",
+					JOptionPane.WARNING_MESSAGE
+					);
+			return;
 		}
-	
 
-	
+		// Mark hint as used
+		hintUsed = true;
+
+		// Update button appearance
+		hintButton.setText("USED");
+		hintButton.setEnabled(false);
+		hintButton.repaint();
+
+		// Get current player and their board
+		int currentPlayer = GameController.GameGetCurrentPlayer(gamenum);
+		boolean isLeft = (currentPlayer == 1);
+
+		// Show the hint
+		showPartialVision(isLeft, gamenum);
+	}
+
+
+
+	private void showPartialVision(boolean isLeft, int gameNum) {
+		int size = GameController.getBoardSize(gamenum, isLeft);
+		boolean showRow = Math.random() < 0.5;
+
+		String message;
+		if (showRow) {
+			int row = (int)(Math.random() * size);
+			int mines = GameController.countMinesInRow(gamenum, isLeft, row);
+			while (mines==0) {
+				row = (int)(Math.random() * size);
+				mines = GameController.countMinesInRow(gamenum, isLeft, row);
+			}
+			message = "Row " + (row + 1) + " contains " + mines + " mines";
+		} else {
+			int col = (int)(Math.random() * size);
+			int mines = GameController.countMinesInColumn(gamenum, isLeft, col);
+			while (mines==0) {
+				col = (int)(Math.random() * size);
+				mines = GameController.countMinesInColumn(gamenum, isLeft,col);
+			}
+			message = "Column " + (col + 1) + " contains " + mines + " mines";
+		}
+
+		JOptionPane.showMessageDialog(
+				this,
+				message,
+				"Partial Vision",
+				JOptionPane.INFORMATION_MESSAGE
+				);
+	}
+
+
+
 	// Show settings menu with advanced options
 	private void showSettingsMenu() {
 		JPopupMenu settingsMenu = new JPopupMenu();
@@ -549,42 +551,42 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	private void restartGame() {
 		// Show a confirmation dialog to the user
 		int response = JOptionPane.showConfirmDialog(this,
-			"Are you sure you want to restart the game? All progress will be lost.",
-			"Restart Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				"Are you sure you want to restart the game? All progress will be lost.",
+				"Restart Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		// If the user clicks "Yes"
 		if (response == JOptionPane.YES_OPTION) {
-			 try {
-		            // Call the controller method which creates and returns a new GameBoards instance
-		            GameBoards newGameBoard = GameController.createNewGame(player1Name, player2Name, GameController.GameGetDifficulty(gamenum));		            
-		            // Show the new game window
-		            newGameBoard.setVisible(true);		            
-		            // Close current game window
-		            GameBoards.this.dispose();		            
-		        } catch (IllegalArgumentException ex) {
-		            // Show error if invalid input or difficulty
-		            JOptionPane.showMessageDialog(this,
-		                ex.getMessage(),
-		                "Error",
-		                JOptionPane.ERROR_MESSAGE);
-		        }
+			try {
+				// Call the controller method which creates and returns a new GameBoards instance
+				GameBoards newGameBoard = GameController.createNewGame(player1Name, player2Name, GameController.GameGetDifficulty(gamenum));		            
+				// Show the new game window
+				newGameBoard.setVisible(true);		            
+				// Close current game window
+				GameBoards.this.dispose();		            
+			} catch (IllegalArgumentException ex) {
+				// Show error if invalid input or difficulty
+				JOptionPane.showMessageDialog(this,
+						ex.getMessage(),
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
 	private void stopGame() {
 		// Show a confirmation dialog asking the user if they want to stop the game
 		int response = JOptionPane.showOptionDialog(GameBoards.this,
-	            "The game is paused.",
-	            "Paused",
-	            JOptionPane.DEFAULT_OPTION,
-	            JOptionPane.INFORMATION_MESSAGE,
-	            null,
-	            new String[]{"Resume the game"},
-	            "Resume the game"
-	        );
-		 // If the user clicks "Yes"
-		 if (response == 0) {
-	            GameController.togglePause(gamenum); // Resume
-	        }
+				"The game is paused.",
+				"Paused",
+				JOptionPane.DEFAULT_OPTION,
+				JOptionPane.INFORMATION_MESSAGE,
+				null,
+				new String[]{"Resume the game"},
+				"Resume the game"
+				);
+		// If the user clicks "Yes"
+		if (response == 0) {
+			GameController.togglePause(gamenum); // Resume
+		}
 	}
 
 	private void toggleMusic() {
@@ -592,87 +594,87 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	}
 	// Updates the music icon based on the current playback state.
 	private void updateMusicIcon() {
-	    if (musicLabel == null) return;
-	    if (musicManager.isPlaying()) {
-	        musicLabel.setText("♪");
-	        musicLabel.setForeground(new Color(246, 230, 138));
-	    } else {
-	        musicLabel.setText("🔇");
-	        musicLabel.setForeground(new Color(180, 180, 180));
-	    }
+		if (musicLabel == null) return;
+		if (musicManager.isPlaying()) {
+			musicLabel.setText("♪");
+			musicLabel.setForeground(new Color(246, 230, 138));
+		} else {
+			musicLabel.setText("🔇");
+			musicLabel.setForeground(new Color(180, 180, 180));
+		}
 	}
 
 	// Creates a game board represented as a JPanel containing a grid of buttons.
 	private JPanel createBoard(boolean isLeft) {
-	    JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 2, 2));
-	    JButton[][] board = new JButton[rows][cols];
-	    for (int r = 0; r < rows; r++) {
-	        for (int c = 0; c < cols; c++) {
-	            JButton cell = new JButton() {
-	                @Override
-	                protected void paintComponent(Graphics g) {
-	                    Graphics2D g2 = (Graphics2D) g.create();
-	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	                    g2.setColor(getBackground());
-	                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-	                    super.paintComponent(g2);
-	                    g2.dispose();
-	                }
+		JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 2, 2));
+		JButton[][] board = new JButton[rows][cols];
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				JButton cell = new JButton() {
+					@Override
+					protected void paintComponent(Graphics g) {
+						Graphics2D g2 = (Graphics2D) g.create();
+						g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+						g2.setColor(getBackground());
+						g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+						super.paintComponent(g2);
+						g2.dispose();
+					}
 
-	                @Override
-	                protected void paintBorder(Graphics g) {
-	                    Graphics2D g2 = (Graphics2D) g.create();
-	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	                    if (getBorder() != null) {
-	                        g2.setColor(new Color(50, 40, 60));
-	                        g2.setStroke(new BasicStroke(0));
-	                        g2.drawRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-	                    }
-	                    g2.dispose();
-	                }
-	            };
-	            
+					@Override
+					protected void paintBorder(Graphics g) {
+						Graphics2D g2 = (Graphics2D) g.create();
+						g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+						if (getBorder() != null) {
+							g2.setColor(new Color(50, 40, 60));
+							g2.setStroke(new BasicStroke(0));
+							g2.drawRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+						}
+						g2.dispose();
+					}
+				};
 
-	            cell.setPreferredSize(new Dimension(30, 30));
-	            cell.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
-	            cell.setOpaque(false);
-	            cell.setContentAreaFilled(false);
-	            cell.setBorderPainted(true);	           
-	            final int row = r, col = c;
-	            cell.addMouseListener(new java.awt.event.MouseAdapter() {
-	                @Override
-	                public void mouseClicked(java.awt.event.MouseEvent e) {
-	                    if (SwingUtilities.isLeftMouseButton(e))
-	                        handleButtonClick(isLeft ? "Left" : "Right", row, col, false);
-	                    else if (SwingUtilities.isRightMouseButton(e))
-	                        handleButtonClick(isLeft ? "Left" : "Right", row, col, true);
-	                }
-	            });
 
-	            board[r][c] = cell;
-	            boardPanel.add(cell);
-	        }
-	    }
-	    if (isLeft) leftBoard = board;
-	    else rightBoard = board;
-	    return boardPanel;
+				cell.setPreferredSize(new Dimension(30, 30));
+				cell.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
+				cell.setOpaque(false);
+				cell.setContentAreaFilled(false);
+				cell.setBorderPainted(true);	           
+				final int row = r, col = c;
+				cell.addMouseListener(new java.awt.event.MouseAdapter() {
+					@Override
+					public void mouseClicked(java.awt.event.MouseEvent e) {
+						if (SwingUtilities.isLeftMouseButton(e))
+							handleButtonClick(isLeft ? "Left" : "Right", row, col, false);
+						else if (SwingUtilities.isRightMouseButton(e))
+							handleButtonClick(isLeft ? "Left" : "Right", row, col, true);
+					}
+				});
+
+				board[r][c] = cell;
+				boardPanel.add(cell);
+			}
+		}
+		if (isLeft) leftBoard = board;
+		else rightBoard = board;
+		return boardPanel;
 	}
 	//Handles actions triggered by clicking a cell button on either the left or right board.
 	private void handleButtonClick(String source, int row, int col, boolean isFlag) {
 		// Handle the "Exit" action: prompt user to confirm exit and return to the new game screen
 		if (source.equals("Exit")) {
 			int response = JOptionPane.showConfirmDialog(
-			        this,
-			        "Are you sure you want to exit? The game progress will NOT be saved.",
-			        "Confirm Exit",
-			        JOptionPane.YES_NO_OPTION,
-			        JOptionPane.WARNING_MESSAGE
-			    );
-			    if (response == JOptionPane.YES_OPTION) {
-			        new NewGameScreen().setVisible(true);
-			        GameBoards.this.dispose();
-			    }
-			    return;
+					this,
+					"Are you sure you want to exit? The game progress will NOT be saved.",
+					"Confirm Exit",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE
+					);
+			if (response == JOptionPane.YES_OPTION) {
+				new NewGameScreen().setVisible(true);
+				GameBoards.this.dispose();
+			}
+			return;
 		}
 		// If the game is already over, ignore further clicks
 		if (GameController.GameIsGameOver(gamenum)) return;
@@ -687,7 +689,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		boolean shouldSwitchTurn = true;
 		String cellType = GameController.GetCellType(gamenum, isLeft, row, col);
 		Boolean IsCellUsed=GameController.iscellUsed(gamenum, isLeft, row, col);
-		 // Ignore clicks on already revealed cells unless it's a SURPRISE or QUESTION cell
+		// Ignore clicks on already revealed cells unless it's a SURPRISE or QUESTION cell
 		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)&&!cellType.equals("SURPRISE")&&!cellType.equals("QUESTION")){return;}
 		// Handle clicks on revealed special cells
 		if (GameController.IsCellRevealed(gamenum, isLeft, row, col)) {
@@ -702,7 +704,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 				}
 			}
 		}
-		 // Handle flag placement or removal
+		// Handle flag placement or removal
 		else if (isFlag) {
 			handleFlagAction(isLeft, row, col, buttons);
 		} 
@@ -710,251 +712,278 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		if (GameController.IsCellFlagged(gamenum, isLeft, row, col)&&!isFlag) {
 			return;
 		}
-		 // Reveal the cell if it's not a flag action
-		 if (!isFlag) {
-		    handleRevealAction(row, col, isLeft, buttons);
+		// Reveal the cell if it's not a flag action
+		if (!isFlag) {
+			handleRevealAction(row, col, isLeft, buttons);
 		}
-		 // Update shared game state in the UI
+		// Update shared game state in the UI
 		updateScore(GameController.getSharedPoints(gamenum));
 		setSharedHearts(GameController.getSharedLivesGame(gamenum));
 		updateLeftMines(GameController.getRemainingMines(gamenum, true));
 		updateRightMines(GameController.getRemainingMines(gamenum, false));		
 		// Check for negative score warning
-				int currentScore = GameController.getSharedPoints(gamenum);
-				String diffG= GameController.GameGetDifficulty(gamenum);
-				if (currentScore < 0){
-					if ( diffG== "EASY" && currentScore > -30 && warningscore == false) {
-						JOptionPane.showMessageDialog(this, 
-							" Warning! Your score is negative: " + currentScore + 
-							"\nIf you reach -30 points, the game will end!", 
-							"Negative Score Warning", 
-							JOptionPane.WARNING_MESSAGE);
-						warningscore = true;
-					}
-					//Handle defeat condition - score reaches -30
-					if ( diffG== "EASY" && currentScore <= -30 ) {
-						String player1 = GameController.getGame(gamenum).getPlayer1Name();
-						String player2 = GameController.getGame(gamenum).getPlayer2Name();
-						
-						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
-						// Reveal all cells before showing defeat screen
-						revealAllCells();						
-						defeatScreen.setVisible(true);						
-						// Save game history
-						GameHistoryController.createHistoryEntry(
-						        GameController.getGame(gamenum),
-						        "Defeat"
-						    );
-						GameController.GameFinish(gamenum);
-						return;
-					}
-					if ( diffG== "MEDIUM" && currentScore > -40 && warningscore == false) {
-						JOptionPane.showMessageDialog(this, 
-							" Warning! Your score is negative: " + currentScore + 
-							"\nIf you reach -40 points, the game will end!", 
-							"Negative Score Warning", 
-							JOptionPane.WARNING_MESSAGE);
-						warningscore = true;
-					}
-					//Handle defeat condition - score reaches -40
-					if ( diffG== "MEDIUM" && currentScore <= -40 ) {
-						String player1 = GameController.getGame(gamenum).getPlayer1Name();
-						String player2 = GameController.getGame(gamenum).getPlayer2Name();
-						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
-						// Reveal all cells before showing defeat screen
-						revealAllCells();
-						defeatScreen.setVisible(true);
-						
-						// Save game history
-						GameHistoryController.createHistoryEntry(
-						        GameController.getGame(gamenum),
-						        "Defeat"
-						    );
-						GameController.GameFinish(gamenum);
-						return;
-					}
-					if ( diffG== "HARD" && currentScore > -60 && warningscore == false) {
-						JOptionPane.showMessageDialog(this, 
-							" Warning! Your score is negative: " + currentScore + 
-							"\nIf you reach -60 points, the game will end!", 
-							"Negative Score Warning", 
-							JOptionPane.WARNING_MESSAGE);
-						warningscore = true;
-					}
-					//Handle defeat condition - score reaches -60
-					if ( diffG== "MEDIUM" && currentScore <= -60) {
-						String player1 = GameController.getGame(gamenum).getPlayer1Name();
-						String player2 = GameController.getGame(gamenum).getPlayer2Name();						
-						DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
-						// Reveal all cells before showing defeat screen
-						revealAllCells();						
-						defeatScreen.setVisible(true);						
-						// Save game history
-						GameHistoryController.createHistoryEntry(
-						        GameController.getGame(gamenum),
-						        "Defeat"
-						    );
-						GameController.GameFinish(gamenum);
-						return;
-					}
-				}
-								
+		int delayMassage=0;
+		if(isBadSurprise==true) {
+			delayMassage =500;
+		}
+		int currentScore = GameController.getSharedPoints(gamenum);
+		String diffG= GameController.GameGetDifficulty(gamenum);
+		if (currentScore < 0){
+			if ( diffG== "EASY" && currentScore > -30 && warningscore == false) {
+				showNonBlockingMessage(
+						"Negative Score Warning:" +
+								"\n Warning! Your score is negative: " + currentScore + 
+								"\nIf you reach -30 points, the game will end!" 
+								,new Color(255, 165, 0), // Orange
+			            null, // No specific button
+			            4000 // 4 seconds
+			            ,delayMassage /** 
+			             * Show message after a 500ms delay if triggered after a bad surprise,
+			             * allowing time for the bad surprise message to be displayed first.
+			             */
+			            );
+				warningscore = true;
+			}
+			//Handle defeat condition - score reaches -30
+			if ( diffG== "EASY" && currentScore <= -30 ) {
+				String player1 = GameController.getGame(gamenum).getPlayer1Name();
+				String player2 = GameController.getGame(gamenum).getPlayer2Name();
+
+				DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+				// Reveal all cells before showing defeat screen
+				revealAllCells();						
+				defeatScreen.setVisible(true);						
+				// Save game history
+				GameHistoryController.createHistoryEntry(
+						GameController.getGame(gamenum),
+						"Defeat"
+						);
+				GameController.GameFinish(gamenum);
+				return;
+			}
+			if ( diffG== "MEDIUM" && currentScore > -40 && warningscore == false) {
+				showNonBlockingMessage(
+						"Negative Score Warning:" +
+								"\n Warning! Your score is negative: " + currentScore + 
+								"\nIf you reach -40 points, the game will end!" 
+								,new Color(255, 165, 0), // Orange
+			            null, // No specific button
+			            4000 // 4 seconds
+			            ,delayMassage /** 
+			             * Show message after a 500ms delay if triggered after a bad surprise,
+			             * allowing time for the bad surprise message to be displayed first.
+			             */
+			            );
+				warningscore = true;
+			}
+			//Handle defeat condition - score reaches -40
+			if ( diffG== "MEDIUM" && currentScore <= -40 ) {
+				String player1 = GameController.getGame(gamenum).getPlayer1Name();
+				String player2 = GameController.getGame(gamenum).getPlayer2Name();
+				DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+				// Reveal all cells before showing defeat screen
+				revealAllCells();
+				defeatScreen.setVisible(true);
+
+				// Save game history
+				GameHistoryController.createHistoryEntry(
+						GameController.getGame(gamenum),
+						"Defeat"
+						);
+				GameController.GameFinish(gamenum);
+				return;
+			}
+			if ( diffG== "HARD" && currentScore > -60 && warningscore == false) {
+				showNonBlockingMessage(
+						"Negative Score Warning" +
+								"\n Warning! Your score is negative: " + currentScore + 
+								"\nIf you reach -60 points, the game will end!" 
+								,new Color(255, 165, 0), // Orange
+								null, // No specific button
+								4000 // 4 seconds
+								,delayMassage /** 
+			             * Show message after a 500ms delay if triggered after a bad surprise,
+			             * allowing time for the bad surprise message to be displayed first.
+			             */
+			            );
+				warningscore = true;
+			}
+			//Handle defeat condition - score reaches -60
+			if ( diffG== "MEDIUM" && currentScore <= -60) {
+				String player1 = GameController.getGame(gamenum).getPlayer1Name();
+				String player2 = GameController.getGame(gamenum).getPlayer2Name();						
+				DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+				// Reveal all cells before showing defeat screen
+				revealAllCells();						
+				defeatScreen.setVisible(true);						
+				// Save game history
+				GameHistoryController.createHistoryEntry(
+						GameController.getGame(gamenum),
+						"Defeat"
+						);
+				GameController.GameFinish(gamenum);
+				return;
+			}
+		}
+
 		// Handle defeat condition
 		if (GameController.getSharedLivesGame(gamenum) <= 0) {
 			String player1 = GameController.getGame(gamenum).getPlayer1Name();
 			String player2 = GameController.getGame(gamenum).getPlayer2Name();
 			DefeatScreen defeatScreen = new DefeatScreen(GameController.getSharedPoints(gamenum) , this, player1 ,player2);
-			 // Reveal all cells before showing defeat screen
-		    revealAllCells();		    
-	        defeatScreen.setVisible(true);			
-	     // Save game history
-			 GameHistoryController.createHistoryEntry(
-				        GameController.getGame(gamenum),
-				        "Defeat"
-				    );
+			// Reveal all cells before showing defeat screen
+			revealAllCells();		    
+			defeatScreen.setVisible(true);			
+			// Save game history
+			GameHistoryController.createHistoryEntry(
+					GameController.getGame(gamenum),
+					"Defeat"
+					);
 			GameController.GameFinish(gamenum);
 			return;
 		}
 		// Handle victory condition
 		if (GameController.IsGameVictory(gamenum)) {
-		    // Reveal all cells first
-		    revealAllCells();		    
-		    // Convert remaining lives to bonus points
-		    int bonusPoints = convertRemainingLivesToPoints();		    
-		    // Update score display
-		    updateScore(GameController.getSharedPoints(gamenum));		    
-		    // Show victory screen with updated score
-		    int finalScore = GameController.getSharedPoints(gamenum);		    
-		    // Optional: Show bonus message if there were remaining lives
-		    if (bonusPoints > 0) {
-		        JOptionPane.showMessageDialog(this,
-		            "Bonus! +" + bonusPoints + " points for " + 
-		            (bonusPoints / GameController.GetGameSurpriseQuestionCoust(gamenum)) + 
-		            " remaining lives!",
-		            "Victory Bonus",
-		            JOptionPane.INFORMATION_MESSAGE);
-		    }		    
-		    String player1 = GameController.getGame(gamenum).getPlayer1Name();
+			// Reveal all cells first
+			revealAllCells();		    
+			// Convert remaining lives to bonus points
+			int bonusPoints = convertRemainingLivesToPoints();		    
+			// Update score display
+			updateScore(GameController.getSharedPoints(gamenum));		    
+			// Show victory screen with updated score
+			int finalScore = GameController.getSharedPoints(gamenum);		    
+			// Optional: Show bonus message if there were remaining lives
+			if (bonusPoints > 0) {
+				JOptionPane.showMessageDialog(this,
+						"Bonus! +" + bonusPoints + " points for " + 
+								(bonusPoints / GameController.GetGameSurpriseQuestionCoust(gamenum)) + 
+								" remaining lives!",
+								"Victory Bonus",
+								JOptionPane.INFORMATION_MESSAGE);
+			}		    
+			String player1 = GameController.getGame(gamenum).getPlayer1Name();
 			String player2 = GameController.getGame(gamenum).getPlayer2Name();
-		    VictoryScreen victoryScreen = new VictoryScreen(finalScore, this ,player1 ,player2);
-		    victoryScreen.setVisible(true);		    
-		    // Save history game
-		    GameHistoryController.createHistoryEntry(
-		        GameController.getGame(gamenum),
-		        "Victory"
-		    );
-		    GameController.GameFinish(gamenum);
-		    return;
+			VictoryScreen victoryScreen = new VictoryScreen(finalScore, this ,player1 ,player2);
+			victoryScreen.setVisible(true);		    
+			// Save history game
+			GameHistoryController.createHistoryEntry(
+					GameController.getGame(gamenum),
+					"Victory"
+					);
+			GameController.GameFinish(gamenum);
+			return;
 		}
-		 // Switch the turn if applicable
+		// Switch the turn if applicable
 		if (shouldSwitchTurn) {
-	        int newPlayer = GameController.switchTurn(gamenum);
-	        highlightCurrentPlayer(newPlayer);
-	    }
+			int newPlayer = GameController.switchTurn(gamenum);
+			highlightCurrentPlayer(newPlayer);
+		}
 	}
 	//--------------------------------------Flag-----------------------------------------------
 	// Handles placing or removing a flag on a cell in the game board.
 	private void handleFlagAction(Boolean isLeft, int row, int col, JButton[][] buttons) {
-	    /**Get the Flag-State Of Cell From Control: 
-	     * Flagged -> un-Flag Cell (DESIGN DECISION),
-	     *  or Mine -> show cell 
-	     *  or Not Mine -> flag cell
-	     */
+		/**Get the Flag-State Of Cell From Control: 
+		 * Flagged -> un-Flag Cell (DESIGN DECISION),
+		 *  or Mine -> show cell 
+		 *  or Not Mine -> flag cell
+		 */
 		GameController.FlagResult result = GameController.handleFlag(gamenum, isLeft, row, col);
-	    switch (result) {
-	        case UNFLAGGED:
-	            //Revealed Cell
-	            showCell(buttons[row][col], row, col, isLeft);
-	            break;
+		switch (result) {
+		case UNFLAGGED:
+			//Revealed Cell
+			showCell(buttons[row][col], row, col, isLeft);
+			break;
 
-	        case FLAGGED_MINE:
-	            showTimedMessage(
-	                    "MINE: +1 points",
-	                    new Color(0, 200, 0),
-	                    buttons[row][col]
-	            );
-	            showCell(buttons[row][col], row, col, isLeft);
-	            break;
+		case FLAGGED_MINE:
+			showTimedMessage(
+					"MINE: +1 points",
+					new Color(0, 200, 0),
+					buttons[row][col]
+					);
+			showCell(buttons[row][col], row, col, isLeft);
+			break;
 
-	        case FLAGGED_NOT_MINE:
-	            showTimedMessage(
-	                    "Not MINE: -3 Points",
-	                    Color.red,
-	                    buttons[row][col]
-	            );
-	            buttons[row][col].setIcon(new ImageIcon(
-	                    renderEmojiToImage(
-	                            "🚩",
-	                            buttons[row][col].getWidth(),
-	                            buttons[row][col].getHeight()
-	                    )
-	            ));
-	            break;
-	    }
-	    // Update the screen
-	    updateScore(GameController.getSharedPoints(gamenum));
+		case FLAGGED_NOT_MINE:
+			showTimedMessage(
+					"Not MINE: -3 Points",
+					Color.red,
+					buttons[row][col]
+					);
+			buttons[row][col].setIcon(new ImageIcon(
+					renderEmojiToImage(
+							"🚩",
+							buttons[row][col].getWidth(),
+							buttons[row][col].getHeight()
+							)
+					));
+			break;
+		}
+		// Update the screen
+		updateScore(GameController.getSharedPoints(gamenum));
 	}
 	//--------------------------------------Surprise-----------------------------------------------
 	// Handles the action triggered when a player interacts with a "SURPRISE" cell.
 	private boolean handleActionOfSurprise(int row, int col, Boolean isLeft, JButton[][] buttons) {
 		String checkSurprise = GameController.IsSurprise(gamenum, isLeft, row, col);
 		if (checkSurprise.equals("SurpriseCell")) {
-			 // Check if player has enough points FIRST
+			// Check if player has enough points FIRST
 			//Not enough cash → stop here
 			int getIfPlayerHasEnoughPoints = GameController.CheckActivateCost(gamenum);
 			if(getIfPlayerHasEnoughPoints < 0)
 			{
 				JOptionPane.showOptionDialog(
-			            null,
-			            "You can't open the surprise!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the surprise.",
-			            "Not Enough points",
-			            JOptionPane.DEFAULT_OPTION,
-			            JOptionPane.WARNING_MESSAGE,
-			            null,
-			            new Object[]{"OK"},
-			            "OK"
-			    );
-				 return false;
+						null,
+						"You can't open the surprise!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the surprise.",
+						"Not Enough points",
+						JOptionPane.DEFAULT_OPTION,
+						JOptionPane.WARNING_MESSAGE,
+						null,
+						new Object[]{"OK"},
+						"OK"
+						);
+				return false;
 			}
 			String getSurpriseCostActivate = GameController.getSurpriseCostActivate(gamenum, isLeft, row, col);
 			int choice = JOptionPane.showConfirmDialog(
-	                this,
-	                getSurpriseCostActivate + " \nDo you want to continue?",
-	                "Surprise Cost",
-	                JOptionPane.OK_CANCEL_OPTION
-	        );
+					this,
+					getSurpriseCostActivate + " \nDo you want to continue?",
+					"Surprise Cost",
+					JOptionPane.OK_CANCEL_OPTION
+					);
 
-	        if (choice != JOptionPane.OK_OPTION) {
-	            return false;// Player declined to activate the surprise
-	        }
-	        else {  //if player Agreed and enough cash → do active
-	        	String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
-		    	String[] parts = result.split(":");
-		    	String type = parts[0]; // GOOD, BAD
-		    	int points = Integer.parseInt(parts[1]);
-	    		String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, row, col);
-		    	switch(type) {
-	    		case "GOOD":
-	    			showTimedMessage("Surprise Good! +Life & +" + points + " Points", new Color(0,200,0), buttons[row][col]);
-	    			updateScore(GameController.getSharedPoints(gamenum)); // update the score on this screen
-	    			setSharedHearts(GameController.getSharedLivesGame(gamenum)); // update the hearts on this screen
-	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
-	    			return true;
-	    		case "BAD":
-	    			showTimedMessage("Surprise Bad! -Life & -" + points + " Points", Color.red, buttons[row][col]);
-	    			updateScore(GameController.getSharedPoints(gamenum));// update the score on this screen
-	    			setSharedHearts(GameController.getSharedLivesGame(gamenum));// update the hearts on this screen
-	    			buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
-	    			return true;
-	    		}
-	        }
-	     
+			if (choice != JOptionPane.OK_OPTION) {
+				return false;// Player declined to activate the surprise
+			}
+			else {  //if player Agreed and enough cash → do active
+				String result = GameController.ActivateSurpriseCell(gamenum, isLeft, row, col);
+				String[] parts = result.split(":");
+				String type = parts[0]; // GOOD, BAD
+				int points = Integer.parseInt(parts[1]);
+				String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, row, col);
+				switch(type) {
+				case "GOOD":
+					showTimedMessage("Surprise Good! +Life & +" + points + " Points", new Color(0,200,0), buttons[row][col]);
+					updateScore(GameController.getSharedPoints(gamenum)); // update the score on this screen
+					setSharedHearts(GameController.getSharedLivesGame(gamenum)); // update the hearts on this screen
+					buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+					isBadSurprise=false;
+					return true;
+				case "BAD":
+					showTimedMessage("Surprise Bad! -Life & -" + points + " Points", Color.red, buttons[row][col]);
+					updateScore(GameController.getSharedPoints(gamenum));// update the score on this screen
+					setSharedHearts(GameController.getSharedLivesGame(gamenum));// update the hearts on this screen
+					buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
+					isBadSurprise=true;
+					return true;
+				}
+			}
+
 		}
 		if (checkSurprise.equals("NOT_SURPRISE")||checkSurprise.equals("NOT_REVEALED") ) {
 			System.err.println("Unexpected surprise result " );
-    		return false; 
+			return false; 
 		}
-		
+
 		if (checkSurprise.equals("ALREADY_USED")) {
 			showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
 			return false;
@@ -964,27 +993,27 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	//--------------------------------------Question-----------------------------------------------
 	// Handles the action triggered when a player interacts with a "QUESTION" cell.
 	private void handleActionOfQuestion(int gameNumm,int row, int col, Boolean isLeft, JButton[][] buttons) {
-		 // First check if the cell was already used, skip popup if yes
-	    if (GameController.iscellUsed(gameNumm, isLeft, row, col)) {
-	    	GameController.setCanSwitch(false);//don't switch
-	        showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
-	        return;
-	    }
-	    //Check if player has enough points FIRST
+		// First check if the cell was already used, skip popup if yes
+		if (GameController.iscellUsed(gameNumm, isLeft, row, col)) {
+			GameController.setCanSwitch(false);//don't switch
+			showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
+			return;
+		}
+		//Check if player has enough points FIRST
 		//Not enough cash → stop here
 		int getIfPlayerHasEnoughPoints = GameController.CheckActivateCost(gamenum);
 		if(getIfPlayerHasEnoughPoints < 0)
 		{
 			JOptionPane.showOptionDialog(
-		            null,
-		            "You can't open the question!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the question.",
-		            "Not Enough points",
-		            JOptionPane.DEFAULT_OPTION,
-		            JOptionPane.WARNING_MESSAGE,
-		            null,
-		            new Object[]{"OK"},
-		            "OK"
-		    );
+					null,
+					"You can't open the question!!\n You need more " + Math.abs(getIfPlayerHasEnoughPoints) + " points to unlock the question.",
+					"Not Enough points",
+					JOptionPane.DEFAULT_OPTION,
+					JOptionPane.WARNING_MESSAGE,
+					null,
+					new Object[]{"OK"},
+					"OK"
+					);
 			GameController.setCanSwitch(false);//don't switch
 			return;
 		}
@@ -999,7 +1028,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		boolean confirmed = (choice == JOptionPane.OK_OPTION);
 		// Game logic
 		GameController.QuestionResult result = GameController.handleQuestion(gameNumm, isLeft, row, col, confirmed );
-		
+
 		switch (result) {
 
 		case CANCELED:
@@ -1054,34 +1083,34 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	//--------------------------------------Reveal-----------------------------------------------
 	private void handleRevealAction(int row, int col, Boolean isLeft, JButton[][] buttons) {
 		GameController.RevealResult result = GameController.handleReveal(gamenum, isLeft, row, col);
-	    if (result == GameController.RevealResult.ALREADY_REVEALED) {
-	        return; // do nothing
-	    }
-	    int size = GameController.getBoardSize(gamenum, isLeft);
-	    // Update all revealed cells visually
-	    for (int r = 0; r < size; r++) {
-	        for (int c = 0; c < size; c++) {
-	            if (GameController.IsCellRevealed(gamenum, isLeft, r, c)) {
-	                showCell(buttons[r][c], r, c, isLeft);
-	            }
-	        }
-	    }
-	    switch (result) {
-	        case REVEALED_MINE:
-	            showTimedMessage("Boom! -1 Life", Color.red, buttons[row][col]);
-	            break;
+		if (result == GameController.RevealResult.ALREADY_REVEALED) {
+			return; // do nothing
+		}
+		int size = GameController.getBoardSize(gamenum, isLeft);
+		// Update all revealed cells visually
+		for (int r = 0; r < size; r++) {
+			for (int c = 0; c < size; c++) {
+				if (GameController.IsCellRevealed(gamenum, isLeft, r, c)) {
+					showCell(buttons[r][c], r, c, isLeft);
+				}
+			}
+		}
+		switch (result) {
+		case REVEALED_MINE:
+			showTimedMessage("Boom! -1 Life", Color.red, buttons[row][col]);
+			break;
 
-	        case REVEALED_SAFE:
-	            showTimedMessage("+1 Point", new Color(0, 200, 0), buttons[row][col]);
-	            break;
-	    }
+		case REVEALED_SAFE:
+			showTimedMessage("+1 Point", new Color(0, 200, 0), buttons[row][col]);
+			break;
+		}
 
-	    // Update mines count UI
-	    if (isLeft) {
-	        updateLeftMines(GameController.getRemainingMines(gamenum, isLeft));
-	    } else {
-	        updateRightMines(GameController.getRemainingMines(gamenum, isLeft));
-	    }
+		// Update mines count UI
+		if (isLeft) {
+			updateLeftMines(GameController.getRemainingMines(gamenum, isLeft));
+		} else {
+			updateRightMines(GameController.getRemainingMines(gamenum, isLeft));
+		}
 	}
 	/**Updates**/
 	// Update score display
@@ -1100,15 +1129,15 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	}
 
 	private void loadHeartImage() {
-	    // Load the new PNG heart with transparency
-	    heartIcon = new ImageIcon(getClass().getResource("/resource/NewHeartImage.png"));
-	    // Scale the image to 30x30 smoothly
-	    Image img = heartIcon.getImage();
-	    Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-	    // Set the scaled icon
-	    heartIcon = new ImageIcon(scaledImg);
+		// Load the new PNG heart with transparency
+		heartIcon = new ImageIcon(getClass().getResource("/resource/NewHeartImage.png"));
+		// Scale the image to 30x30 smoothly
+		Image img = heartIcon.getImage();
+		Image scaledImg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+		// Set the scaled icon
+		heartIcon = new ImageIcon(scaledImg);
 	}
-	 /* Updates the visual representation of a single cell.
+	/* Updates the visual representation of a single cell.
 	 * Sets the icon (emoji) and background color based on cell type.*/
 	private void showCell(JButton button, int r, int c, Boolean isLeft) {
 		if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) return;
@@ -1121,24 +1150,24 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		if (cellType.equals("SURPRISE")) button.setBackground(Color.yellow);
 		if (cellType.equals("QUESTION")) button.setBackground(new Color(255, 180, 255));		
 		button.setOpaque(false);
-	    button.setContentAreaFilled(false);
-	    button.setBorderPainted(true);  // Keep border for rounded effect
-	    button.setEnabled(false);
-	    
+		button.setContentAreaFilled(false);
+		button.setBorderPainted(true);  // Keep border for rounded effect
+		button.setEnabled(false);
+
 	}
 	// Converts a string emoji to a BufferedImage of specified width and height.
 	private BufferedImage renderEmojiToImage(String emoji, int width, int height) {
-	    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D g = img.createGraphics();
-	    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-	 	g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, height - 4));
-	    FontMetrics fm = g.getFontMetrics();
-	    int x = (width - fm.stringWidth(emoji)) / 2;
-	    int y = ((height - fm.getHeight()) / 2) + fm.getAscent() + 5;  // moved down by 5 pixels
-	    g.setColor(Color.BLACK);
-	    g.drawString(emoji, x, y);
-	    g.dispose();
-	    return img;
+		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = img.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, height - 4));
+		FontMetrics fm = g.getFontMetrics();
+		int x = (width - fm.stringWidth(emoji)) / 2;
+		int y = ((height - fm.getHeight()) / 2) + fm.getAscent() + 5;  // moved down by 5 pixels
+		g.setColor(Color.BLACK);
+		g.drawString(emoji, x, y);
+		g.dispose();
+		return img;
 	}
 
 	// Highlights the current player panel and enables/disables the respective board.
@@ -1147,203 +1176,278 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			// leftPlayer  Active
 			leftPlayerPanel.setBackgroundColor(new Color(212, 175, 55));
 			leftPlayerPanel.setBorder(
-				    BorderFactory.createCompoundBorder(
-				            BorderFactory.createLineBorder(new Color(0, 100, 0, 150), 3, true), 
-				            BorderFactory.createCompoundBorder(
-				                BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true), 
-				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true)       
-				            )
-				        )
-				    );
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(new Color(0, 100, 0, 150), 3, true), 
+							BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true), 
+									BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true)       
+									)
+							)
+					);
 			enableBoard(leftBoard, true);
 			leftBackground.setBorder(
-				    BorderFactory.createCompoundBorder(
-				            BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
-				            BorderFactory.createCompoundBorder(
-				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
-				                null        
-				            )
-				        )
-				    );
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
+							BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
+									null        
+									)
+							)
+					);
 			rightBackground.setBorder(null);
-	        updateBoardColors(leftBoard, true, true);
-	        //  rightPlayer UnActive
-	        rightPlayerPanel.setBackgroundColor(Color.lightGray);
-	        rightPlayerPanel.setBorder(null);
-	        enableBoard(rightBoard, false);
-	        updateBoardColors(rightBoard, false, false);
-	        
+			updateBoardColors(leftBoard, true, true);
+			//  rightPlayer UnActive
+			rightPlayerPanel.setBackgroundColor(Color.lightGray);
+			rightPlayerPanel.setBorder(null);
+			enableBoard(rightBoard, false);
+			updateBoardColors(rightBoard, false, false);
+
 		} else {
-			 //  rightPlayer Active
-			
+			//  rightPlayer Active
+
 			rightPlayerPanel.setBackgroundColor(new Color(212, 175, 55));
 			rightPlayerPanel.setBorder(
-				    BorderFactory.createCompoundBorder(
-				            BorderFactory.createLineBorder(new Color(0, 100, 0, 150), 3, true), 
-				            BorderFactory.createCompoundBorder(
-				                BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true), 
-				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true)       
-				            )
-				        )
-				    );
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(new Color(0, 100, 0, 150), 3, true), 
+							BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true), 
+									BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true)       
+									)
+							)
+					);
 			enableBoard(rightBoard, true);
 			rightBackground.setBorder(
-				    BorderFactory.createCompoundBorder(
-				            BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
-				            BorderFactory.createCompoundBorder(
-				                BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
-				                null        
-				            )
-				        )
-				    );
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(new Color(0, 200, 0, 180), 3, true),   
+							BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(new Color(0, 255, 0), 2, true), 
+									null        
+									)
+							)
+					);
 			leftBackground.setBorder(null);
-	        updateBoardColors(rightBoard, true, false);
-	    	// leftPlayer UnActive
-	        leftPlayerPanel.setBackgroundColor(Color.lightGray);
-	        leftPlayerPanel.setBorder(null);
-	        enableBoard(leftBoard, false);
-	        updateBoardColors(leftBoard, false, true); 
+			updateBoardColors(rightBoard, true, false);
+			// leftPlayer UnActive
+			leftPlayerPanel.setBackgroundColor(Color.lightGray);
+			leftPlayerPanel.setBorder(null);
+			enableBoard(leftBoard, false);
+			updateBoardColors(leftBoard, false, true); 
 		}
 	}
-	
+
 	// Update and make sure boards color acorrding the turn
-		private void updateBoardColors(JButton[][] board, boolean isActive, boolean isLeft) {
-		    Color cellColor;		    
-		    if (isActive) {
-		    	// Active board color – purple for left, brown for right
-		        cellColor = isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR;
-		    } else {
-		    	// Inactive board color – gray
-		        cellColor = DISABLED_BOARD_COLOR;
-		    }
-		 // Only apply color to cells that are not yet revealed
-		    for (int r = 0; r < board.length; r++) {
-		        for (int c = 0; c < board[0].length; c++) {
-		            if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) {  
-		            	board[r][c].setBackground(cellColor);
-		            }
-		        }
-		    }
+	private void updateBoardColors(JButton[][] board, boolean isActive, boolean isLeft) {
+		Color cellColor;		    
+		if (isActive) {
+			// Active board color – purple for left, brown for right
+			cellColor = isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR;
+		} else {
+			// Inactive board color – gray
+			cellColor = DISABLED_BOARD_COLOR;
 		}
-	
+		// Only apply color to cells that are not yet revealed
+		for (int r = 0; r < board.length; r++) {
+			for (int c = 0; c < board[0].length; c++) {
+				if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) {  
+					board[r][c].setBackground(cellColor);
+				}
+			}
+		}
+	}
+
 	//Enables or disables all buttons in a board.
 	private void enableBoard(JButton[][] board, boolean enable) {
 		for (int r = 0; r < board.length; r++)
 			for (int c = 0; c < board[0].length; c++)
 				board[r][c].setEnabled(enable);
 	}
-	
+
 	//Shows a small temporary popup message near a JButton for feedback (points, life changes, etc.)
 	private void showTimedMessage(String message, Color color, JButton button) {
-	    JComponent msg = new JComponent() {
-	        @Override
-	        protected void paintComponent(Graphics g) {
-	            Graphics2D g2 = (Graphics2D) g.create();
-	            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-	                                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-	            g2.setFont(new Font("Arial", Font.BOLD, 26));
-	            FontMetrics fm = g2.getFontMetrics();
-	            int x = 5;
-	            int y = fm.getAscent() + 5;
-	            // Outline
-	            g2.setColor(Color.BLACK);
-	            for (int dx = -2; dx <= 2; dx++) {
-	                for (int dy = -2; dy <= 2; dy++) {
-	                    g2.drawString(message, x + dx, y + dy);
-	                }
-	            }
-	            // Main color
-	            g2.setColor(color);
-	            g2.drawString(message, x, y);
-	            g2.dispose();
-	        }
+		JComponent msg = new JComponent() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				Graphics2D g2 = (Graphics2D) g.create();
+				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+						RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+				g2.setFont(new Font("Arial", Font.BOLD, 26));
+				FontMetrics fm = g2.getFontMetrics();
+				int x = 5;
+				int y = fm.getAscent() + 5;
+				// Outline
+				g2.setColor(Color.BLACK);
+				for (int dx = -2; dx <= 2; dx++) {
+					for (int dy = -2; dy <= 2; dy++) {
+						g2.drawString(message, x + dx, y + dy);
+					}
+				}
+				// Main color
+				g2.setColor(color);
+				g2.drawString(message, x, y);
+				g2.dispose();
+			}
 
-	        @Override
-	        public Dimension getPreferredSize() {
-	            FontMetrics fm = getFontMetrics(new Font("Arial", Font.BOLD, 26));
-	            int w = fm.stringWidth(message) + 20;
-	            int h = fm.getHeight() + 20;
-	            return new Dimension(w, h);
-	        }
-	    };
-	    msg.setOpaque(false);
-	    JWindow popup = new JWindow();
-	    popup.setBackground(new Color(0, 0, 0, 0));
-	    popup.add(msg);
-	    popup.pack();
-	    // IMPROVED POSITIONING - Keep within screen bounds
-	    Point btnOnScreen = button.getLocationOnScreen();
-	    int x = btnOnScreen.x + button.getWidth()/2 - popup.getWidth()/2;
-	    int y = btnOnScreen.y - popup.getHeight() - 5;
-	    // Get screen dimensions
-	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();	    
-	    // Adjust X if too far left or right
-	    if (x < 0) {
-	        x = 10; // Left edge padding
-	    } else if (x + popup.getWidth() > screenSize.width) {
-	        x = screenSize.width - popup.getWidth() - 10; // Right edge padding
-	    }	    
-	    // Adjust Y if too high (near top of screen)
-	    if (y < 0) {
-	        // Show below button instead
-	        y = btnOnScreen.y + button.getHeight() + 5;
-	    }	    
-	    // If still off bottom of screen, clamp it
-	    if (y + popup.getHeight() > screenSize.height) {
-	        y = screenSize.height - popup.getHeight() - 10;
-	    }	    
-	    popup.setLocation(x, y);
-	    popup.setVisible(true);
-	    new javax.swing.Timer(1500, e -> popup.dispose()).start();
+			@Override
+			public Dimension getPreferredSize() {
+				FontMetrics fm = getFontMetrics(new Font("Arial", Font.BOLD, 26));
+				int w = fm.stringWidth(message) + 20;
+				int h = fm.getHeight() + 20;
+				return new Dimension(w, h);
+			}
+		};
+		msg.setOpaque(false);
+		JWindow popup = new JWindow();
+		popup.setBackground(new Color(0, 0, 0, 0));
+		popup.add(msg);
+		popup.pack();
+		// IMPROVED POSITIONING - Keep within screen bounds
+		Point btnOnScreen = button.getLocationOnScreen();
+		int x = btnOnScreen.x + button.getWidth()/2 - popup.getWidth()/2;
+		int y = btnOnScreen.y - popup.getHeight() - 5;
+		// Get screen dimensions
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();	    
+		// Adjust X if too far left or right
+		if (x < 0) {
+			x = 10; // Left edge padding
+		} else if (x + popup.getWidth() > screenSize.width) {
+			x = screenSize.width - popup.getWidth() - 10; // Right edge padding
+		}	    
+		// Adjust Y if too high (near top of screen)
+		if (y < 0) {
+			// Show below button instead
+			y = btnOnScreen.y + button.getHeight() + 5;
+		}	    
+		// If still off bottom of screen, clamp it
+		if (y + popup.getHeight() > screenSize.height) {
+			y = screenSize.height - popup.getHeight() - 10;
+		}	    
+		popup.setLocation(x, y);
+		popup.setVisible(true);
+		new javax.swing.Timer(1500, e -> popup.dispose()).start();
 	}
 	// =============  Reveal all cells at game end =============
 	private void revealAllCells() {
-	    // Reveal left board
-	    for (int r = 0; r < rows; r++) {
-	        for (int c = 0; c < cols; c++) {
-	            if (!GameController.IsCellRevealed(gamenum, true, r, c)) {
-	                GameController.RevealCell(gamenum, true, r, c);
-	            }
-	            showCell(leftBoard[r][c], r, c, true);
-	        }
-	    }	    
-	    // Reveal right board
-	    for (int r = 0; r < rows; r++) {
-	        for (int c = 0; c < cols; c++) {
-	            if (!GameController.IsCellRevealed(gamenum, false, r, c)) {
-	                GameController.RevealCell(gamenum, false, r, c);
-	            }
-	            showCell(rightBoard[r][c], r, c, false);
-	        }
-	    }
+		// Reveal left board
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				if (!GameController.IsCellRevealed(gamenum, true, r, c)) {
+					GameController.RevealCell(gamenum, true, r, c);
+				}
+				showCell(leftBoard[r][c], r, c, true);
+			}
+		}	    
+		// Reveal right board
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				if (!GameController.IsCellRevealed(gamenum, false, r, c)) {
+					GameController.RevealCell(gamenum, false, r, c);
+				}
+				showCell(rightBoard[r][c], r, c, false);
+			}
+		}
 	}
 	// ============= Convert remaining lives to points at game end =============
 	private int convertRemainingLivesToPoints() {
-	    int remainingLives = GameController.getSharedLivesGame(gamenum);
-	    int activationCost = GameController.GetGameSurpriseQuestionCoust(gamenum);
-	    int bonusPoints = remainingLives * activationCost;
-	    
-	    if (bonusPoints > 0) {
-	        GameController.UpdateSharedPoints(gamenum, bonusPoints);
-	    }
-	    
-	    return bonusPoints;
+		int remainingLives = GameController.getSharedLivesGame(gamenum);
+		int activationCost = GameController.GetGameSurpriseQuestionCoust(gamenum);
+		int bonusPoints = remainingLives * activationCost;
+
+		if (bonusPoints > 0) {
+			GameController.UpdateSharedPoints(gamenum, bonusPoints);
+		}
+
+		return bonusPoints;
 	}
 	/**
-     * Observer callback - automatically called when music state changes
-     */
-    @Override
-    public void onMusicStateChanged() {
-        updateMusicIcon();
-        System.out.println("📢 GameBoards: Music state updated");
-    }
- // ========== ADD CLEANUP ==========
-    @Override
-    public void dispose() {
-        musicManager.removeMusicStateListener(this);
-        System.out.println("✓ GameBoards: Unregistered from music updates");
-        super.dispose();
-    }
-    // =================================
+	 * Observer callback - automatically called when music state changes
+	 */
+	@Override
+	public void onMusicStateChanged() {
+		updateMusicIcon();
+		System.out.println("📢 GameBoards: Music state updated");
+	}
+	// Enhanced non-blocking popup that stacks vertically
+	private void showNonBlockingMessage(String message, Color color, JButton button, int duration, int delayBeforeShow) {
+		JWindow popup = new JWindow();
+		popup.setBackground(new Color(0, 0, 0, 0));
+
+		JPanel panel = new JPanel() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				Graphics2D g2 = (Graphics2D) g.create();
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+				// Semi-transparent background
+				g2.setColor(new Color(0, 0, 0, 200));
+				g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+
+				// Border
+				g2.setColor(color);
+				g2.setStroke(new BasicStroke(3));
+				g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+
+				g2.dispose();
+			}
+		};
+
+		JLabel label = new JLabel("<html><div style='text-align: center;'>" + 
+				message.replace("\n", "<br>") + "</div></html>");
+		label.setFont(new Font("Arial", Font.BOLD, 18));
+		label.setForeground(Color.WHITE);
+		label.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+
+		panel.setLayout(new BorderLayout());
+		panel.add(label);
+		panel.setOpaque(false);
+
+		popup.add(panel);
+		popup.pack();
+
+		// Get screen dimensions
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+		// Calculate center position, then move up slightly (40% from top instead of 50%)
+		int x = (screenSize.width - popup.getWidth()) / 2;
+		int y = (int) (screenSize.height * 0.40) - (popup.getHeight() / 2);
+
+		// Stack popups vertically if there are already visible ones
+		Component[] windows = Window.getWindows();
+		int visiblePopups = 0;
+		for (Component w : windows) {
+			if (w instanceof JWindow && w.isVisible()) {
+				visiblePopups++;
+			}
+		}
+
+		// Offset each popup vertically for stacking
+		y += visiblePopups * (popup.getHeight() + 15);
+
+		// Keep within screen bounds
+		x = Math.max(10, Math.min(x, screenSize.width - popup.getWidth() - 10));
+		y = Math.max(10, Math.min(y, screenSize.height - popup.getHeight() - 10));
+
+		popup.setLocation(x, y);
+
+		// Delay showing the popup by delayBeforeShow milliseconds
+		new javax.swing.Timer(delayBeforeShow, e -> {
+			popup.setVisible(true);
+
+			// Timer to close the popup after 'duration' milliseconds
+			javax.swing.Timer closeTimer = new javax.swing.Timer(duration, ev -> popup.dispose());
+			closeTimer.setRepeats(false);
+			closeTimer.start();
+
+			// Stop the delay timer
+			((javax.swing.Timer) e.getSource()).stop();
+		}).start();
+	}
+	// ========== ADD CLEANUP ==========
+	@Override
+	public void dispose() {
+		musicManager.removeMusicStateListener(this);
+		System.out.println("✓ GameBoards: Unregistered from music updates");
+		super.dispose();
+	}
+	// =================================
 
 }
