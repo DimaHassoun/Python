@@ -303,6 +303,28 @@ public class GameController {
 	        return RevealResult.REVEALED_SAFE;
 	    }
 	}
+	//========================= count Mines In Row ==============
+	public static int countMinesInRow(int gameNum, boolean isLeft, int row) {
+	    int count = 0;
+	    int size = getBoardSize(gameNum, isLeft);
+	    for (int c = 0; c < size; c++) {
+	        if (GetCellType(gameNum, isLeft, row, c).equals("MINE")) {
+	            count++;
+	        }
+	    }
+	    return count;
+	}
+	//========================= count Mines In Column ==============
+	public static int countMinesInColumn(int gameNum, boolean isLeft, int col) {
+	    int count = 0;
+	    int size = getBoardSize(gameNum, isLeft);
+	    for (int r = 0; r < size; r++) {
+	        if (GetCellType(gameNum, isLeft, r, col).equals("MINE")) {
+	            count++;
+	        }
+	    }
+	    return count;
+	}
 	//========================= Cell =========================
 	//========================= board =========================
 	//board NOT null
@@ -706,6 +728,8 @@ public class GameController {
 
 	    return chosen; // {row, col}
 	}
+	
+
 
 	/**
 	 * Reveals a 3x3 grid of cells randomly on the specified board -> 
