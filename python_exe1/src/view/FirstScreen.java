@@ -32,7 +32,7 @@ public class FirstScreen extends JFrame implements MusicManager.MusicStateListen
             musicManager.playMusic("src/resource/puzzle-game-bright-casual-video-game-music-249202.wav");
         }
 
-        BackgroundPanel mainPanel = new BackgroundPanel("src/resource/background.jpg");
+        BackgroundPanel mainPanel = new BackgroundPanel("src/resource/BackgroundFirstScreen.png");
         mainPanel.setLayout(null);
         setContentPane(mainPanel);
 
@@ -110,10 +110,8 @@ public class FirstScreen extends JFrame implements MusicManager.MusicStateListen
         });
         mainPanel.add(musicLabel);
 
-        JLabel exit = new JLabel("Exit");
-        exit.setFont(new Font("Verdana", Font.BOLD, 24));
-        exit.setForeground(new Color(246, 230, 138));
-        exit.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        RoundedButton exit = new RoundedButton("Exit");
+        exit.setFont(new Font("Verdana", Font.BOLD, 20));
         exit.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 System.exit(0);
@@ -215,14 +213,14 @@ public class FirstScreen extends JFrame implements MusicManager.MusicStateListen
     }
     // ==============================================
 
-    private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, JLabel exit,
+    private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, RoundedButton exit,
                                     RoundedButton startBtn, RoundedButton historyBtn, RoundedButton managerBtn) {
         int w = getWidth();
         int h = getHeight();
 
         settings.setBounds(30, 30, 60, 60);
         musicLabel.setBounds(110, 30, 60, 60);
-        exit.setBounds(w - 120, 40, 80, 40);
+        exit.setBounds(w - 140, 30, 100, 50);
         title.setBounds(w / 2 - 250, 40, 500, 70);
         startBtn.setBounds(w / 2 - 230, h / 2 - 120, 460, 80);
         historyBtn.setBounds(w / 2 - 230, h / 2 - 10, 460, 80);
@@ -278,6 +276,8 @@ public class FirstScreen extends JFrame implements MusicManager.MusicStateListen
     // ==========================================
 
     static class RoundedButton extends JButton {
+        private boolean isHovered = false;
+
         public RoundedButton(String text) {
             super(text);
             setFont(new Font("Verdana", Font.BOLD, 26));
@@ -287,15 +287,35 @@ public class FirstScreen extends JFrame implements MusicManager.MusicStateListen
             setBorderPainted(false);
             setOpaque(false);
             setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            addMouseListener(new MouseAdapter() {
+                public void mouseEntered(MouseEvent e) {
+                    isHovered = true;
+                    repaint();
+                }
+                public void mouseExited(MouseEvent e) {
+                    isHovered = false;
+                    repaint();
+                }
+            });
         }
 
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            Color bgColor = new Color(80, 0, 120, 170);
+            
+            Color bgColor = isHovered ? 
+                new Color(100, 20, 140, 200) : 
+                new Color(80, 0, 120, 170);
+            
             g2.setColor(bgColor);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 45, 45);
-            g2.setColor(new Color(255, 255, 255, 40));
+            
+            Color borderColor = isHovered ? 
+                new Color(255, 255, 255, 80) : 
+                new Color(255, 255, 255, 40);
+            
+            g2.setColor(borderColor);
             g2.setStroke(new BasicStroke(2));
             g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 45, 45);
             g2.dispose();
