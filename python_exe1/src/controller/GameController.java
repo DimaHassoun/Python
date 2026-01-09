@@ -325,6 +325,30 @@ public class GameController {
 	    }
 	    return count;
 	}
+	//=========================== check if Row is Fully Revealed==========
+	public static boolean isRowFullyRevealed(int gameNum, boolean isLeft, int row) {
+	    int size = GameController.getBoardSize(gameNum, isLeft);
+
+	    for (int col = 0; col < size; col++) {
+	        if (!GameController.IsCellRevealed(gameNum, isLeft, row, col)) {
+	            return false; 
+	        }
+	    }
+	    return true; 
+	}
+
+	//=========================== check if col is Fully Revealed==========
+	public static boolean isColumnFullyRevealed(int gameNum, boolean isLeft, int col) {
+	    int size = GameController.getBoardSize(gameNum, isLeft);
+
+	    for (int row = 0; row < size; row++) {
+	        if (!GameController.IsCellRevealed(gameNum, isLeft, row, col)) {
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+
 	//========================= Cell =========================
 	//========================= board =========================
 	//board NOT null
@@ -423,7 +447,7 @@ public class GameController {
 		Game game = getGame(gameNum);
 		// Deduct activation cost
 		int cost = game.getActivationCost();
-		return "Activating a Surprise costs"+ cost + " points.";
+		return "Activating a Surprise costs "+ cost + " points.";
 	}
 	// check if the cell is a surprise:
 	public static String IsSurprise (int gameNum, boolean isLeft, int row, int col) {
