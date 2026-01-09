@@ -29,10 +29,10 @@ public class FirstScreen extends JFrame implements MusicManager.MusicStateListen
         setLocationRelativeTo(null);
 
         if (musicManager.getCurrentMusicFile() == null) {
-            musicManager.playMusic("src/resource/puzzle-game-bright-casual-video-game-music-249202.wav");
+            musicManager.playMusic("/resource/puzzle-game-bright-casual-video-game-music-249202.wav");
         }
 
-        BackgroundPanel mainPanel = new BackgroundPanel("src/resource/BackgroundFirstScreen.png");
+        BackgroundPanel mainPanel = new BackgroundPanel("/resource/BackgroundFirstScreen.png");
         mainPanel.setLayout(null);
         setContentPane(mainPanel);
 

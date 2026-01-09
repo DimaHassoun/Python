@@ -135,9 +135,9 @@ public abstract class ResultScreen extends JFrame {
         btnNewGame.addActionListener((ActionEvent e) -> {
             dispose();
             if (previousWindow != null) previousWindow.dispose();
-            // Open NewGameScreen with the same players names           
+            // فتح NewGameScreen مع نفس الأسماء
             NewGameScreen newGameScreen = new NewGameScreen();
-            newGameScreen.setPlayerNames(player1, player2); 
+            newGameScreen.setPlayerNames(player1, player2); // تحتاج دالة لتعيين الحقول
             newGameScreen.setVisible(true);
         });
 
@@ -228,4 +228,3 @@ public abstract class ResultScreen extends JFrame {
     }
 
 }
-

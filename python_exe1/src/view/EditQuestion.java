@@ -33,7 +33,7 @@ public class EditQuestion extends JFrame {
         windowSizeManager.applyToFrame(this);
         setLocationRelativeTo(null);
         
-        BackgroundPanel editQuestion = new BackgroundPanel("src/resource/background.jpg");
+        BackgroundPanel editQuestion = new BackgroundPanel("/resource/background.jpg");
         editQuestion.setLayout(new BoxLayout(editQuestion, BoxLayout.Y_AXIS));
         editQuestion.setBorder(BorderFactory.createEmptyBorder(20, 50, 10, 50));
         editQuestion.setBackground(new Color(0, 0, 0, 0)); 

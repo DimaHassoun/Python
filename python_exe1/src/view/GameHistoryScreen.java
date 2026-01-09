@@ -58,7 +58,7 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
         windowSizeManager.applyToFrame(this);
         setLocationRelativeTo(null);
 
-        panel = new BackgroundPanel("src/resource/background.jpg");
+        panel = new BackgroundPanel("/resource/background.jpg");
         panel.setLayout(null);
         setContentPane(panel);
 
@@ -418,27 +418,6 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
             }
         }
     }
-
-    /** Custom Background Panel to scale image proportionally */
-    class BackgroundPanel extends JPanel {
-        private BufferedImage backgroundImage;
-
-        public BackgroundPanel(String imagePath) {
-            try {
-                backgroundImage = ImageIO.read(new File(imagePath));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (backgroundImage != null) {
-                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-            }
-        }
-    }
-    
     /**
      * Observer callback - automatically called when music state changes
      */

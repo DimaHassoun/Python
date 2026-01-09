@@ -31,7 +31,7 @@ public class DeleteQuestions extends JFrame {
         setLocationRelativeTo(null);
 
         // --- Background Panel ---
-        BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
+        BackgroundPanel panel = new BackgroundPanel("/resource/background.jpg");
         panel.setLayout(new BorderLayout(20, 20));
         panel.setBorder(new EmptyBorder(30, 50, 30, 50));
         setContentPane(panel);

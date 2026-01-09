@@ -11,17 +11,57 @@ import java.util.List;
 
 public class GameHistoryController {
 
-    private static final String HISTORY_FILE = "src/resource/history.txt";
+    private static final String HISTORY_FILE = getHistoryFilePath();
     private static final List<GameHistory> historyList = new ArrayList<>();
 
     static {
     	// Load existing history from file when the program starts
         loadHistoryFromFile();
     }
+    
+    /**
+     * Get the correct path for history.txt
+     * - In Eclipse: src/resource/history.txt (for development)
+     * - In JAR: history.txt next to JAR (because JAR is read-only)
+     */
+    private static String getHistoryFilePath() {
+        try {
+            // Get the location of the class
+            String path = GameHistoryController.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath();
+            String decodedPath = java.net.URLDecoder.decode(path, "UTF-8");
+            
+            if (decodedPath.endsWith(".jar")) {
+                // Running from JAR - save next to JAR file
+                File jarFile = new File(decodedPath);
+                File jarDir = jarFile.getParentFile();
+                File historyFile = new File(jarDir, "history.txt");
+                System.out.println("✓ Running from JAR");
+                System.out.println("📁 History location: " + historyFile.getAbsolutePath());
+                return historyFile.getAbsolutePath();
+            } else {
+                // Running from Eclipse - use src/resource/history.txt
+                System.out.println("✓ Running from IDE");
+                System.out.println("📁 History location: src/resource/history.txt");
+                return "src/resource/history.txt";
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback to src/resource for IDE
+            return "src/resource/history.txt";
+        }
+    }
 
     private static void loadHistoryFromFile() {
         File f = new File(HISTORY_FILE);
-        if (!f.exists()) return;
+        if (!f.exists()) {
+            System.out.println(" No history file found - will create on first save");
+            return;
+        }
 
         try (BufferedReader br = new BufferedReader(new FileReader(f))) {
             String line;

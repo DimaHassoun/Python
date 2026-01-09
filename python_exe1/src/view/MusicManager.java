@@ -76,13 +76,17 @@ public class MusicManager {
                 clip.close();
             }
 
-            File musicFile = new File(musicFilePath);
-            if (!musicFile.exists()) {
-                System.err.println("Music file not found: " + musicFilePath);
-                return;
-            }
+            // Load from resources
+	        java.io.InputStream audioSrc = getClass().getResourceAsStream(musicFilePath);
+	        if (audioSrc == null) {
+	            System.err.println("Music file not found in resources: " + musicFilePath);
+	            return;
+	        }
 
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
+	        // Wrap in BufferedInputStream for mark/reset support
+	        java.io.BufferedInputStream bufferedIn = new java.io.BufferedInputStream(audioSrc);
+	        AudioInputStream audioStream = AudioSystem.getAudioInputStream(bufferedIn);
+	        
             clip = AudioSystem.getClip();
             clip.open(audioStream);
 

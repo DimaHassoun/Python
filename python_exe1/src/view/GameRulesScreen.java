@@ -35,40 +35,62 @@ public class GameRulesScreen extends JFrame {
                 + "font-size:16px; padding:20px;'>"
 
                 + "<div style='width:90%; margin:auto;'>"
-
-                // OBJECTIVE
-                + card("🎯 Objective",
-                "Reveal as many safe cells as possible, avoid losing all hearts, and achieve the highest score.<br>"
-                + "Each player has their own board and plays in turns.")
+                
+               
+                
+                + card("🎯 MineSweeper",
+                "Two players take turns revealing cells on separate boards with the goal of uncovering all mines and "
+                + "achieving the highest score, "
+                + "while using a shared pool of hearts and points.")
+                
+                + card("🕹️ How to play:<br>",
+                        "1.Enter both players’ names.<br>"
+                        + "2. Choose the game difficulty (Easy / Medium / Hard).<br>"
+                        + "3.Click the START NEW GAME button to begin.<br>"
+                        + "4.The game starts with 0 points and a shared number of hearts based on the selected difficulty.<br>"
+                        + "5.On your turn, choose <b>one</b> action: reveal a cell or place a flag 🚩 (right-click).<br>"
+                        + "6. Every action ends the turn and passes it to the other player.<br>"
+                        +"<br><br>"
+                        + "<i>Below are the game rules and explanations of each cell type and how the score calculate.</i>"
+                    )
+                
 
              // BOARD STRUCTURE
                 + card("📐 Board Structure",
-                    "Each board contains:<br>"
+                    "Each board contains the following cell types:<br>"
                     + "<ul>"
-                    + "<li>Mines</li>"
+                    + "<li>Mines cells</li>"
                     + "<li>Number cells</li>"
                     + "<li>Empty cells</li>"
                     + "<li>Question cells</li>"
                     + "<li>Surprise cells</li>"
                     + "</ul><br>"
-
+                    
+                    +"<b>🚩 Using a flag:</b>"+"<br>"
+                    +"Using a flag lets you mark suspected mines on your board (right-click to place a flag),"
+                    +" affecting score and ending your turn: correct flags earn points, while incorrect flags incur penalties.<br>"
+                    +"If the cell is flagged, the only allowed action is to unflag it, and the content will be automatically uncovered."
+                    + "<br>"
+                    +"<br>"
+                    
                     + "Each difficulty level has different board dimensions and cell distribution:<br>"
 
                     + "<ul>"
                     + "<li><b>Easy</b> — 9 × 9 (81 cells)<br>"
-                    + "<span style='font-size:14px;'>10 Mines • 6 Questions • 2 Surprises • 10 Hearts • Good Surprise: +1 • Bad Surprise: −1</span></li><br>"
+                    + "<span style='font-size:14px;'>10 Mines • 6 Questions • 2 Surprises • ❤️ 10 Hearts • Good Surprise: +8 pts & +1❤️  • Bad Surprise: -8 pts & -1❤️</span></li><br>"
 
                     + "<li><b>Medium</b> — 13 × 13 (169 cells)<br>"
-                    + "<span style='font-size:14px;'>26 Mines • 7 Questions • 3 Surprises • 8 Hearts • Good Surprise: +1 • Bad Surprise: −1</span></li><br>"
+                    + "<span style='font-size:14px;'>26 Mines • 7 Questions • 3 Surprises • ❤️ 8 Hearts • Good Surprise: +12 pts & +1❤️  • Bad Surprise: -12 pts & -1❤️</span></li><br>"
 
                     + "<li><b>Hard</b> — 16 × 16 (256 cells)<br>"
-                    + "<span style='font-size:14px;'>44 Mines • 11 Questions • 4 Surprises • 6 Hearts • Good Surprise: +1 • Bad Surprise: −1</span></li>"
+                    + "<span style='font-size:14px;'>44 Mines • 11 Questions • 4 Surprises • ❤️ 6 Hearts • Good Surprise: +16 pts & +1❤️  • Bad Surprise: -16 pts & -1❤️</span></li>"
                     + "</ul>"
+                    + "<p>Maximum hearts: 10 ❤️. Extra hearts are automatically converted to points.</p>"
                 )
 
 
                 // CELL TYPES
-                + card("💣 Cell Types",
+                + card(" Cell Types",
                 "<b>1️ Mine Cell</b><br>"
                 + "<ul>"
                 + "<li>Revealing a mine causes heart loss.</li>"
@@ -86,21 +108,21 @@ public class GameRulesScreen extends JFrame {
                 + "<b>3️ Empty Cell</b><br>"
                 + "<ul>"
                 + "<li>No adjacent mines.</li>"
-                + "<li>Triggers cascading auto-reveal.</li>"
+                + "<li>Triggers cascading auto-reveal of connected empty cells and surrounding numbers.</li>"
                 + "</ul>"
 
                 + "<b>4️ Surprise Cell</b><br>"
                 + "<ul>"
-                + "<li>Acts like empty cell until activated.</li>"
-                + "<li>50% good / 50% bad surprise.</li>"
-                + "<li>One-time use.</li>"
+                + "<li>Can be activated only once.</li>"
+                + "<li>50% chance: Good (gain heart & points) / Bad (lose heart & points)</li>"
                 + "</ul>"
 
                 + "<b>5 Question Cell</b><br>"
                 + "<ul>"
                 + "<li>Multiple-choice question (4 answers).</li>"
                 + "<li>4 difficulty levels.</li>"
-                + "<li>Correct/incorrect answers change hearts & points.</li>"
+                + "<li>Correct answer: gain points, hearts, or reveal a mine.</li>"
+                + "<li>Wrong answer: lose points or hearts</li>"
                 + "</ul>"
                 )
 
@@ -110,14 +132,23 @@ public class GameRulesScreen extends JFrame {
                 + "Any action (reveal, flag, activate) ends the turn.<br>"
                 + "Hearts and points start shared based on difficulty.")
 
-                // END GAME
+             // END GAME 
                 + card("🏁 End of Game",
-                "The game ends when:<br>"
-                + "<ul>"
-                + "<li>Hearts reach 0</li>"
-                + "<li>A player reveals all mines on the board</li>"
-                + "</ul>"
-                + "Remaining hearts convert into points.")
+                    "The game ends when:<br>"
+                    + "<ul>"
+                    + "<li>Hearts reach 0 ❤️ </li>"
+                    + "<li>A player reveals all mines on the board</li>"
+                    + "<li>Player reaches the negative score limit by difficulty:</li>"
+                    + "<ul>"
+                    + "<li><b>Easy:</b> -30 points</li>"
+                    + "<li><b>Medium:</b> -40 points</li>"
+                    + "<li><b>Hard:</b> -60 points</li>"
+                    + "</ul>"
+                    + "</ul>"
+                    + "Remaining hearts convert into points.<br>"
+                   
+                    
+                )
 
                 + "</div>"
                 + "</body></html>";

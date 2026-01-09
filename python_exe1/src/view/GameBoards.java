@@ -58,7 +58,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		// Main background
 		JPanel mainBackground = new JPanel(new BorderLayout()) {
 		    private Image bgImage;
-		    { // Load image correctly (no "src/")
+		    { // Load image correctly
 		        java.net.URL imgURL = getClass().getResource("/resource/background.jpg");
 		        if (imgURL != null) {
 		            bgImage = new ImageIcon(imgURL).getImage();

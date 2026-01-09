@@ -41,7 +41,7 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
         setLocationRelativeTo(null);
 
         // Background Panel Setup
-        BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
+        BackgroundPanel panel = new BackgroundPanel("/resource/background.jpg");
         panel.setLayout(new BorderLayout(20, 20));
         panel.setBorder(new EmptyBorder(20, 30, 20, 30));
         setContentPane(panel);

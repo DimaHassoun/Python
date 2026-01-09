@@ -37,7 +37,7 @@ public class AddQuestion extends JFrame {
         setLocationRelativeTo(null);
 
         // Background Panel
-        BackgroundPanel addQuestion = new BackgroundPanel("src/resource/background.jpg");
+        BackgroundPanel addQuestion = new BackgroundPanel("/resource/background.jpg");
         addQuestion.setLayout(new BoxLayout(addQuestion, BoxLayout.Y_AXIS));
         addQuestion.setBorder(BorderFactory.createEmptyBorder(20, 50, 10, 50));
   

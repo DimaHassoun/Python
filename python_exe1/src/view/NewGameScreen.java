@@ -3,6 +3,8 @@ package view;
 import javax.swing.*;
 
 import controller.GameController;
+import view.FirstScreen.RoundedButton;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -33,7 +35,7 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
         windowSizeManager.applyToFrame(this);                 
         setLocationRelativeTo(null);
 
-        BackgroundPanel panel = new BackgroundPanel("src/resource/background.jpg");
+        BackgroundPanel panel = new BackgroundPanel("/resource/background.jpg");
         panel.setLayout(null);
         setContentPane(panel);
         // Create menu for settings
@@ -113,21 +115,20 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
         panel.add(title);
 
         // BACK BUTTON
-        JLabel back = new JLabel("Back");
-        back.setFont(new Font("Verdana", Font.BOLD, 30));
-        back.setForeground(new Color(246, 230, 138));
-        back.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        RoundedButton back = new RoundedButton("Back");
+        back.setFont(new Font("Verdana", Font.BOLD, 20));
         back.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+        	public void mouseClicked(MouseEvent e) {
                 new FirstScreen();
                 NewGameScreen.this.dispose();
             }
         });
         panel.add(back);
+        
 
         // GAME NUMBER
         int nextGameNum = GameController.getNextGameIdFromHistory();
-        JLabel gameNum = new JLabel("Game No.:" + nextGameNum);
+        JLabel gameNum = new JLabel("Game No. " + nextGameNum);
         gameNum.setFont(new Font("Verdana", Font.BOLD, 26));
         gameNum.setForeground(new Color(246, 230, 138));
         panel.add(gameNum);
@@ -170,14 +171,11 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
         panel.add(p2);
 
         // START BUTTON
-        JButton startBtn = new JButton("Start Game");
+        RoundedButton startBtn = new RoundedButton("Start Game");
         startBtn.setFont(new Font("Verdana", Font.BOLD, 28));
-        startBtn.setForeground(Color.BLACK);
-        startBtn.setBackground(new Color(246, 230, 138));
         startBtn.setFocusPainted(false);
-        startBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panel.add(startBtn);
-
+        
         // START BUTTON ACTION
         startBtn.addActionListener(e -> {
             String player1 = p1.getText().trim();
@@ -233,7 +231,7 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
     
     /* Positions and sizes all GUI components within the container.
     * This method uses absolute positioning by setting bounds for each component.*/
-    private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, JLabel back,
+    private void positionComponents(JLabel title, JLabel settings, JLabel musicLabel, RoundedButton back,
                                     JLabel gameNum, JLabel dateLbl, RoundedPanel diffPanel, JLabel diffTitle,
                                     JRadioButton easy, JRadioButton medium, JRadioButton hard,
                                     JTextField p1, JTextField p2, JButton startBtn) {
@@ -242,7 +240,7 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
 
         settings.setBounds(40, 40, 50, 50);
         musicLabel.setBounds(110, 40, 50, 50);
-        back.setBounds(w - 150, 50, 150, 60);
+        back.setBounds(w - 140, 30, 100, 50);
 
         title.setBounds(w / 2 - 350, 40, 700, 80);
 
@@ -366,4 +364,3 @@ public class NewGameScreen extends JFrame implements MusicManager.MusicStateList
     }
     // =================================
 }
-
