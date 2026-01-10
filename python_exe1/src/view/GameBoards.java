@@ -732,58 +732,94 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 
 	// Creates a game board represented as a JPanel containing a grid of buttons.
 	private JPanel createBoard(boolean isLeft) {
-		JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 2, 2));
-		JButton[][] board = new JButton[rows][cols];
-		for (int r = 0; r < rows; r++) {
-			for (int c = 0; c < cols; c++) {
-				JButton cell = new JButton() {
-					@Override
-					protected void paintComponent(Graphics g) {
-						Graphics2D g2 = (Graphics2D) g.create();
-						g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-						g2.setColor(getBackground());
-						g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-						super.paintComponent(g2);
-						g2.dispose();
-					}
+	    JPanel boardPanel = new JPanel(new GridLayout(rows, cols, 2, 2));
+	    JButton[][] board = new JButton[rows][cols];
+	    
+	    // Calculate fixed cell size based on difficulty
+	    final int CELL_SIZE = calculateCellSize();
+	    
+	    for (int r = 0; r < rows; r++) {
+	        for (int c = 0; c < cols; c++) {
+	            JButton cell = new JButton() {
+	                private final Dimension fixedSize = new Dimension(CELL_SIZE, CELL_SIZE);
+	                
+	                @Override
+	                public Dimension getPreferredSize() {
+	                    return fixedSize;
+	                }
+	                
+	                @Override
+	                public Dimension getMinimumSize() {
+	                    return fixedSize;
+	                }
+	                
+	                @Override
+	                public Dimension getMaximumSize() {
+	                    return fixedSize;
+	                }
+	                
+	                @Override
+	                protected void paintComponent(Graphics g) {
+	                    Graphics2D g2 = (Graphics2D) g.create();
+	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	                    g2.setColor(getBackground());
+	                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+	                    super.paintComponent(g2);
+	                    g2.dispose();
+	                }
 
-					@Override
-					protected void paintBorder(Graphics g) {
-						Graphics2D g2 = (Graphics2D) g.create();
-						g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-						if (getBorder() != null) {
-							g2.setColor(new Color(50, 40, 60));
-							g2.setStroke(new BasicStroke(0));
-							g2.drawRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-						}
-						g2.dispose();
-					}
-				};
+	                @Override
+	                protected void paintBorder(Graphics g) {
+	                    Graphics2D g2 = (Graphics2D) g.create();
+	                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	                    if (getBorder() != null) {
+	                        g2.setColor(new Color(50, 40, 60));
+	                        g2.setStroke(new BasicStroke(0));
+	                        g2.drawRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+	                    }
+	                    g2.dispose();
+	                }
+	            };
 
+	            cell.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
+	            cell.setOpaque(false);
+	            cell.setContentAreaFilled(false);
+	            cell.setBorderPainted(true);
+	            
+	            final int row = r, col = c;
+	            cell.addMouseListener(new java.awt.event.MouseAdapter() {
+	                @Override
+	                public void mouseClicked(java.awt.event.MouseEvent e) {
+	                    if (SwingUtilities.isLeftMouseButton(e))
+	                        handleButtonClick(isLeft ? "Left" : "Right", row, col, false);
+	                    else if (SwingUtilities.isRightMouseButton(e))
+	                        handleButtonClick(isLeft ? "Left" : "Right", row, col, true);
+	                }
+	            });
 
-				cell.setPreferredSize(new Dimension(30, 30));
-				cell.setBackground(isLeft ? PLAYER1_ACTIVE_COLOR : PLAYER2_ACTIVE_COLOR);
-				cell.setOpaque(false);
-				cell.setContentAreaFilled(false);
-				cell.setBorderPainted(true);	           
-				final int row = r, col = c;
-				cell.addMouseListener(new java.awt.event.MouseAdapter() {
-					@Override
-					public void mouseClicked(java.awt.event.MouseEvent e) {
-						if (SwingUtilities.isLeftMouseButton(e))
-							handleButtonClick(isLeft ? "Left" : "Right", row, col, false);
-						else if (SwingUtilities.isRightMouseButton(e))
-							handleButtonClick(isLeft ? "Left" : "Right", row, col, true);
-					}
-				});
-
-				board[r][c] = cell;
-				boardPanel.add(cell);
-			}
-		}
-		if (isLeft) leftBoard = board;
-		else rightBoard = board;
-		return boardPanel;
+	            board[r][c] = cell;
+	            boardPanel.add(cell);
+	        }
+	    }
+	    if (isLeft) leftBoard = board;
+	    else rightBoard = board;
+	    return boardPanel;
+	}
+	/**
+	 * Calculate appropriate cell size based on board dimensions
+	 * Ensures cells fit properly in the window while maintaining square shape
+	 */
+	private int calculateCellSize() {
+	    switch (rows) {
+	        case 9:  // Easy
+	            return 40;
+	        case 13: // Medium
+	            return 32;
+	        case 16: // Hard
+	            return 26;
+	        default:
+	            return 30;
+	    }
 	}
 	//Handles actions triggered by clicking a cell button on either the left or right board.
 	private void handleButtonClick(String source, int row, int col, boolean isFlag) {
@@ -971,37 +1007,45 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		}
 		// Handle victory condition
 		if (GameController.IsGameVictory(gamenum)) {
-			// Reveal all cells first
-			revealAllCells();		    
-			// Convert remaining lives to bonus points
-			int bonusPoints = convertRemainingLivesToPoints();		    
-			// Update score display
-			updateScore(GameController.getSharedPoints(gamenum));		    
-			// Show victory screen with updated score
-			int finalScore = GameController.getSharedPoints(gamenum);		    
-			// Optional: Show bonus message if there were remaining lives
-			if (bonusPoints > 0) {
-				MessagePlanet.showBlockingMessageDialog(
-				        this,
-				        "Bonus! +" + bonusPoints + " points for " +
-				        (bonusPoints / GameController.GetGameSurpriseQuestionCoust(gamenum)) +
-				        " remaining lives!",
-				        Color.green, 
-				        "Victory Bonus",
-				        "OK"
-				    );
-			}		    
-			String player1 = GameController.getGame(gamenum).getPlayer1Name();
-			String player2 = GameController.getGame(gamenum).getPlayer2Name();
-			VictoryScreen victoryScreen = new VictoryScreen(finalScore, this ,player1 ,player2);
-			victoryScreen.setVisible(true);		    
-			// Save history game
-			GameHistoryController.createHistoryEntry(
-					GameController.getGame(gamenum),
-					"Victory"
-					);
-			GameController.GameFinish(gamenum);
-			return;
+			if (GameController.IsGameVictory(gamenum)) {
+			    // Calculate bonus immediately
+			    int bonusPoints = convertRemainingLivesToPoints();
+			    updateScore(GameController.getSharedPoints(gamenum));
+			    int finalScore = GameController.getSharedPoints(gamenum);
+			    
+			    // Show victory screen IMMEDIATELY
+			    String player1 = GameController.getGame(gamenum).getPlayer1Name();
+			    String player2 = GameController.getGame(gamenum).getPlayer2Name();
+			    VictoryScreen victoryScreen = new VictoryScreen(finalScore, this, player1, player2);
+			    victoryScreen.setVisible(true);
+			    
+			    // Save history FIRST
+			    GameHistoryController.createHistoryEntry(
+			        GameController.getGame(gamenum),
+			        "Victory"
+			    );
+			    GameController.GameFinish(gamenum);
+			    
+			    // Reveal cells in background AFTER screen is shown
+			    SwingUtilities.invokeLater(() -> {
+			        revealAllCells();
+			        
+			        // Show bonus message AFTER victory screen
+			        if (bonusPoints > 0) {
+			            MessagePlanet.showBlockingMessageDialog(
+			                this,
+			                "Bonus! +" + bonusPoints + " points for " +
+			                (bonusPoints / GameController.GetGameSurpriseQuestionCoust(gamenum)) +
+			                " remaining lives!",
+			                Color.green,
+			                "Victory Bonus",
+			                "OK"
+			            );
+			        }
+			    });
+			    
+			    return;
+			}
 		}
 		// Switch the turn if applicable
 		if (shouldSwitchTurn) {
@@ -1264,20 +1308,28 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 	/* Updates the visual representation of a single cell.
 	 * Sets the icon (emoji) and background color based on cell type.*/
 	private void showCell(JButton button, int r, int c, Boolean isLeft) {
-		if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) return;
-		String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, r, c);
-		String cellType = GameController.GetCellType(gamenum, isLeft, r, c);
-		button.setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, button.getWidth(), button.getHeight())));		
-		if (cellType.equals("EMPTY")) button.setBackground(Color.WHITE);
-		if (cellType.equals("NUMBER")) button.setBackground(new Color(180, 255, 180));
-		if (cellType.equals("MINE")) button.setBackground(new Color(255, 180, 80));
-		if (cellType.equals("SURPRISE")) button.setBackground(Color.yellow);
-		if (cellType.equals("QUESTION")) button.setBackground(new Color(255, 180, 255));		
-		button.setOpaque(false);
-		button.setContentAreaFilled(false);
-		button.setBorderPainted(true);  // Keep border for rounded effect
-		button.setEnabled(false);
-
+	    if (!GameController.IsCellRevealed(gamenum, isLeft, r, c)) return;
+	    
+	    String displayEmoji = GameController.getCellDisplay(gamenum, isLeft, r, c);
+	    String cellType = GameController.GetCellType(gamenum, isLeft, r, c);
+	    
+	    // Use fixed dimensions from the button itself
+	    int iconSize = button.getPreferredSize().width;
+	    button.setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, iconSize, iconSize)));
+	    
+	    if (cellType.equals("EMPTY")) button.setBackground(Color.WHITE);
+	    if (cellType.equals("NUMBER")) button.setBackground(new Color(180, 255, 180));
+	    if (cellType.equals("MINE")) button.setBackground(new Color(255, 180, 80));
+	    if (cellType.equals("SURPRISE")) button.setBackground(Color.yellow);
+	    if (cellType.equals("QUESTION")) button.setBackground(new Color(255, 180, 255));
+	    
+	    button.setOpaque(false);
+	    button.setContentAreaFilled(false);
+	    button.setBorderPainted(true);
+	    button.setEnabled(false);
+	    
+	    // Force repaint without revalidating layout
+	    button.repaint();
 	}
 	// Converts a string emoji to a BufferedImage of specified width and height.
 	private BufferedImage renderEmojiToImage(String emoji, int width, int height) {
