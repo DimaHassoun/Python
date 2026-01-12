@@ -1,6 +1,8 @@
 package view;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -18,6 +20,8 @@ public class DeleteQuestions extends JFrame {
 	private DefaultTableModel model;
 	private JButton deleteSelectedBtn;
 	private WindowSizeManager windowSizeManager;
+	private int flashRow = -1;
+
 	// Constructs the "Delete Questions" window, allowing the user to view, search, and delete questions from a table.
 	public DeleteQuestions(DefaultTableModel originalModel, QuestionManagerScreen parent) {
 		setTitle("Delete Questions");
@@ -76,8 +80,18 @@ public class DeleteQuestions extends JFrame {
 						,0 // delay
 						);
 			} else {
-				table.setRowSelectionInterval(rowIndex, rowIndex);
-				table.scrollRectToVisible(table.getCellRect(rowIndex, 0, true));
+				 // Scroll to row
+			    table.scrollRectToVisible(table.getCellRect(rowIndex, 0, true));
+
+			    // Flash highlight
+			    flashRow = rowIndex;
+			    table.repaint();
+
+			    // Remove highlight after 600 ms
+			    new javax.swing.Timer(600, ev -> {
+			        flashRow = -1;
+			        table.repaint();
+			    }).start();
 			}
 		});
 
@@ -162,11 +176,33 @@ public class DeleteQuestions extends JFrame {
 		table.getColumnModel().getColumn(1).setCellRenderer(textRenderer);
 		table.getColumnModel().getColumn(2).setCellRenderer(textRenderer);
 
-		// Column Widths
+		// 5. Column Widths
 		table.getColumnModel().getColumn(0).setMaxWidth(80);
 		table.getColumnModel().getColumn(0).setPreferredWidth(80);
 		table.getColumnModel().getColumn(1).setMaxWidth(100);
 		table.getColumnModel().getColumn(1).setPreferredWidth(100);
+		
+		// 6. table UI customization & click to select behavior
+		table.setRowSelectionAllowed(false);
+		table.setCellSelectionEnabled(false);
+		table.setColumnSelectionAllowed(false);
+		table.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int row = table.rowAtPoint(e.getPoint());
+		        int col = table.columnAtPoint(e.getPoint());
+
+		        if (row == -1) return;
+
+		        // If he clicks directly on the checkbox, let JTable behave normally.
+		        if (col == 0) return;
+
+		        // Change the value of the checkbox
+		        Boolean current = (Boolean) model.getValueAt(row, 0);
+		        model.setValueAt(!current, row, 0);
+		    }
+		});
+
 
 		// Scroll Pane
 		JScrollPane scroll = new JScrollPane(table);
@@ -282,14 +318,13 @@ public class DeleteQuestions extends JFrame {
 			int width = table.getColumnModel().getColumn(column).getWidth();
 			textArea.setSize(new Dimension(width - 10, 100));
 			// Adjust colors depending on selection
-			if (isSelected) {
-				panel.setBackground(table.getSelectionBackground());
-				textArea.setForeground(table.getSelectionForeground());
+			if (row == flashRow) {
+			    panel.setBackground(new Color(255, 240, 180));
+			    textArea.setForeground(Color.BLACK);
 			} else {
-				panel.setBackground(new Color(230, 210, 240)); 
-				textArea.setForeground(Color.BLACK);
+			    panel.setBackground(new Color(230, 210, 240));
+			    textArea.setForeground(Color.BLACK);
 			}
-
 			return panel;
 		}
 	}
