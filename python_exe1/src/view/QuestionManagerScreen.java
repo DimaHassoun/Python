@@ -25,6 +25,8 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
     private JLabel musicLabel;
     private MusicManager musicManager;
     private WindowSizeManager windowSizeManager;
+    private int lastSelectedRow = -1;
+
 
     public QuestionManagerScreen() {
         setTitle("Question's Manager");
@@ -165,7 +167,8 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
         searchPanel.setOpaque(false);
 
         searchField = new PlaceholderTextField("🔍 Search by Question ID", 30); 
-        searchField.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
+        searchField.setFont(new Font("Dialog", Font.PLAIN, 20));
+        searchField.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         searchField.setPreferredSize(new Dimension(500, 45)); 
         searchField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(246, 230, 138), 2),
@@ -192,14 +195,31 @@ public class QuestionManagerScreen extends JFrame implements MusicManager.MusicS
         // ==========================
         table = new JTable();
         table.setRowHeight(150);
-        table.setFont(new Font("Arial", Font.PLAIN, 13));
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setForeground(new Color(50, 50, 50));
         table.setBackground(new Color(230, 210, 240));
         table.setOpaque(true);
         table.setFillsViewportHeight(true);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int viewRow = table.rowAtPoint(e.getPoint());
+                if (viewRow == -1) return;
+
+             // second click → Deselect
+                if (viewRow == lastSelectedRow) {
+                    table.clearSelection();
+                    lastSelectedRow = -1;
+                } 
+             // first click → select
+                else {
+                    lastSelectedRow = viewRow;
+                }
+            }
+        });
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Verdana", Font.BOLD, 14));
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setBackground(new Color(180, 160, 200));
         header.setForeground(Color.BLACK);
         header.setReorderingAllowed(false);
