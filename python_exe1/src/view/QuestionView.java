@@ -67,7 +67,12 @@ public class QuestionView extends JDialog {
 
 		if (msg != null) { 
 		    // Loading failed — show error and stop creating the dialog
-			showSimpleTimedMessage("Error: " +msg, Color.red);  // example color
+			JOptionPane.showMessageDialog(
+			        null,
+			        "Error: " + msg,
+			        "Question Load Failed",
+			        JOptionPane.ERROR_MESSAGE
+			    );
 		} else {
 		    // Successful load: populate fields from QuestionManagerLogic
 		    Quation_ID = QuestionManagerLogic.getQuestion_ID(); // ID

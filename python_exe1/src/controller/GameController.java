@@ -42,7 +42,11 @@ public class GameController {
 	 * Create a new Game instance based on difficulty and player names
 	 */
 	public static GameBoards  createNewGame(String player1Name, String player2Name, String difficultyString) {
-	    
+	    /**Clear previously answered-correct questions before starting a new game.
+	     * This ensures each new game session starts fresh and prevents
+	     * unintended question carry-over from a previous game.
+	     **/
+		QuestionManagerLogic.clearAnsweredCorrectly();
 	    // Validation with exceptions
 	    if (player1Name == null || player1Name.trim().isEmpty()) {
 	        throw new IllegalArgumentException("Player 1 name cannot be empty");
@@ -394,6 +398,7 @@ public class GameController {
 	//Finishes the game and marks it as ended.
 	public static void GameFinish(int gameNum) {
 		Game game = getGame(gameNum);
+		QuestionManagerLogic.clearAnsweredCorrectly();
 		game.finish();
 	}
 	//Checks whether the game ended in a victory.
@@ -704,22 +709,27 @@ public class GameController {
 		 // ===== APPLY RESULTS =====
 		game.addSharedPoints(pointsChange);
 		game.setSharedLives(game.getSharedLives() + heartsChange);
+		// Don't repeat correctly answered Questions
+		if (isCorrect) {
+		    int questionId = Integer.parseInt(QuestionManagerLogic.getQuestion_ID());
+		    QuestionManagerLogic.addAnsweredCorrectly(questionId);
+		}
 
 		// ===== BUILD MESSAGE =====
 		String message = "";
 		if (pointsChange != 0) {
-			message += (pointsChange > 0 ? "+" : "") + pointsChange + " points\n";
+			message += (pointsChange > 0 ? "+" : "") + pointsChange + " points. ";
 		}
 		if (heartsChange != 0) {
-			message += (heartsChange > 0 ? "+" : "") + heartsChange + " hearts\n";
+			message += (heartsChange > 0 ? "+" : "") + heartsChange + " hearts.";
 		}
 		if (!actionMessage.isEmpty()) {
-			message += "Action: " + actionMessage + "\n";
+			message += "\nAction: " + actionMessage + "\n";
 		}
 		if (message.equals("")) {
 			message = "No change in points, hearts, or actions.";
 		}
-		setCanSwitch(true);
+		setCanSwitch(false);
 		return message;
 	}
 	// Reveals a random hidden mine on the specified board.

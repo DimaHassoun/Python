@@ -655,14 +655,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		restartItem.setBackground(new Color(60, 0, 90));
 		restartItem.addActionListener(e -> restartGame());
 		settingsMenu.add(restartItem);
-
-		/*// Stop Game
-		JMenuItem stopItem = new JMenuItem("⏹ Stop Game");
-		stopItem.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
-		stopItem.setForeground(new Color(246, 230, 138));
-		stopItem.setBackground(new Color(60, 0, 90));
-		stopItem.addActionListener(e -> stopGame());
-		settingsMenu.add(stopItem);*/
 		settingsMenu.show(settingsLabel, 0, settingsLabel.getHeight());
 	}
 
@@ -697,24 +689,6 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			}
 		
 	}
-
-	/*private void stopGame() {
-		// Show a confirmation dialog asking the user if they want to stop the game
-		int response = JOptionPane.showOptionDialog(GameBoards.this,
-				"The game is paused.",
-				"Paused",
-				JOptionPane.DEFAULT_OPTION,
-				JOptionPane.INFORMATION_MESSAGE,
-				null,
-				new String[]{"Resume the game"},
-				"Resume the game"
-				);
-		// If the user clicks "Yes"
-		if (response == 0) {
-			GameController.togglePause(gamenum); // Resume
-		}
-	}*/
-
 	private void toggleMusic() {
 		musicManager.toggleMusic();// Toggle the music playback (play or pause)
 	}
@@ -872,8 +846,9 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		}
 		// Handle flag placement or removal
 		else if (isFlag) {
-			handleFlagAction(isLeft, row, col, buttons);
-		} 
+		    handleFlagAction(isLeft, row, col, buttons);
+		    shouldSwitchTurn = false; 
+		}
 		//if cell is flagged: u can only "Unflag"
 		if (GameController.IsCellFlagged(gamenum, isLeft, row, col)&&!isFlag) {
 			return;
@@ -1138,14 +1113,14 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 					setSharedHearts(GameController.getSharedLivesGame(gamenum)); // update the hearts on this screen
 					buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
 					isBadSurprise=false;
-					return true;
+					return false;
 				case "BAD":
 					showTimedMessage("Surprise Bad! -Life & -" + points + " Points", Color.red, buttons[row][col]);
 					updateScore(GameController.getSharedPoints(gamenum));// update the score on this screen
 					setSharedHearts(GameController.getSharedLivesGame(gamenum));// update the hearts on this screen
 					buttons[row][col].setIcon(new ImageIcon(renderEmojiToImage(displayEmoji, buttons[row][col].getWidth(), buttons[row][col].getHeight())));
 					isBadSurprise=true;
-					return true;
+					return false;
 				}
 			}
 
@@ -1159,7 +1134,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			showTimedMessage("Already used this turn!", Color.gray, buttons[row][col]);
 			return false;
 		}
-		return true ;// No special action needed; turn can continue 
+		return false ;// No special action needed; turn can continue 
 	}
 	//--------------------------------------Question-----------------------------------------------
 	// Handles the action triggered when a player interacts with a "QUESTION" cell.

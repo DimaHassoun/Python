@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
@@ -202,8 +204,38 @@ public class QuestionManagerLogic {
 	private static String cString;
 	private static String dString;
 	private static String Correct_Answer;
+	
+	/**
+	 * A set of question IDs that have been answered correctly during the current game session.
+	 * Used to prevent repeating the same questions in the game.
+	 */
+	private static HashSet<Integer> answeredCorrectlyIds = new HashSet<>();
 
-	//--- New function to get a random question row ---
+	// Call this to add a question ID that was answered correctly
+	public static void addAnsweredCorrectly(int questionId) {
+		answeredCorrectlyIds.add(questionId);
+		System.out.println("added the new Answered Correctly Question in this game: "+ questionId);
+		printAnsweredCorrectlyIds();
+	}
+
+	// Call this to clear after game ends
+	public static void clearAnsweredCorrectly() {
+		answeredCorrectlyIds.clear();
+		System.out.println("Cleared Answered Correctly In previous game: ");
+		printAnsweredCorrectlyIds();
+	}
+
+	public static HashSet<Integer> getAnsweredCorrectlyIds() {
+		return answeredCorrectlyIds;
+	}
+	public static void printAnsweredCorrectlyIds() {
+	    System.out.println("Answered Correctly Question IDs: " + answeredCorrectlyIds);
+	}
+	/***--- Old function to get a random question row.
+	 *  Used for fall back  
+	 * If no new questions are available, 
+	 * allow repetition by selecting any random question
+	 * */
 	public static String[] getRandomQuestion(String csvPath) throws IOException {
 		DefaultTableModel model = loadCSVToTable(csvPath);
 		int rowCount = model.getRowCount();
@@ -220,11 +252,59 @@ public class QuestionManagerLogic {
 		}
 		return questionData;
 	}
+	 /**
+     * Selects and returns a random question from the CSV that has NOT been answered correctly yet.
+     * If all questions have been answered correctly, it falls back to selecting any random question,
+     * allowing repetition.
+     *
+     * input csvPath The file path to the CSV containing all questions.
+     * return An array of Strings representing the columns of the selected question row,
+     *         or null if no questions are available.
+     * throws IOException If there is an error reading the CSV file.
+     */
+	public static String[] getRandomQuestionExcludingAnswered(String csvPath) throws IOException {
+	    DefaultTableModel model = loadCSVToTable(csvPath);
+	    int colCount = model.getColumnCount();
+
+	    // Collect row indices of questions NOT answered correctly
+	    ArrayList<Integer> availableRows = new ArrayList<>();
+	    for (int i = 0; i < model.getRowCount(); i++) {
+	        try {
+	            int id = Integer.parseInt(model.getValueAt(i, 0).toString());
+	            if (!answeredCorrectlyIds.contains(id)) {
+	                availableRows.add(i);
+	            }
+	        } catch (Exception e) {
+	        	System.err.println(e.getMessage());
+	        }
+	    }
+
+	    if (availableRows.isEmpty()) {
+	        // All questions answered correctly, fallback to allowing repeats
+	        return getRandomQuestion(csvPath);
+	    }
+
+	    Random rand = new Random();
+	    int randomRow = availableRows.get(rand.nextInt(availableRows.size()));
+
+	    String[] questionData = new String[colCount];
+	    for (int col = 0; col < colCount; col++) {
+	        Object val = model.getValueAt(randomRow, col);
+	        questionData[col] = (val != null ? val.toString() : "");
+	    }
+	    return questionData;
+	}
+	/**
+     * Loads and fills the current question from the CSV using the filtered random selection,
+     * avoiding repeated correctly answered questions.
+     *
+     * return null if successful, or an error message string if failed to load questions.
+     */
 	public static String fillQuestion() {
 		try {
 			String csvPath = Consts.getCSVPath();
 			String[] randomQuestion =
-					QuestionManagerLogic.getRandomQuestion(csvPath);
+					QuestionManagerLogic.getRandomQuestionExcludingAnswered(csvPath);
 
 			if (randomQuestion == null) {
 				return "No questions found in the CSV file.";
