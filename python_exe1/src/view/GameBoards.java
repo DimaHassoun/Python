@@ -889,7 +889,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 				String player1 = GameController.getGame(gamenum).getPlayer1Name();
 				String player2 = GameController.getGame(gamenum).getPlayer2Name();
 
-				DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+				DefeatScreenByScore defeatScreen = new DefeatScreenByScore(currentScore, this, player1, player2);
 				// Reveal all cells before showing defeat screen
 				revealAllCells();						
 				defeatScreen.setVisible(true);						
@@ -919,7 +919,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			if ( diffG== "MEDIUM" && currentScore <= -40 ) {
 				String player1 = GameController.getGame(gamenum).getPlayer1Name();
 				String player2 = GameController.getGame(gamenum).getPlayer2Name();
-				DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+				DefeatScreenByScore defeatScreen = new DefeatScreenByScore(currentScore, this, player1, player2);
 				// Reveal all cells before showing defeat screen
 				revealAllCells();
 				defeatScreen.setVisible(true);
@@ -950,7 +950,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 			if ( diffG== "MEDIUM" && currentScore <= -60) {
 				String player1 = GameController.getGame(gamenum).getPlayer1Name();
 				String player2 = GameController.getGame(gamenum).getPlayer2Name();						
-				DefeatScreen defeatScreen = new DefeatScreen(currentScore, this, player1, player2);
+				DefeatScreenByScore defeatScreen = new DefeatScreenByScore(currentScore, this, player1, player2);
 				// Reveal all cells before showing defeat screen
 				revealAllCells();						
 				defeatScreen.setVisible(true);						
@@ -968,7 +968,7 @@ public class GameBoards extends JFrame implements MusicManager.MusicStateListene
 		if (GameController.getSharedLivesGame(gamenum) <= 0) {
 			String player1 = GameController.getGame(gamenum).getPlayer1Name();
 			String player2 = GameController.getGame(gamenum).getPlayer2Name();
-			DefeatScreen defeatScreen = new DefeatScreen(GameController.getSharedPoints(gamenum) , this, player1 ,player2);
+			DefeatScreenByHearts defeatScreen = new DefeatScreenByHearts(GameController.getSharedPoints(gamenum) , this, player1 ,player2);
 			// Reveal all cells before showing defeat screen
 			revealAllCells();		    
 			defeatScreen.setVisible(true);			

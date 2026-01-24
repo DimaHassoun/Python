@@ -3,6 +3,7 @@ package view;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
@@ -198,6 +199,37 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
         table.setBackground(new Color(230, 210, 240));
         table.setFillsViewportHeight(true);
 
+        table.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
+
+                Component c = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+
+                if (value != null) {
+                    String result = value.toString().toLowerCase();
+
+                    if (result.contains("Victory") || result.contains("victory")) {
+                        c.setForeground(new Color(0, 150, 0)); // أخضر
+                    } else if (result.contains("Defeat") || result.contains("defeat")) {
+                        c.setForeground(Color.RED); // أحمر
+                    } else {
+                        c.setForeground(Color.BLACK);
+                    }
+                }
+
+                // لو الصف محدد خلي اللون واضح
+                if (isSelected) {
+                    c.setBackground(table.getSelectionBackground());
+                } else {
+                    c.setBackground(table.getBackground());
+                }
+
+                return c;
+            }
+        });
 
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 16));
