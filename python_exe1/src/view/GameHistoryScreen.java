@@ -212,15 +212,13 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
                     String result = value.toString().toLowerCase();
 
                     if (result.contains("Victory") || result.contains("victory")) {
-                        c.setForeground(new Color(0, 150, 0)); // أخضر
+                        c.setForeground(new Color(0, 150, 0)); 
                     } else if (result.contains("Defeat") || result.contains("defeat")) {
-                        c.setForeground(Color.RED); // أحمر
+                        c.setForeground(Color.RED); 
                     } else {
                         c.setForeground(Color.BLACK);
                     }
                 }
-
-                // لو الصف محدد خلي اللون واضح
                 if (isSelected) {
                     c.setBackground(table.getSelectionBackground());
                 } else {
@@ -450,4 +448,5 @@ public class GameHistoryScreen extends JFrame implements MusicManager.MusicState
     }
     // =================================
 }
+
 
