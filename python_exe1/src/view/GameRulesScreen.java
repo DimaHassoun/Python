@@ -53,6 +53,15 @@ public class GameRulesScreen extends JFrame {
                         +"<br><br>"
                         + "<i>Below are the game rules and explanations of each cell type and how the score calculate.</i>"
                     )
+            + card("💡 Hints:",
+                	    "Each player can use the <b>HINT</b> button <b>once</b>.<br>"
+                	    + "<ul>"
+                	    + "<li>The HINT button starts <span style='color: #D9B3FF;'>light purple</span> if the player hasn't used it yet.</li>"
+                	    + "<li>When a player clicks the HINT button for the first time, they receive a hint and the button color changes to show it has been used.</li>"
+                	    + "<li>The second player can also use HINT <b>once</b> during their turn.</li>"
+                	    + "<li>After both players have used their hints, the HINT button becomes <b>gray</b>, shows '<b>USED</b>', and is <b>disabled</b>.</li>"
+                	    + "</ul>"
+                	)
                 
 
              // BOARD STRUCTURE
@@ -192,3 +201,4 @@ public class GameRulesScreen extends JFrame {
                 + "</div>";
     }
 }
+
